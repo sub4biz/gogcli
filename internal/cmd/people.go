@@ -55,13 +55,13 @@ func (c *PeopleMeCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if name != "" {
-		u.Out().Printf("name\t%s", name)
+		u.Out().Linef("name\t%s", name)
 	}
 	if email != "" {
-		u.Out().Printf("email\t%s", email)
+		u.Out().Linef("email\t%s", email)
 	}
 	if photo != "" {
-		u.Out().Printf("photo\t%s", photo)
+		u.Out().Linef("photo\t%s", photo)
 	}
 	return nil
 }

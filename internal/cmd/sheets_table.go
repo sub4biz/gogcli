@@ -121,12 +121,12 @@ func (c *SheetsTableGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"table": table})
 	}
 
-	u.Out().Printf("name\t%s", table.Name)
-	u.Out().Printf("id\t%s", table.TableID)
-	u.Out().Printf("sheet\t%s", table.SheetTitle)
-	u.Out().Printf("a1\t%s", table.A1)
+	u.Out().Linef("name\t%s", table.Name)
+	u.Out().Linef("id\t%s", table.TableID)
+	u.Out().Linef("sheet\t%s", table.SheetTitle)
+	u.Out().Linef("a1\t%s", table.A1)
 	for _, col := range table.Columns {
-		u.Out().Printf("column\t%d\t%s\t%s", col.ColumnIndex, col.ColumnName, col.ColumnType)
+		u.Out().Linef("column\t%d\t%s\t%s", col.ColumnIndex, col.ColumnName, col.ColumnType)
 	}
 	return nil
 }
@@ -214,9 +214,9 @@ func (c *SheetsTableCreateCmd) Run(ctx context.Context, flags *RootFlags) error 
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"table": item})
 	}
 
-	u.Out().Printf("created\t%s", item.TableID)
-	u.Out().Printf("name\t%s", item.Name)
-	u.Out().Printf("a1\t%s", item.A1)
+	u.Out().Linef("created\t%s", item.TableID)
+	u.Out().Linef("name\t%s", item.Name)
+	u.Out().Linef("a1\t%s", item.A1)
 	return nil
 }
 
@@ -288,7 +288,7 @@ func (c *SheetsTableDeleteCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("deleted\t%s", table.TableID)
+	u.Out().Linef("deleted\t%s", table.TableID)
 	return nil
 }
 

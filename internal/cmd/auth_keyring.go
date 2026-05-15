@@ -51,9 +51,9 @@ func (c *AuthKeyringCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if u == nil {
 			return nil
 		}
-		u.Out().Printf("path\t%s", path)
-		u.Out().Printf("keyring_backend\t%s", info.Value)
-		u.Out().Printf("source\t%s", info.Source)
+		u.Out().Linef("path\t%s", path)
+		u.Out().Linef("keyring_backend\t%s", info.Value)
+		u.Out().Linef("source\t%s", info.Source)
 		u.Err().Println("Hint: gog auth keyring <auto|keychain|file>")
 		return nil
 	}
@@ -97,7 +97,7 @@ func (c *AuthKeyringCmd) Run(ctx context.Context, flags *RootFlags) error {
 		u != nil &&
 		!outfmt.IsJSON(ctx) &&
 		!outfmt.IsPlain(ctx) {
-		u.Err().Printf("NOTE: GOG_KEYRING_BACKEND=%s overrides config.json", v)
+		u.Err().Linef("NOTE: GOG_KEYRING_BACKEND=%s overrides config.json", v)
 	}
 
 	if backend == strFile &&
@@ -107,9 +107,9 @@ func (c *AuthKeyringCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if v := strings.TrimSpace(os.Getenv(keyringPasswordEnv)); v != "" {
 			u.Err().Println("GOG_KEYRING_PASSWORD found in environment.")
 		} else if !term.IsTerminal(int(os.Stdin.Fd())) { //nolint:gosec // os file descriptor fits int on supported targets
-			u.Err().Printf("NOTE: file keyring backend in non-interactive context requires %s", keyringPasswordEnv)
+			u.Err().Linef("NOTE: file keyring backend in non-interactive context requires %s", keyringPasswordEnv)
 		} else {
-			u.Err().Printf("Hint: set %s for non-interactive use (CI/ssh)", keyringPasswordEnv)
+			u.Err().Linef("Hint: set %s for non-interactive use (CI/ssh)", keyringPasswordEnv)
 		}
 	}
 
@@ -125,8 +125,8 @@ func (c *AuthKeyringCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return nil
 	}
 
-	u.Out().Printf("written\ttrue")
-	u.Out().Printf("path\t%s", path)
-	u.Out().Printf("keyring_backend\t%s", backend)
+	u.Out().Linef("written\ttrue")
+	u.Out().Linef("path\t%s", path)
+	u.Out().Linef("keyring_backend\t%s", backend)
 	return nil
 }

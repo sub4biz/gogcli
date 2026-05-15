@@ -102,7 +102,7 @@ func (c *SheetsTableAppendCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Appended %d cells to %s", resp.Updates.UpdatedCells, resp.Updates.UpdatedRange)
+	u.Out().Linef("Appended %d cells to %s", resp.Updates.UpdatedCells, resp.Updates.UpdatedRange)
 	return nil
 }
 

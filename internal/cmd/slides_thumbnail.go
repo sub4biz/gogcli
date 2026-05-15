@@ -90,21 +90,21 @@ func (c *SlidesThumbnailCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, result)
 	}
 
-	u.Out().Printf("presentationId\t%s", presentationID)
-	u.Out().Printf("slideId\t%s", slideID)
-	u.Out().Printf("url\t%s", thumb.ContentUrl)
+	u.Out().Linef("presentationId\t%s", presentationID)
+	u.Out().Linef("slideId\t%s", slideID)
+	u.Out().Linef("url\t%s", thumb.ContentUrl)
 	if thumb.Width > 0 {
-		u.Out().Printf("width\t%d", thumb.Width)
+		u.Out().Linef("width\t%d", thumb.Width)
 	}
 	if thumb.Height > 0 {
-		u.Out().Printf("height\t%d", thumb.Height)
+		u.Out().Linef("height\t%d", thumb.Height)
 	}
-	u.Out().Printf("size\t%s", strings.ToLower(size))
-	u.Out().Printf("format\t%s", strings.ToLower(format))
+	u.Out().Linef("size\t%s", strings.ToLower(size))
+	u.Out().Linef("format\t%s", strings.ToLower(format))
 	if outputPath != "" {
-		u.Out().Printf("output\t%s", outputPath)
+		u.Out().Linef("output\t%s", outputPath)
 		if bytes, ok := result["bytes"].(int64); ok {
-			u.Out().Printf("bytes\t%d", bytes)
+			u.Out().Linef("bytes\t%d", bytes)
 		}
 	}
 

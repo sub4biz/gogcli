@@ -183,9 +183,9 @@ func (c *AuthAddCmd) Run(ctx context.Context, flags *RootFlags) error {
 					"state_reused": result.StateReused,
 				})
 			}
-			u.Out().Printf("auth_url\t%s", result.URL)
-			u.Out().Printf("state_reused\t%t", result.StateReused)
-			u.Err().Printf("Run again with the same root flags and %s\n", formatRemoteStep2Instruction(services, c))
+			u.Out().Linef("auth_url\t%s", result.URL)
+			u.Out().Linef("state_reused\t%t", result.StateReused)
+			u.Err().Linef("Run again with the same root flags and %s", formatRemoteStep2Instruction(services, c))
 			return nil
 		case 2:
 			if authCode != "" {
@@ -268,7 +268,7 @@ func (c *AuthAddCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return wrapAuthAddStoreError(err)
 	}
 	if migratedEmail != "" {
-		u.Err().Printf("Migrated auth account from %s to %s", migratedEmail, authorizedEmail)
+		u.Err().Linef("Migrated auth account from %s to %s", migratedEmail, authorizedEmail)
 	}
 
 	if err := store.SetToken(client, authorizedEmail, secrets.Token{
@@ -301,9 +301,9 @@ func (c *AuthAddCmd) Run(ctx context.Context, flags *RootFlags) error {
 			"client":   client,
 		})
 	}
-	u.Out().Printf("email\t%s", authorizedEmail)
-	u.Out().Printf("services\t%s", strings.Join(serviceNames, ","))
-	u.Out().Printf("client\t%s", client)
+	u.Out().Linef("email\t%s", authorizedEmail)
+	u.Out().Linef("services\t%s", strings.Join(serviceNames, ","))
+	u.Out().Linef("client\t%s", client)
 	return nil
 }
 

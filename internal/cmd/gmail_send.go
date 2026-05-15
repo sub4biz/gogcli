@@ -152,7 +152,7 @@ func (c *GmailSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 			return sigErr
 		}
 		if signature.empty() {
-			u.Err().Printf("Warning: no signature configured for %s", source)
+			u.Err().Linef("Warning: no signature configured for %s", source)
 		} else {
 			body, htmlBodyInput = appendComposeSignature(body, htmlBodyInput, signature)
 		}

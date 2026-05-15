@@ -40,7 +40,7 @@ func runSheetsMutation(
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, jsonPayload)
 	}
-	u.Out().Printf("%s", text)
+	u.Out().Linef("%s", text)
 	return nil
 }
 

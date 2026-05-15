@@ -66,8 +66,8 @@ func (c *CalendarTimeCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("timezone\t%s", tz)
-	u.Out().Printf("current_time\t%s", now.Format(time.RFC3339))
-	u.Out().Printf("formatted\t%s", formatted)
+	u.Out().Linef("timezone\t%s", tz)
+	u.Out().Linef("current_time\t%s", now.Format(time.RFC3339))
+	u.Out().Linef("formatted\t%s", formatted)
 	return nil
 }

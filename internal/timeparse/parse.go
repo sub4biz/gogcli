@@ -73,6 +73,10 @@ func ParseDateTimeOrDate(value string, loc *time.Location) (ParsedDateTime, erro
 		return ParsedDateTime{Time: t, HasTime: true}, nil
 	}
 
+	if t, err := time.Parse("2006-01-02T15:04-0700", value); err == nil {
+		return ParsedDateTime{Time: t, HasTime: true}, nil
+	}
+
 	if t, err := time.ParseInLocation("2006-01-02", value, loc); err == nil {
 		return ParsedDateTime{Time: t, HasTime: false}, nil
 	}
@@ -101,18 +105,24 @@ func ParseRangeExpr(expr string, now time.Time, loc *time.Location) (time.Time, 
 	}
 
 	exprLower := strings.ToLower(expr)
+
+	relativeNow := now
+	if loc != nil {
+		relativeNow = now.In(loc)
+	}
+
 	switch exprLower {
 	case "now":
 		return now, nil
 	case "today":
-		return startOfDay(now), nil
+		return startOfDay(relativeNow), nil
 	case "tomorrow":
-		return startOfDay(now.AddDate(0, 0, 1)), nil
+		return startOfDay(relativeNow.AddDate(0, 0, 1)), nil
 	case "yesterday":
-		return startOfDay(now.AddDate(0, 0, -1)), nil
+		return startOfDay(relativeNow.AddDate(0, 0, -1)), nil
 	}
 
-	if t, ok := ParseWeekdayExpr(exprLower, now); ok {
+	if t, ok := ParseWeekdayExpr(exprLower, relativeNow); ok {
 		return t, nil
 	}
 

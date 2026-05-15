@@ -102,6 +102,6 @@ func (c *SlidesReplaceTextCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if resp != nil && resp.WriteControl != nil {
 		revisionID = resp.WriteControl.RequiredRevisionId
 	}
-	u.Out().Printf("ok | revisionId=%s | replaced=%d", revisionID, replaced)
+	u.Out().Linef("ok | revisionId=%s | replaced=%d", revisionID, replaced)
 	return nil
 }

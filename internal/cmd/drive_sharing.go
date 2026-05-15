@@ -111,8 +111,8 @@ func (c *DriveShareCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("link\t%s", link)
-	u.Out().Printf("permission_id\t%s", created.Id)
+	u.Out().Linef("link\t%s", link)
+	u.Out().Linef("permission_id\t%s", created.Id)
 	return nil
 }
 
@@ -332,7 +332,7 @@ func (c *DriveURLCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if outfmt.IsJSON(ctx) {
 			// collected below
 		} else {
-			u.Out().Printf("%s\t%s", id, link)
+			u.Out().Linef("%s\t%s", id, link)
 		}
 	}
 	if outfmt.IsJSON(ctx) {

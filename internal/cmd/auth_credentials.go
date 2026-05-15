@@ -77,8 +77,8 @@ func (c *AuthCredentialsSetCmd) Run(ctx context.Context, _ *RootFlags) error {
 			"client": client,
 		})
 	}
-	u.Out().Printf("path\t%s", outPath)
-	u.Out().Printf("client\t%s", client)
+	u.Out().Linef("path\t%s", outPath)
+	u.Out().Linef("client\t%s", client)
 	return nil
 }
 

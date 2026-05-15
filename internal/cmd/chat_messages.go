@@ -219,14 +219,14 @@ func (c *ChatMessagesSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if resp == nil {
-		u.Out().Printf("space\t%s", space)
+		u.Out().Linef("space\t%s", space)
 		return nil
 	}
 	if resp.Name != "" {
-		u.Out().Printf("resource\t%s", resp.Name)
+		u.Out().Linef("resource\t%s", resp.Name)
 	}
 	if resp.Thread != nil && resp.Thread.Name != "" {
-		u.Out().Printf("thread\t%s", resp.Thread.Name)
+		u.Out().Linef("thread\t%s", resp.Thread.Name)
 	}
 	return nil
 }

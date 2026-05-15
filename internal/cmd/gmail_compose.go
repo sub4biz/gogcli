@@ -194,14 +194,14 @@ func writeGmailMessageResults(ctx context.Context, u *ui.UI, results []gmailMess
 			u.Out().Println("")
 		}
 		if len(results) > 1 && r.To != "" {
-			u.Out().Printf("to\t%s", r.To)
+			u.Out().Linef("to\t%s", r.To)
 		}
-		u.Out().Printf("message_id\t%s", r.MessageID)
+		u.Out().Linef("message_id\t%s", r.MessageID)
 		if r.ThreadID != "" {
-			u.Out().Printf("thread_id\t%s", r.ThreadID)
+			u.Out().Linef("thread_id\t%s", r.ThreadID)
 		}
 		if r.TrackingID != "" {
-			u.Out().Printf("tracking_id\t%s", r.TrackingID)
+			u.Out().Linef("tracking_id\t%s", r.TrackingID)
 		}
 	}
 	return nil

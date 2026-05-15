@@ -116,15 +116,15 @@ func (k *fileSafeKeyring) Remove(key string) error {
 	encodedErr := k.inner.Remove(fileSafeKey(key))
 	legacyErr := k.inner.Remove(key)
 
-	if encodedErr == nil || legacyErr == nil {
+	if (encodedErr == nil || fileKeyNotFound(encodedErr)) && (legacyErr == nil || fileKeyNotFound(legacyErr)) {
+		if fileKeyNotFound(encodedErr) && fileKeyNotFound(legacyErr) {
+			return keyring.ErrKeyNotFound
+		}
+
 		return nil
 	}
 
-	if fileKeyNotFound(encodedErr) && fileKeyNotFound(legacyErr) {
-		return keyring.ErrKeyNotFound
-	}
-
-	if !fileKeyNotFound(encodedErr) {
+	if encodedErr != nil && !fileKeyNotFound(encodedErr) {
 		return fmt.Errorf("remove encoded file keyring item: %w", encodedErr)
 	}
 

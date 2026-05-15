@@ -134,8 +134,8 @@ func (c *MeetEndCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("ended\ttrue")
-	u.Out().Printf("meeting_code\t%s", c.MeetingCode)
+	u.Out().Linef("ended\ttrue")
+	u.Out().Linef("meeting_code\t%s", c.MeetingCode)
 
 	return nil
 }

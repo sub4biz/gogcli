@@ -94,21 +94,21 @@ func (c *AuthStatusCmd) Run(ctx context.Context, flags *RootFlags) error {
 			},
 		})
 	}
-	u.Out().Printf("config_path\t%s", configPath)
-	u.Out().Printf("config_exists\t%t", configExists)
-	u.Out().Printf("keyring_backend\t%s", backendInfo.Value)
-	u.Out().Printf("keyring_backend_source\t%s", backendInfo.Source)
+	u.Out().Linef("config_path\t%s", configPath)
+	u.Out().Linef("config_exists\t%t", configExists)
+	u.Out().Linef("keyring_backend\t%s", backendInfo.Value)
+	u.Out().Linef("keyring_backend_source\t%s", backendInfo.Source)
 	if account != "" {
-		u.Out().Printf("account\t%s", account)
-		u.Out().Printf("client\t%s", client)
+		u.Out().Linef("account\t%s", account)
+		u.Out().Linef("client\t%s", client)
 		if credentialsPath != "" {
-			u.Out().Printf("credentials_path\t%s", credentialsPath)
+			u.Out().Linef("credentials_path\t%s", credentialsPath)
 		}
-		u.Out().Printf("credentials_exists\t%t", credentialsExists)
-		u.Out().Printf("auth_preferred\t%s", authPreferred)
-		u.Out().Printf("service_account_configured\t%t", serviceAccountConfigured)
+		u.Out().Linef("credentials_exists\t%t", credentialsExists)
+		u.Out().Linef("auth_preferred\t%s", authPreferred)
+		u.Out().Linef("service_account_configured\t%t", serviceAccountConfigured)
 		if serviceAccountPath != "" {
-			u.Out().Printf("service_account_path\t%s", serviceAccountPath)
+			u.Out().Linef("service_account_path\t%s", serviceAccountPath)
 		}
 	}
 	return nil
@@ -344,8 +344,8 @@ func (c *AuthKeepCmd) Run(ctx context.Context, _ *RootFlags) error {
 			"paths":  []string{destPath, genericPath},
 		})
 	}
-	u.Out().Printf("email\t%s", email)
-	u.Out().Printf("path\t%s", destPath)
+	u.Out().Linef("email\t%s", email)
+	u.Out().Linef("path\t%s", destPath)
 	u.Out().Println("Keep service account configured. Use: gog keep list --account " + email)
 	return nil
 }

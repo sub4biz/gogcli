@@ -3,6 +3,8 @@ package googleauth
 import (
 	"errors"
 	"path/filepath"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/99designs/keyring"
@@ -14,13 +16,28 @@ import (
 type migrationStore struct {
 	tokens       map[string]secrets.Token
 	defaultEmail string
+	listNewOnly  bool
 }
 
 func newMigrationStore() *migrationStore {
 	return &migrationStore{tokens: make(map[string]secrets.Token)}
 }
 
-func (s *migrationStore) Keys() ([]string, error) { return nil, nil }
+func (s *migrationStore) Keys() ([]string, error) {
+	keys := make([]string, 0, len(s.tokens))
+	for key := range s.tokens {
+		client, email, ok := strings.Cut(key, "\n")
+		if !ok {
+			continue
+		}
+
+		keys = append(keys, secrets.TokenKey(client, email))
+	}
+
+	sort.Strings(keys)
+
+	return keys, nil
+}
 
 func (s *migrationStore) SetToken(client string, email string, tok secrets.Token) error {
 	if client == "" {
@@ -60,6 +77,10 @@ func (s *migrationStore) DeleteToken(client string, email string) error {
 func (s *migrationStore) ListTokens() ([]secrets.Token, error) {
 	out := make([]secrets.Token, 0, len(s.tokens))
 	for _, tok := range s.tokens {
+		if s.listNewOnly && tok.Email != "new@example.com" {
+			continue
+		}
+
 		out = append(out, tok)
 	}
 
@@ -133,5 +154,48 @@ func TestMigrateStoredSubjectIdentityUpdatesEmailState(t *testing.T) {
 
 	if _, ok := updated.AccountClients["old@example.com"]; ok {
 		t.Fatalf("expected old account client removed, got %#v", updated.AccountClients)
+	}
+}
+
+func TestMigrateStoredSubjectIdentityDeletesOldWhenNewAlreadyStored(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "xdg"))
+
+	store := newMigrationStore()
+
+	store.listNewOnly = true
+	if err := store.SetToken(config.DefaultClientName, "new@example.com", secrets.Token{
+		Subject:      "sub-123",
+		RefreshToken: "rt-new",
+	}); err != nil {
+		t.Fatalf("SetToken new: %v", err)
+	}
+
+	if err := store.SetToken(config.DefaultClientName, "old@example.com", secrets.Token{
+		Subject:      "sub-123",
+		RefreshToken: "rt-old",
+	}); err != nil {
+		t.Fatalf("SetToken old: %v", err)
+	}
+
+	migrated, err := MigrateStoredSubjectIdentity(store, config.DefaultClientName, Identity{
+		Subject: "sub-123",
+		Email:   "new@example.com",
+	})
+	if err != nil {
+		t.Fatalf("MigrateStoredSubjectIdentity: %v", err)
+	}
+
+	if migrated != "old@example.com" {
+		t.Fatalf("expected migrated old email, got %q", migrated)
+	}
+
+	if _, getErr := store.GetToken(config.DefaultClientName, "old@example.com"); !errors.Is(getErr, keyring.ErrKeyNotFound) {
+		t.Fatalf("expected old token deleted, got %v", getErr)
+	}
+
+	if _, getErr := store.GetToken(config.DefaultClientName, "new@example.com"); getErr != nil {
+		t.Fatalf("expected new token kept, got %v", getErr)
 	}
 }

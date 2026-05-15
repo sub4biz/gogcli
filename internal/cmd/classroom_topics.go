@@ -102,10 +102,10 @@ func (c *ClassroomTopicsGetCmd) Run(ctx context.Context, flags *RootFlags) error
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"topic": topic})
 	}
 
-	u.Out().Printf("id\t%s", topic.TopicId)
-	u.Out().Printf("name\t%s", topic.Name)
+	u.Out().Linef("id\t%s", topic.TopicId)
+	u.Out().Linef("name\t%s", topic.Name)
 	if topic.UpdateTime != "" {
-		u.Out().Printf("updated\t%s", topic.UpdateTime)
+		u.Out().Linef("updated\t%s", topic.UpdateTime)
 	}
 	return nil
 }
@@ -147,8 +147,8 @@ func (c *ClassroomTopicsCreateCmd) Run(ctx context.Context, flags *RootFlags) er
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"topic": created})
 	}
-	u.Out().Printf("id\t%s", created.TopicId)
-	u.Out().Printf("name\t%s", created.Name)
+	u.Out().Linef("id\t%s", created.TopicId)
+	u.Out().Linef("name\t%s", created.Name)
 	return nil
 }
 
@@ -196,8 +196,8 @@ func (c *ClassroomTopicsUpdateCmd) Run(ctx context.Context, flags *RootFlags) er
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"topic": updated})
 	}
-	u.Out().Printf("id\t%s", updated.TopicId)
-	u.Out().Printf("name\t%s", updated.Name)
+	u.Out().Linef("id\t%s", updated.TopicId)
+	u.Out().Linef("name\t%s", updated.Name)
 	return nil
 }
 

@@ -163,10 +163,10 @@ func (c *SheetsChartGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 			if sheet.Properties != nil {
 				sheetTitle = sheet.Properties.Title
 			}
-			u.Out().Printf("chartId\t%d\n", ch.ChartId)
-			u.Out().Printf("title\t%s\n", title)
-			u.Out().Printf("type\t%s\n", chartType)
-			u.Out().Printf("sheet\t%s\n", sheetTitle)
+			u.Out().Linef("chartId\t%d", ch.ChartId)
+			u.Out().Linef("title\t%s", title)
+			u.Out().Linef("type\t%s", chartType)
+			u.Out().Linef("sheet\t%s", sheetTitle)
 			return nil
 		}
 	}
@@ -275,7 +275,7 @@ func (c *SheetsChartCreateCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Created chart %d in spreadsheet %s", chartID, spreadsheetID)
+	u.Out().Linef("Created chart %d in spreadsheet %s", chartID, spreadsheetID)
 	return nil
 }
 
@@ -356,7 +356,7 @@ func (c *SheetsChartUpdateCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Updated chart %d in spreadsheet %s", c.ChartID, spreadsheetID)
+	u.Out().Linef("Updated chart %d in spreadsheet %s", c.ChartID, spreadsheetID)
 	return nil
 }
 
@@ -416,6 +416,6 @@ func (c *SheetsChartDeleteCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Deleted chart %d from spreadsheet %s", c.ChartID, spreadsheetID)
+	u.Out().Linef("Deleted chart %d from spreadsheet %s", c.ChartID, spreadsheetID)
 	return nil
 }

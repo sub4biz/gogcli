@@ -96,7 +96,7 @@ func (c *SheetsBandingSetCmd) Run(ctx context.Context, flags *RootFlags) error {
 			"range":         rangeSpec,
 		})
 	}
-	u.Out().Printf("Applied banding %d to %s", bandedRangeID, rangeSpec)
+	u.Out().Linef("Applied banding %d to %s", bandedRangeID, rangeSpec)
 	return nil
 }
 
@@ -246,7 +246,7 @@ func (c *SheetsBandingClearCmd) Run(ctx context.Context, flags *RootFlags) error
 			"removed":       removed,
 		})
 	}
-	ui.FromContext(ctx).Out().Printf("Removed %d banded ranges", removed)
+	ui.FromContext(ctx).Out().Linef("Removed %d banded ranges", removed)
 	return nil
 }
 

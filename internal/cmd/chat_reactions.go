@@ -80,7 +80,7 @@ func (c *ChatMessagesReactionsCreateCmd) Run(ctx context.Context, flags *RootFla
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"reaction": resp})
 	}
 
-	u.Out().Printf("resource\t%s", resp.Name)
+	u.Out().Linef("resource\t%s", resp.Name)
 	return nil
 }
 
@@ -213,7 +213,7 @@ func (c *ChatMessagesReactionsDeleteCmd) Run(ctx context.Context, flags *RootFla
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"deleted": reaction})
 	}
 
-	u.Out().Printf("deleted\t%s", reaction)
+	u.Out().Linef("deleted\t%s", reaction)
 	return nil
 }
 

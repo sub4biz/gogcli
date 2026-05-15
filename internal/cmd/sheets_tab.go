@@ -96,10 +96,10 @@ func (c *SheetsAddTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if c.Index != nil || hasNewIndex {
-		u.Out().Printf("Added tab %q (sheetId %d, index %d) to spreadsheet %s", tabName, newSheetID, newIndex, spreadsheetID)
+		u.Out().Linef("Added tab %q (sheetId %d, index %d) to spreadsheet %s", tabName, newSheetID, newIndex, spreadsheetID)
 		return nil
 	}
-	u.Out().Printf("Added tab %q (sheetId %d) to spreadsheet %s", tabName, newSheetID, spreadsheetID)
+	u.Out().Linef("Added tab %q (sheetId %d) to spreadsheet %s", tabName, newSheetID, spreadsheetID)
 	return nil
 }
 
@@ -181,7 +181,7 @@ func (c *SheetsRenameTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Renamed tab %q to %q in spreadsheet %s", oldName, newName, spreadsheetID)
+	u.Out().Linef("Renamed tab %q to %q in spreadsheet %s", oldName, newName, spreadsheetID)
 	return nil
 }
 
@@ -256,6 +256,6 @@ func (c *SheetsDeleteTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Deleted tab %q (sheetId %d) from spreadsheet %s", tabName, sheetID, spreadsheetID)
+	u.Out().Linef("Deleted tab %q (sheetId %d) from spreadsheet %s", tabName, sheetID, spreadsheetID)
 	return nil
 }

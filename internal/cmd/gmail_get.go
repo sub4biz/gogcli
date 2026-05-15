@@ -118,9 +118,9 @@ func (c *GmailGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("id\t%s", msg.Id)
-	u.Out().Printf("thread_id\t%s", msg.ThreadId)
-	u.Out().Printf("label_ids\t%s", strings.Join(msg.LabelIds, ","))
+	u.Out().Linef("id\t%s", msg.Id)
+	u.Out().Linef("thread_id\t%s", msg.ThreadId)
+	u.Out().Linef("label_ids\t%s", strings.Join(msg.LabelIds, ","))
 
 	switch format {
 	case gmailFormatRaw:
@@ -143,14 +143,14 @@ func (c *GmailGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 			}
 			return value
 		}
-		u.Out().Printf("from\t%s", header("From"))
-		u.Out().Printf("to\t%s", header("To"))
-		u.Out().Printf("cc\t%s", header("Cc"))
-		u.Out().Printf("bcc\t%s", header("Bcc"))
-		u.Out().Printf("subject\t%s", header("Subject"))
-		u.Out().Printf("date\t%s", header("Date"))
+		u.Out().Linef("from\t%s", header("From"))
+		u.Out().Linef("to\t%s", header("To"))
+		u.Out().Linef("cc\t%s", header("Cc"))
+		u.Out().Linef("bcc\t%s", header("Bcc"))
+		u.Out().Linef("subject\t%s", header("Subject"))
+		u.Out().Linef("date\t%s", header("Date"))
 		if unsubscribe != "" && !c.SanitizeContent {
-			u.Out().Printf("unsubscribe\t%s", unsubscribe)
+			u.Out().Linef("unsubscribe\t%s", unsubscribe)
 		}
 		attachments := attachmentOutputs(collectAttachments(msg.Payload))
 		if len(attachments) > 0 {

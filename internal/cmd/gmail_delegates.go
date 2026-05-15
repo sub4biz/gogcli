@@ -145,6 +145,6 @@ func (c *GmailDelegatesRemoveCmd) Run(ctx context.Context, flags *RootFlags) err
 		})
 	}
 
-	ui.FromContext(ctx).Out().Printf("Delegate %s removed successfully", delegateEmail)
+	ui.FromContext(ctx).Out().Linef("Delegate %s removed successfully", delegateEmail)
 	return nil
 }

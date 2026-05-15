@@ -254,14 +254,14 @@ func writePhotosMediaItem(ctx context.Context, item *googleapi.PhotosMediaItem) 
 		u.Err().Println("No media item")
 		return nil
 	}
-	u.Out().Printf("id\t%s", item.ID)
-	u.Out().Printf("filename\t%s", item.Filename)
-	u.Out().Printf("mime\t%s", item.MimeType)
+	u.Out().Linef("id\t%s", item.ID)
+	u.Out().Linef("filename\t%s", item.Filename)
+	u.Out().Linef("mime\t%s", item.MimeType)
 	if created := photosCreationTime(item); created != "" {
-		u.Out().Printf("created\t%s", created)
+		u.Out().Linef("created\t%s", created)
 	}
 	if item.ProductURL != "" {
-		u.Out().Printf("product_url\t%s", item.ProductURL)
+		u.Out().Linef("product_url\t%s", item.ProductURL)
 	}
 	return nil
 }

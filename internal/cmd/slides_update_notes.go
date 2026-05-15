@@ -77,6 +77,6 @@ func (c *SlidesUpdateNotesCmd) Run(ctx context.Context, flags *RootFlags) error 
 		return fmt.Errorf("update speaker notes: %w", err)
 	}
 
-	u.Out().Printf("Updated notes on slide %s", slideID)
+	u.Out().Linef("Updated notes on slide %s", slideID)
 	return nil
 }

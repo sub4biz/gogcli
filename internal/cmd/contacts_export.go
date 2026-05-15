@@ -65,7 +65,7 @@ func (c *ContactsExportCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err := os.WriteFile(c.Out, buf.Bytes(), 0o600); err != nil {
 		return err
 	}
-	u.Err().Printf("Exported %d contact%s to %s\n", len(contacts), pluralS(len(contacts)), c.Out)
+	u.Err().Linef("Exported %d contact%s to %s", len(contacts), pluralS(len(contacts)), c.Out)
 	return nil
 }
 

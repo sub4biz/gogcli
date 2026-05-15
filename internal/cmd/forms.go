@@ -143,7 +143,7 @@ func (c *FormsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("created\ttrue")
+	u.Out().Linef("created\ttrue")
 	printFormSummary(u, form, formID)
 	u.Err().Println("")
 	u.Err().Println("# Tip: Email notifications for new responses must be enabled manually:")
@@ -207,7 +207,7 @@ func (c *FormsResponsesListCmd) Run(ctx context.Context, flags *RootFlags) error
 			continue
 		}
 		submitted := firstFormTime(item.LastSubmittedTime, item.CreateTime)
-		u.Out().Printf("%s\t%s\t%s", item.ResponseId, submitted, item.RespondentEmail)
+		u.Out().Linef("%s\t%s\t%s", item.ResponseId, submitted, item.RespondentEmail)
 	}
 	if next := strings.TrimSpace(resp.NextPageToken); next != "" {
 		u.Err().Println("# Next page: --page " + next)
@@ -250,14 +250,14 @@ func (c *FormsResponseGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("response_id\t%s", resp.ResponseId)
-	u.Out().Printf("submitted\t%s", firstFormTime(resp.LastSubmittedTime, resp.CreateTime))
+	u.Out().Linef("response_id\t%s", resp.ResponseId)
+	u.Out().Linef("submitted\t%s", firstFormTime(resp.LastSubmittedTime, resp.CreateTime))
 	if resp.RespondentEmail != "" {
-		u.Out().Printf("email\t%s", resp.RespondentEmail)
+		u.Out().Linef("email\t%s", resp.RespondentEmail)
 	}
-	u.Out().Printf("answers\t%d", len(resp.Answers))
+	u.Out().Linef("answers\t%d", len(resp.Answers))
 	if resp.TotalScore != 0 {
-		u.Out().Printf("total_score\t%s", strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.2f", resp.TotalScore), "0"), "."))
+		u.Out().Linef("total_score\t%s", strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.2f", resp.TotalScore), "0"), "."))
 	}
 	return nil
 }
@@ -270,19 +270,19 @@ func printFormSummary(u *ui.UI, form *formsapi.Form, fallbackID string) {
 	if formID == "" {
 		formID = strings.TrimSpace(fallbackID)
 	}
-	u.Out().Printf("id\t%s", formID)
+	u.Out().Linef("id\t%s", formID)
 	if form.Info != nil {
 		if form.Info.Title != "" {
-			u.Out().Printf("title\t%s", form.Info.Title)
+			u.Out().Linef("title\t%s", form.Info.Title)
 		}
 		if form.Info.Description != "" {
-			u.Out().Printf("description\t%s", form.Info.Description)
+			u.Out().Linef("description\t%s", form.Info.Description)
 		}
 	}
 	if form.ResponderUri != "" {
-		u.Out().Printf("responder_uri\t%s", form.ResponderUri)
+		u.Out().Linef("responder_uri\t%s", form.ResponderUri)
 	}
-	u.Out().Printf("edit_url\t%s", formEditURL(formID))
+	u.Out().Linef("edit_url\t%s", formEditURL(formID))
 }
 
 func formEditURL(formID string) string {

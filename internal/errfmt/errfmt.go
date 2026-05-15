@@ -19,6 +19,11 @@ func Format(err error) string {
 		return ""
 	}
 
+	var userErr *UserFacingError
+	if errors.As(err, &userErr) {
+		return userErr.Message
+	}
+
 	// Handle Kong parse errors with better messaging
 	var parseErr *kong.ParseError
 	if errors.As(err, &parseErr) {
@@ -60,11 +65,6 @@ func Format(err error) string {
 
 	if errors.Is(err, os.ErrNotExist) {
 		return err.Error()
-	}
-
-	var userErr *UserFacingError
-	if errors.As(err, &userErr) {
-		return userErr.Message
 	}
 
 	var gerr *ggoogleapi.Error

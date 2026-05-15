@@ -163,7 +163,7 @@ func listCalendarIDsEvents(ctx context.Context, svc *calendar.Service, calendarI
 
 		events, _, err := loadPagedItems(page, allPages, fetch)
 		if err != nil {
-			u.Err().Printf("calendar %s: %v", calID, err)
+			u.Err().Linef("calendar %s: %v", calID, err)
 			continue
 		}
 

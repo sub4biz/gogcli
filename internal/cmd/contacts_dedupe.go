@@ -265,7 +265,7 @@ func writeContactsDedupe(ctx context.Context, u *ui.UI, groups []contactsDedupeG
 	}
 	if len(groups) == 0 {
 		if u != nil {
-			u.Err().Printf("No duplicate contacts found (scanned %d)", scanned)
+			u.Err().Linef("No duplicate contacts found (scanned %d)", scanned)
 		}
 		return nil
 	}

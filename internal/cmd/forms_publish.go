@@ -102,12 +102,12 @@ func setFormPublishState(ctx context.Context, flags *RootFlags, publishReq formP
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("published\t%t", publishReq.Published)
-	u.Out().Printf("accepting_responses\t%t", publishReq.AcceptingResponses)
-	u.Out().Printf("form_id\t%s", formID)
+	u.Out().Linef("published\t%t", publishReq.Published)
+	u.Out().Linef("accepting_responses\t%t", publishReq.AcceptingResponses)
+	u.Out().Linef("form_id\t%s", formID)
 	if responderURI != "" {
-		u.Out().Printf("responder_uri\t%s", responderURI)
+		u.Out().Linef("responder_uri\t%s", responderURI)
 	}
-	u.Out().Printf("edit_url\t%s", formEditURL(formID))
+	u.Out().Linef("edit_url\t%s", formEditURL(formID))
 	return nil
 }

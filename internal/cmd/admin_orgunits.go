@@ -165,7 +165,7 @@ func (c *AdminOrgunitsCreateCmd) Run(ctx context.Context, flags *RootFlags) erro
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, created)
 	}
-	u.Out().Printf("Created org unit: %s (%s)\n", created.Name, created.OrgUnitPath)
+	u.Out().Linef("Created org unit: %s (%s)", created.Name, created.OrgUnitPath)
 	return nil
 }
 
@@ -231,7 +231,7 @@ func (c *AdminOrgunitsUpdateCmd) Run(ctx context.Context, flags *RootFlags) erro
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, updated)
 	}
-	u.Out().Printf("Updated org unit: %s (%s)\n", updated.Name, updated.OrgUnitPath)
+	u.Out().Linef("Updated org unit: %s (%s)", updated.Name, updated.OrgUnitPath)
 	return nil
 }
 

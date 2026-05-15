@@ -687,7 +687,7 @@ func gmailBackupProgressf(ctx context.Context, format string, args ...any) {
 	if u == nil {
 		return
 	}
-	u.Err().Printf(format, args...)
+	u.Err().Linef(format, args...)
 }
 
 type gmailBackupMessageRef struct {

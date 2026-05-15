@@ -143,6 +143,6 @@ func (c *GmailForwardingDeleteCmd) Run(ctx context.Context, flags *RootFlags) er
 		})
 	}
 
-	ui.FromContext(ctx).Out().Printf("Forwarding address %s deleted successfully", forwardingEmail)
+	ui.FromContext(ctx).Out().Linef("Forwarding address %s deleted successfully", forwardingEmail)
 	return nil
 }

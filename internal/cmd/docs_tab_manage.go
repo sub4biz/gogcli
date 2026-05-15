@@ -94,17 +94,17 @@ func (c *DocsAddTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("docId\t%s", docID)
+	u.Out().Linef("docId\t%s", docID)
 	if created != nil {
-		u.Out().Printf("tabId\t%s", created.TabId)
-		u.Out().Printf("title\t%s", created.Title)
-		u.Out().Printf("index\t%d", created.Index)
+		u.Out().Linef("tabId\t%s", created.TabId)
+		u.Out().Linef("title\t%s", created.Title)
+		u.Out().Linef("index\t%d", created.Index)
 		if created.ParentTabId != "" {
-			u.Out().Printf("parentTabId\t%s", created.ParentTabId)
+			u.Out().Linef("parentTabId\t%s", created.ParentTabId)
 		}
 	}
 	if resp.WriteControl != nil && resp.WriteControl.RequiredRevisionId != "" {
-		u.Out().Printf("revision\t%s", resp.WriteControl.RequiredRevisionId)
+		u.Out().Linef("revision\t%s", resp.WriteControl.RequiredRevisionId)
 	}
 	return nil
 }
@@ -176,11 +176,11 @@ func (c *DocsRenameTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("docId\t%s", docID)
-	u.Out().Printf("tabId\t%s", resolved.TabProperties.TabId)
-	u.Out().Printf("title\t%s", newTitle)
+	u.Out().Linef("docId\t%s", docID)
+	u.Out().Linef("tabId\t%s", resolved.TabProperties.TabId)
+	u.Out().Linef("title\t%s", newTitle)
 	if resp != nil && resp.WriteControl != nil && resp.WriteControl.RequiredRevisionId != "" {
-		u.Out().Printf("revision\t%s", resp.WriteControl.RequiredRevisionId)
+		u.Out().Linef("revision\t%s", resp.WriteControl.RequiredRevisionId)
 	}
 	return nil
 }
@@ -241,14 +241,14 @@ func (c *DocsDeleteTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("docId\t%s", docID)
-	u.Out().Printf("tabId\t%s", resolved.TabProperties.TabId)
-	u.Out().Printf("deleted\ttrue")
+	u.Out().Linef("docId\t%s", docID)
+	u.Out().Linef("tabId\t%s", resolved.TabProperties.TabId)
+	u.Out().Linef("deleted\ttrue")
 	if resolved.TabProperties.Title != "" {
-		u.Out().Printf("title\t%s", resolved.TabProperties.Title)
+		u.Out().Linef("title\t%s", resolved.TabProperties.Title)
 	}
 	if resp != nil && resp.WriteControl != nil && resp.WriteControl.RequiredRevisionId != "" {
-		u.Out().Printf("revision\t%s", resp.WriteControl.RequiredRevisionId)
+		u.Out().Linef("revision\t%s", resp.WriteControl.RequiredRevisionId)
 	}
 	return nil
 }

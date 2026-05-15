@@ -79,13 +79,13 @@ func (c *FormsWatchCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("created\ttrue")
-	u.Out().Printf("watch_id\t%s", watch.Id)
-	u.Out().Printf("form_id\t%s", formID)
-	u.Out().Printf("event_type\t%s", watch.EventType)
-	u.Out().Printf("state\t%s", watch.State)
+	u.Out().Linef("created\ttrue")
+	u.Out().Linef("watch_id\t%s", watch.Id)
+	u.Out().Linef("form_id\t%s", formID)
+	u.Out().Linef("event_type\t%s", watch.EventType)
+	u.Out().Linef("state\t%s", watch.State)
 	if watch.ExpireTime != "" {
-		u.Out().Printf("expires\t%s", watch.ExpireTime)
+		u.Out().Linef("expires\t%s", watch.ExpireTime)
 	}
 	return nil
 }
@@ -132,7 +132,7 @@ func (c *FormsWatchListCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if w == nil {
 			continue
 		}
-		u.Out().Printf("%s\t%s\t%s\t%s", w.Id, w.EventType, w.State, w.ExpireTime)
+		u.Out().Linef("%s\t%s\t%s\t%s", w.Id, w.EventType, w.State, w.ExpireTime)
 	}
 	return nil
 }
@@ -183,9 +183,9 @@ func (c *FormsWatchDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("deleted\ttrue")
-	u.Out().Printf("form_id\t%s", formID)
-	u.Out().Printf("watch_id\t%s", watchID)
+	u.Out().Linef("deleted\ttrue")
+	u.Out().Linef("form_id\t%s", formID)
+	u.Out().Linef("watch_id\t%s", watchID)
 	return nil
 }
 
@@ -236,9 +236,9 @@ func (c *FormsWatchRenewCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("renewed\ttrue")
-	u.Out().Printf("watch_id\t%s", watch.Id)
-	u.Out().Printf("form_id\t%s", formID)
-	u.Out().Printf("expires\t%s", watch.ExpireTime)
+	u.Out().Linef("renewed\ttrue")
+	u.Out().Linef("watch_id\t%s", watch.Id)
+	u.Out().Linef("form_id\t%s", formID)
+	u.Out().Linef("expires\t%s", watch.ExpireTime)
 	return nil
 }

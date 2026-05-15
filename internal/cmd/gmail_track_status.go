@@ -19,30 +19,30 @@ func (c *GmailTrackStatusCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 	path, _ := tracking.ConfigPath()
 	if path != "" {
-		u.Out().Printf("config_path\t%s", path)
+		u.Out().Linef("config_path\t%s", path)
 	}
-	u.Out().Printf("account\t%s", account)
+	u.Out().Linef("account\t%s", account)
 
 	if !cfg.IsConfigured() {
-		u.Out().Printf("configured\tfalse")
+		u.Out().Linef("configured\tfalse")
 		return nil
 	}
 
-	u.Out().Printf("configured\ttrue")
-	u.Out().Printf("worker_url\t%s", cfg.WorkerURL)
+	u.Out().Linef("configured\ttrue")
+	u.Out().Linef("worker_url\t%s", cfg.WorkerURL)
 	if strings.TrimSpace(cfg.WorkerName) != "" {
-		u.Out().Printf("worker_name\t%s", cfg.WorkerName)
+		u.Out().Linef("worker_name\t%s", cfg.WorkerName)
 	}
 	if strings.TrimSpace(cfg.DatabaseName) != "" {
-		u.Out().Printf("database_name\t%s", cfg.DatabaseName)
+		u.Out().Linef("database_name\t%s", cfg.DatabaseName)
 	}
 	if strings.TrimSpace(cfg.DatabaseID) != "" {
-		u.Out().Printf("database_id\t%s", cfg.DatabaseID)
+		u.Out().Linef("database_id\t%s", cfg.DatabaseID)
 	}
 	if cfg.TrackingCurrentKeyVersion > 0 {
-		u.Out().Printf("tracking_key_version\t%d", cfg.TrackingCurrentKeyVersion)
+		u.Out().Linef("tracking_key_version\t%d", cfg.TrackingCurrentKeyVersion)
 	}
-	u.Out().Printf("admin_configured\t%t", strings.TrimSpace(cfg.AdminKey) != "")
+	u.Out().Linef("admin_configured\t%t", strings.TrimSpace(cfg.AdminKey) != "")
 
 	return nil
 }

@@ -143,18 +143,18 @@ func (c *DriveGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{strFile: f})
 	}
 
-	u.Out().Printf("id\t%s", f.Id)
-	u.Out().Printf("name\t%s", f.Name)
-	u.Out().Printf("type\t%s", f.MimeType)
-	u.Out().Printf("size\t%s", formatDriveSize(f.Size))
-	u.Out().Printf("created\t%s", f.CreatedTime)
-	u.Out().Printf("modified\t%s", f.ModifiedTime)
+	u.Out().Linef("id\t%s", f.Id)
+	u.Out().Linef("name\t%s", f.Name)
+	u.Out().Linef("type\t%s", f.MimeType)
+	u.Out().Linef("size\t%s", formatDriveSize(f.Size))
+	u.Out().Linef("created\t%s", f.CreatedTime)
+	u.Out().Linef("modified\t%s", f.ModifiedTime)
 	if f.Description != "" {
-		u.Out().Printf("description\t%s", f.Description)
+		u.Out().Linef("description\t%s", f.Description)
 	}
-	u.Out().Printf("starred\t%t", f.Starred)
+	u.Out().Linef("starred\t%t", f.Starred)
 	if f.WebViewLink != "" {
-		u.Out().Printf("link\t%s", f.WebViewLink)
+		u.Out().Linef("link\t%s", f.WebViewLink)
 	}
 	return nil
 }
@@ -222,10 +222,10 @@ func (c *DriveMkdirCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"folder": created})
 	}
 
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("name\t%s", created.Name)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("name\t%s", created.Name)
 	if created.WebViewLink != "" {
-		u.Out().Printf("link\t%s", created.WebViewLink)
+		u.Out().Linef("link\t%s", created.WebViewLink)
 	}
 	return nil
 }
@@ -345,8 +345,8 @@ func (c *DriveMoveCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{strFile: updated})
 	}
 
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("name\t%s", updated.Name)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("name\t%s", updated.Name)
 	return nil
 }
 
@@ -395,8 +395,8 @@ func (c *DriveRenameCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{strFile: updated})
 	}
 
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("name\t%s", updated.Name)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("name\t%s", updated.Name)
 	return nil
 }
 

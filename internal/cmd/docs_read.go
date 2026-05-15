@@ -186,10 +186,10 @@ func (c *DocsListTabsCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"tabs": out})
 	}
 
-	u.Out().Printf("ID\tTITLE\tINDEX")
+	u.Out().Linef("ID\tTITLE\tINDEX")
 	for _, tab := range tabs {
 		if tab.TabProperties != nil {
-			u.Out().Printf("%s\t%s\t%d", tab.TabProperties.TabId, tab.TabProperties.Title, tab.TabProperties.Index)
+			u.Out().Linef("%s\t%s\t%d", tab.TabProperties.TabId, tab.TabProperties.Title, tab.TabProperties.Index)
 		}
 	}
 	return nil
@@ -236,7 +236,7 @@ func (c *DocsStructureCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, pm)
 	}
 
-	u.Out().Printf(" #  TYPE                CONTENT")
+	u.Out().Linef(" #  TYPE                CONTENT")
 	for _, p := range pm.Paragraphs {
 		prefix := ""
 		if p.IsBullet {
@@ -249,7 +249,7 @@ func (c *DocsStructureCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if p.ElemType == "table" {
 			text = fmt.Sprintf("[table %dx%d] %s", p.TableRows, p.TableCols, text)
 		}
-		u.Out().Printf("%2d  %-18s  %s%s", p.Num, p.Type, prefix, text)
+		u.Out().Linef("%2d  %-18s  %s%s", p.Num, p.Type, prefix, text)
 	}
 	return nil
 }

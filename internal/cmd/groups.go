@@ -243,7 +243,7 @@ func (c *GroupsMembersCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if len(memberships) == 0 {
-		u.Err().Printf("No members in group %s", groupEmail)
+		u.Err().Linef("No members in group %s", groupEmail)
 		return failEmptyExit(c.FailEmpty)
 	}
 

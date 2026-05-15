@@ -129,11 +129,11 @@ func (c *ClassroomStudentsGetCmd) Run(ctx context.Context, flags *RootFlags) err
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"student": student})
 	}
 
-	u.Out().Printf("user_id\t%s", student.UserId)
-	u.Out().Printf("email\t%s", profileEmail(student.Profile))
-	u.Out().Printf("name\t%s", profileName(student.Profile))
+	u.Out().Linef("user_id\t%s", student.UserId)
+	u.Out().Linef("email\t%s", profileEmail(student.Profile))
+	u.Out().Linef("name\t%s", profileName(student.Profile))
 	if student.StudentWorkFolder != nil {
-		u.Out().Printf("work_folder\t%s", student.StudentWorkFolder.Id)
+		u.Out().Linef("work_folder\t%s", student.StudentWorkFolder.Id)
 	}
 	return nil
 }
@@ -186,9 +186,9 @@ func (c *ClassroomStudentsAddCmd) Run(ctx context.Context, flags *RootFlags) err
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"student": created})
 	}
-	u.Out().Printf("user_id\t%s", created.UserId)
-	u.Out().Printf("email\t%s", profileEmail(created.Profile))
-	u.Out().Printf("name\t%s", profileName(created.Profile))
+	u.Out().Linef("user_id\t%s", created.UserId)
+	u.Out().Linef("email\t%s", profileEmail(created.Profile))
+	u.Out().Linef("name\t%s", profileName(created.Profile))
 	return nil
 }
 
@@ -353,9 +353,9 @@ func (c *ClassroomTeachersGetCmd) Run(ctx context.Context, flags *RootFlags) err
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"teacher": teacher})
 	}
 
-	u.Out().Printf("user_id\t%s", teacher.UserId)
-	u.Out().Printf("email\t%s", profileEmail(teacher.Profile))
-	u.Out().Printf("name\t%s", profileName(teacher.Profile))
+	u.Out().Linef("user_id\t%s", teacher.UserId)
+	u.Out().Linef("email\t%s", profileEmail(teacher.Profile))
+	u.Out().Linef("name\t%s", profileName(teacher.Profile))
 	return nil
 }
 
@@ -401,9 +401,9 @@ func (c *ClassroomTeachersAddCmd) Run(ctx context.Context, flags *RootFlags) err
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"teacher": created})
 	}
-	u.Out().Printf("user_id\t%s", created.UserId)
-	u.Out().Printf("email\t%s", profileEmail(created.Profile))
-	u.Out().Printf("name\t%s", profileName(created.Profile))
+	u.Out().Linef("user_id\t%s", created.UserId)
+	u.Out().Linef("email\t%s", profileEmail(created.Profile))
+	u.Out().Linef("name\t%s", profileName(created.Profile))
 	return nil
 }
 
@@ -573,7 +573,7 @@ func (c *ClassroomRosterCmd) Run(ctx context.Context, flags *RootFlags) error {
 			)
 		}
 		if teachersNextPageToken != "" {
-			u.Err().Printf("# Next teachers page: --page %s", teachersNextPageToken)
+			u.Err().Linef("# Next teachers page: --page %s", teachersNextPageToken)
 		}
 	}
 	if includeStudents {
@@ -588,7 +588,7 @@ func (c *ClassroomRosterCmd) Run(ctx context.Context, flags *RootFlags) error {
 			)
 		}
 		if studentsNextPageToken != "" {
-			u.Err().Printf("# Next students page: --page %s", studentsNextPageToken)
+			u.Err().Linef("# Next students page: --page %s", studentsNextPageToken)
 		}
 	}
 	return nil

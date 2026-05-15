@@ -1,8 +1,11 @@
 package tracking
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -109,5 +112,72 @@ func TestLoadConfigDifferentAccount(t *testing.T) {
 
 	if loaded.Enabled {
 		t.Error("Expected Enabled to be false for missing account config")
+	}
+}
+
+func TestSaveConfigReturnsReadError(t *testing.T) {
+	setupTrackingConfigEnv(t)
+
+	path, err := ConfigPath()
+	if err != nil {
+		t.Fatalf("ConfigPath: %v", err)
+	}
+
+	if mkdirErr := os.MkdirAll(path, 0o700); mkdirErr != nil {
+		t.Fatalf("mkdir config path: %v", mkdirErr)
+	}
+
+	err = SaveConfig("a@example.com", &Config{Enabled: true, WorkerURL: "https://worker.example.com"})
+	if err == nil || !strings.Contains(err.Error(), "read tracking config") {
+		t.Fatalf("expected read error, got %v", err)
+	}
+}
+
+func TestSaveConfigConcurrentKeepsAccounts(t *testing.T) {
+	setupTrackingConfigEnv(t)
+
+	const count = 12
+	var wg sync.WaitGroup
+	errCh := make(chan error, count)
+
+	for i := range count {
+		wg.Add(1)
+
+		go func(i int) {
+			defer wg.Done()
+
+			errCh <- SaveConfig(
+				fmt.Sprintf("user%d@example.com", i),
+				&Config{Enabled: true, WorkerURL: "https://worker.example.com"},
+			)
+		}(i)
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	for err := range errCh {
+		if err != nil {
+			t.Fatalf("SaveConfig: %v", err)
+		}
+	}
+
+	path, err := ConfigPath()
+	if err != nil {
+		t.Fatalf("ConfigPath: %v", err)
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile: %v", err)
+	}
+
+	var fileCfg fileConfig
+	if err := json.Unmarshal(data, &fileCfg); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+
+	if len(fileCfg.Accounts) != count {
+		t.Fatalf("accounts=%d want %d: %#v", len(fileCfg.Accounts), count, fileCfg.Accounts)
 	}
 }

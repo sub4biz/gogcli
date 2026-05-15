@@ -52,15 +52,15 @@ func (c *PeopleGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		photo = person.Photos[0].Url
 	}
 
-	u.Out().Printf("resource\t%s", person.ResourceName)
+	u.Out().Linef("resource\t%s", person.ResourceName)
 	if name != "" {
-		u.Out().Printf("name\t%s", name)
+		u.Out().Linef("name\t%s", name)
 	}
 	if email != "" {
-		u.Out().Printf("email\t%s", email)
+		u.Out().Linef("email\t%s", email)
 	}
 	if photo != "" {
-		u.Out().Printf("photo\t%s", photo)
+		u.Out().Linef("photo\t%s", photo)
 	}
 	return nil
 }

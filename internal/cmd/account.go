@@ -27,7 +27,10 @@ func requireAccount(flags *RootFlags) (string, error) {
 	// or keyring lookup is needed. We still accept --account/GOG_ACCOUNT as an
 	// optional label (e.g. for logging), but it is not required.
 	if googleapi.IsADCMode() {
-		if v := strings.TrimSpace(flags.Account); v != "" {
+		if v := flagAccount(flags); v != "" {
+			if shouldAutoSelectAccount(v) {
+				return "adc", nil
+			}
 			return v, nil
 		}
 		if v := strings.TrimSpace(os.Getenv("GOG_ACCOUNT")); v != "" {
@@ -62,14 +65,20 @@ func requireAccount(flags *RootFlags) (string, error) {
 }
 
 func configuredAccount(flags *RootFlags) (string, bool, error) {
-	for _, candidate := range []string{flagAccount(flags), strings.TrimSpace(os.Getenv("GOG_ACCOUNT"))} {
+	if candidate := flagAccount(flags); candidate != "" {
 		account, ok, err := selectConfiguredAccount(candidate)
 		if err != nil {
 			return "", false, err
 		}
-		if ok {
-			return account, true, nil
+		return account, ok, nil
+	}
+
+	if candidate := strings.TrimSpace(os.Getenv("GOG_ACCOUNT")); candidate != "" {
+		account, ok, err := selectConfiguredAccount(candidate)
+		if err != nil {
+			return "", false, err
 		}
+		return account, ok, nil
 	}
 
 	return "", false, nil

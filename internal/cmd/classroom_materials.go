@@ -152,17 +152,17 @@ func (c *ClassroomMaterialsGetCmd) Run(ctx context.Context, flags *RootFlags) er
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"material": material})
 	}
 
-	u.Out().Printf("id\t%s", material.Id)
-	u.Out().Printf("title\t%s", material.Title)
+	u.Out().Linef("id\t%s", material.Id)
+	u.Out().Linef("title\t%s", material.Title)
 	if material.Description != "" {
-		u.Out().Printf("description\t%s", material.Description)
+		u.Out().Linef("description\t%s", material.Description)
 	}
-	u.Out().Printf("state\t%s", material.State)
+	u.Out().Linef("state\t%s", material.State)
 	if material.TopicId != "" {
-		u.Out().Printf("topic_id\t%s", material.TopicId)
+		u.Out().Linef("topic_id\t%s", material.TopicId)
 	}
 	if material.ScheduledTime != "" {
-		u.Out().Printf("scheduled\t%s", material.ScheduledTime)
+		u.Out().Linef("scheduled\t%s", material.ScheduledTime)
 	}
 	return nil
 }
@@ -220,9 +220,9 @@ func (c *ClassroomMaterialsCreateCmd) Run(ctx context.Context, flags *RootFlags)
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"material": created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("title\t%s", created.Title)
-	u.Out().Printf("state\t%s", created.State)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("title\t%s", created.Title)
+	u.Out().Linef("state\t%s", created.State)
 	return nil
 }
 
@@ -296,9 +296,9 @@ func (c *ClassroomMaterialsUpdateCmd) Run(ctx context.Context, flags *RootFlags)
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"material": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("title\t%s", updated.Title)
-	u.Out().Printf("state\t%s", updated.State)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("title\t%s", updated.Title)
+	u.Out().Linef("state\t%s", updated.State)
 	return nil
 }
 

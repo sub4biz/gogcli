@@ -112,7 +112,7 @@ func (c *SheetsConditionalAddCmd) Run(ctx context.Context, flags *RootFlags) err
 			"index":         c.Index,
 		})
 	}
-	u.Out().Printf("Added conditional format rule to %s", rangeSpec)
+	u.Out().Linef("Added conditional format rule to %s", rangeSpec)
 	return nil
 }
 
@@ -249,7 +249,7 @@ func (c *SheetsConditionalClearCmd) Run(ctx context.Context, flags *RootFlags) e
 			"removed":       len(requests),
 		})
 	}
-	ui.FromContext(ctx).Out().Printf("Removed %d conditional format rules from %s", len(requests), sheetName)
+	ui.FromContext(ctx).Out().Linef("Removed %d conditional format rules from %s", len(requests), sheetName)
 	return nil
 }
 

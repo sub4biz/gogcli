@@ -179,11 +179,11 @@ func (c *SlidesCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{strFile: created})
 	}
 
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("name\t%s", created.Name)
-	u.Out().Printf("mime\t%s", created.MimeType)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("name\t%s", created.Name)
+	u.Out().Linef("mime\t%s", created.MimeType)
 	if created.WebViewLink != "" {
-		u.Out().Printf("link\t%s", created.WebViewLink)
+		u.Out().Linef("link\t%s", created.WebViewLink)
 	}
 	return nil
 }
@@ -302,11 +302,11 @@ func (c *SlidesCreateFromMarkdownCmd) Run(ctx context.Context, flags *RootFlags)
 	}
 
 	if created != nil {
-		u.Out().Printf("Created presentation with %d slides", len(parsed))
-		u.Out().Printf("id\t%s", created.PresentationId)
-		u.Out().Printf("name\t%s", file.Name)
+		u.Out().Linef("Created presentation with %d slides", len(parsed))
+		u.Out().Linef("id\t%s", created.PresentationId)
+		u.Out().Linef("name\t%s", file.Name)
 		if file.WebViewLink != "" {
-			u.Out().Printf("link\t%s", file.WebViewLink)
+			u.Out().Linef("link\t%s", file.WebViewLink)
 		}
 	}
 	return nil

@@ -372,9 +372,9 @@ func (c *AdminUsersCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("Created user: %s (ID: %s)\n", created.PrimaryEmail, created.Id)
+	u.Out().Linef("Created user: %s (ID: %s)", created.PrimaryEmail, created.Id)
 	if generatedPassword {
-		u.Out().Printf("Generated password: %s\n", password)
+		u.Out().Linef("Generated password: %s", password)
 	}
 	return nil
 }
@@ -439,7 +439,7 @@ func (c *AdminUsersDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("Deleted user: %s\n", userEmail)
+	u.Out().Linef("Deleted user: %s", userEmail)
 	return nil
 }
 
@@ -483,6 +483,6 @@ func (c *AdminUsersSuspendCmd) Run(ctx context.Context, flags *RootFlags) error 
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("Suspended user: %s", updated.PrimaryEmail)
+	u.Out().Linef("Suspended user: %s", updated.PrimaryEmail)
 	return nil
 }

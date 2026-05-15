@@ -135,10 +135,10 @@ func (c *SheetsNamedRangesGetCmd) Run(ctx context.Context, flags *RootFlags) err
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"namedRange": it})
 	}
 
-	u.Out().Printf("name\t%s", it.Name)
-	u.Out().Printf("id\t%s", it.NamedRangeID)
-	u.Out().Printf("sheet\t%s", it.SheetTitle)
-	u.Out().Printf("a1\t%s", it.A1)
+	u.Out().Linef("name\t%s", it.Name)
+	u.Out().Linef("id\t%s", it.NamedRangeID)
+	u.Out().Linef("sheet\t%s", it.SheetTitle)
+	u.Out().Linef("a1\t%s", it.A1)
 	return nil
 }
 
@@ -226,9 +226,9 @@ func (c *SheetsNamedRangesAddCmd) Run(ctx context.Context, flags *RootFlags) err
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"namedRange": it})
 	}
 
-	u.Out().Printf("name\t%s", it.Name)
-	u.Out().Printf("id\t%s", it.NamedRangeID)
-	u.Out().Printf("a1\t%s", it.A1)
+	u.Out().Linef("name\t%s", it.Name)
+	u.Out().Linef("id\t%s", it.NamedRangeID)
+	u.Out().Linef("a1\t%s", it.A1)
 	return nil
 }
 
@@ -344,9 +344,9 @@ func (c *SheetsNamedRangesUpdateCmd) Run(ctx context.Context, flags *RootFlags) 
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"namedRange": it})
 	}
 
-	u.Out().Printf("name\t%s", it.Name)
-	u.Out().Printf("id\t%s", it.NamedRangeID)
-	u.Out().Printf("a1\t%s", it.A1)
+	u.Out().Linef("name\t%s", it.Name)
+	u.Out().Linef("id\t%s", it.NamedRangeID)
+	u.Out().Linef("a1\t%s", it.A1)
 	return nil
 }
 
@@ -414,7 +414,7 @@ func (c *SheetsNamedRangesDeleteCmd) Run(ctx context.Context, flags *RootFlags) 
 		})
 	}
 
-	u.Out().Printf("deleted\t%s", id)
+	u.Out().Linef("deleted\t%s", id)
 	return nil
 }
 

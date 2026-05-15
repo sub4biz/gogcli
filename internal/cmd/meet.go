@@ -144,15 +144,15 @@ func printMeetSpace(u *ui.UI, space *meet.Space) {
 		return
 	}
 
-	u.Out().Printf("meeting_code\t%s", space.MeetingCode)
-	u.Out().Printf("meeting_uri\t%s", space.MeetingUri)
+	u.Out().Linef("meeting_code\t%s", space.MeetingCode)
+	u.Out().Linef("meeting_uri\t%s", space.MeetingUri)
 
 	if space.Config != nil {
-		u.Out().Printf("access\t%s", strings.ToLower(space.Config.AccessType))
+		u.Out().Linef("access\t%s", strings.ToLower(space.Config.AccessType))
 	}
 
 	if space.ActiveConference != nil && space.ActiveConference.ConferenceRecord != "" {
-		u.Out().Printf("active_conference\t%s", space.ActiveConference.ConferenceRecord)
+		u.Out().Linef("active_conference\t%s", space.ActiveConference.ConferenceRecord)
 	}
 }
 

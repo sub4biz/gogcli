@@ -28,9 +28,16 @@ func FromFlags(jsonOut bool, plainOut bool) (Mode, error) {
 }
 
 func FromEnv() Mode {
+	jsonOut := envBool("GOG_JSON")
+
+	plainOut := envBool("GOG_PLAIN")
+	if jsonOut {
+		plainOut = false
+	}
+
 	return Mode{
-		JSON:  envBool("GOG_JSON"),
-		Plain: envBool("GOG_PLAIN"),
+		JSON:  jsonOut,
+		Plain: plainOut,
 	}
 }
 

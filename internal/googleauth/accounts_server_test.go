@@ -32,17 +32,21 @@ type fakeStore struct {
 	tokens       []secrets.Token
 	defaultEmail string
 
-	setTokenEmail    string
-	setTokenClient   string
-	setTokenValue    secrets.Token
-	setTokenErr      error
-	setDefaultCalled string
-	setDefaultClient string
-	setDefaultErr    error
-	deleteCalled     string
-	deleteClient     string
-	deleteErr        error
-	listErr          error
+	setTokenEmail       string
+	setTokenClient      string
+	setTokenValue       secrets.Token
+	setTokenErr         error
+	setDefaultCalled    string
+	setDefaultClient    string
+	setDefaultErr       error
+	deleteCalled        string
+	deleteClient        string
+	deleteErr           error
+	deleteDefault       bool
+	deleteDefaultCalled string
+	deleteDefaultErr    error
+	listErr             error
+	ops                 []string
 }
 
 func (s *fakeStore) Keys() ([]string, error) { return nil, nil }
@@ -50,6 +54,7 @@ func (s *fakeStore) SetToken(client string, email string, tok secrets.Token) err
 	s.setTokenClient = client
 	s.setTokenEmail = email
 	s.setTokenValue = tok
+	s.ops = append(s.ops, "set:"+email)
 
 	if s.setTokenErr != nil {
 		return s.setTokenErr
@@ -61,9 +66,22 @@ func (s *fakeStore) GetToken(string, string) (secrets.Token, error) { return sec
 func (s *fakeStore) DeleteToken(client string, email string) error {
 	s.deleteClient = client
 	s.deleteCalled = email
+	s.ops = append(s.ops, "delete:"+email)
 
 	if s.deleteErr != nil {
 		return s.deleteErr
+	}
+
+	return nil
+}
+
+func (s *fakeStore) DeleteDefaultAccount(client string) error {
+	s.deleteDefault = true
+	s.deleteDefaultCalled = client
+	s.defaultEmail = ""
+
+	if s.deleteDefaultErr != nil {
+		return s.deleteDefaultErr
 	}
 
 	return nil
@@ -192,6 +210,50 @@ func TestManageServer_HandleListAccounts_DefaultExplicit(t *testing.T) {
 	}
 }
 
+func TestManageServer_HandleListAccounts_StaleDefaultFallsBackToFirst(t *testing.T) {
+	store := &fakeStore{
+		tokens:       []secrets.Token{{Email: "a@b.com"}, {Email: "c@d.com"}},
+		defaultEmail: "missing@example.com",
+	}
+	ms := &ManageServer{
+		csrfToken: "csrf",
+		store:     store,
+	}
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/accounts", nil)
+	ms.handleListAccounts(rr, req)
+
+	var parsed struct {
+		Accounts []AccountInfo `json:"accounts"`
+	}
+	if err := json.Unmarshal(rr.Body.Bytes(), &parsed); err != nil {
+		t.Fatalf("json parse: %v", err)
+	}
+
+	if len(parsed.Accounts) != 2 || !parsed.Accounts[0].IsDefault || parsed.Accounts[1].IsDefault {
+		t.Fatalf("unexpected defaults: %#v", parsed.Accounts)
+	}
+}
+
+func TestManageServer_OAuthStatesAreIndependent(t *testing.T) {
+	ms := &ManageServer{}
+	ms.addOAuthState("state1")
+	ms.addOAuthState("state2")
+
+	if !ms.consumeOAuthState("state1") {
+		t.Fatalf("expected first state accepted")
+	}
+
+	if ms.consumeOAuthState("state1") {
+		t.Fatalf("expected consumed state rejected")
+	}
+
+	if !ms.consumeOAuthState("state2") {
+		t.Fatalf("expected second state accepted")
+	}
+}
+
 func TestManageServer_HandleOAuthCallback_ErrorAndValidation(t *testing.T) {
 	ms := &ManageServer{
 		csrfToken:  "csrf",
@@ -307,6 +369,18 @@ func TestManageServer_HandleSetDefault_AndRemove(t *testing.T) {
 		}
 	})
 
+	t.Run("set-default missing account", func(t *testing.T) {
+		store.setDefaultErr = nil
+		rr := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/set-default", bytes.NewReader([]byte(`{"email":"missing@example.com"}`)))
+		req.Header.Set("X-CSRF-Token", "csrf")
+		ms.handleSetDefault(rr, req)
+
+		if rr.Code != http.StatusBadRequest {
+			t.Fatalf("status: %d", rr.Code)
+		}
+	})
+
 	t.Run("remove ok", func(t *testing.T) {
 		rr := httptest.NewRecorder()
 		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/remove-account", bytes.NewReader([]byte(`{"email":"a@b.com"}`)))
@@ -356,6 +430,52 @@ func TestManageServer_HandleSetDefault_AndRemove(t *testing.T) {
 			t.Fatalf("status: %d", rr.Code)
 		}
 	})
+}
+
+func TestManageServer_HandleRemoveAccountResetsDefault(t *testing.T) {
+	store := &fakeStore{
+		tokens:       []secrets.Token{{Email: "a@b.com"}, {Email: "c@d.com"}},
+		defaultEmail: "a@b.com",
+	}
+	ms := &ManageServer{csrfToken: "csrf", store: store}
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/remove-account", bytes.NewReader([]byte(`{"email":"a@b.com"}`)))
+	req.Header.Set("X-CSRF-Token", "csrf")
+	ms.handleRemoveAccount(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status: %d body=%s", rr.Code, rr.Body.String())
+	}
+
+	if store.setDefaultCalled != "c@d.com" {
+		t.Fatalf("expected default moved, got %q", store.setDefaultCalled)
+	}
+}
+
+func TestManageServer_HandleRemoveAccountClearsLastDefault(t *testing.T) {
+	store := &fakeStore{
+		tokens:       []secrets.Token{{Email: "a@b.com"}},
+		defaultEmail: "a@b.com",
+	}
+	ms := &ManageServer{csrfToken: "csrf", store: store}
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/remove-account", bytes.NewReader([]byte(`{"email":"a@b.com"}`)))
+	req.Header.Set("X-CSRF-Token", "csrf")
+	ms.handleRemoveAccount(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status: %d body=%s", rr.Code, rr.Body.String())
+	}
+
+	if !store.deleteDefault || store.deleteDefaultCalled != "" {
+		t.Fatalf("expected default cleared for empty client, called=%v client=%q", store.deleteDefault, store.deleteDefaultCalled)
+	}
+
+	if store.defaultEmail != "" {
+		t.Fatalf("expected defaultEmail cleared, got %q", store.defaultEmail)
+	}
 }
 
 func TestManageServer_HandleListAccounts_Error(t *testing.T) {
@@ -635,6 +755,85 @@ func TestManageServer_HandleOAuthCallback_Success(t *testing.T) {
 
 	if !strings.Contains(rr.Body.String(), "me@example.com") {
 		t.Fatalf("expected body to include email")
+	}
+}
+
+func TestManageServer_HandleOAuthCallback_MigratesBeforeSetToken(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	origRead := readClientCredentials
+	origEndpoint := oauthEndpoint
+	origResolve := resolveKeyringBackendInfo
+	origEnsure := ensureKeychainAccess
+
+	t.Cleanup(func() {
+		readClientCredentials = origRead
+		oauthEndpoint = origEndpoint
+		resolveKeyringBackendInfo = origResolve
+		ensureKeychainAccess = origEnsure
+	})
+
+	resolveKeyringBackendInfo = func() (secrets.KeyringBackendInfo, error) {
+		return secrets.KeyringBackendInfo{Value: "file", Source: "env"}, nil
+	}
+	ensureKeychainAccess = func() error {
+		return errShouldNotCall
+	}
+	readClientCredentials = func(string) (config.ClientCredentials, error) {
+		return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"access_token":  "token",
+			"refresh_token": "refresh",
+			"token_type":    "Bearer",
+			"expires_in":    3600,
+		})
+	}))
+	defer srv.Close()
+
+	oauthEndpoint = oauth2.Endpoint{AuthURL: "http://example.com/auth", TokenURL: srv.URL}
+
+	ln, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("listen: %v", err)
+	}
+
+	t.Cleanup(func() { _ = ln.Close() })
+
+	store := &fakeStore{
+		tokens: []secrets.Token{{
+			Client:       config.DefaultClientName,
+			Email:        "old@example.com",
+			Subject:      "sub-123",
+			RefreshToken: "old-refresh",
+		}},
+	}
+	ms := &ManageServer{
+		oauthState: "state1",
+		listener:   ln,
+		store:      store,
+		fetchIdentity: func(context.Context, *oauth2.Token) (Identity, error) {
+			return Identity{Subject: "sub-123", Email: "new@example.com"}, nil
+		},
+		opts:   ManageServerOptions{Services: []Service{ServiceGmail}},
+		client: config.DefaultClientName,
+	}
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/oauth2/callback?state=state1&code=abc", nil)
+	ms.handleOAuthCallback(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status: %d body: %s", rr.Code, rr.Body.String())
+	}
+
+	wantOps := []string{"delete:old@example.com", "set:new@example.com"}
+	if len(store.ops) != len(wantOps) || store.ops[0] != wantOps[0] || store.ops[1] != wantOps[1] {
+		t.Fatalf("unexpected store ops: %#v", store.ops)
 	}
 }
 

@@ -290,16 +290,16 @@ func (c *DriveLabelsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"label": label})
 	}
 
-	u.Out().Printf("name\t%s", label.Name)
-	u.Out().Printf("title\t%s", driveLabelTitle(label))
-	u.Out().Printf("type\t%s", label.LabelType)
-	u.Out().Printf("state\t%s", driveLabelState(label))
-	u.Out().Printf("revision\t%s", label.RevisionId)
+	u.Out().Linef("name\t%s", label.Name)
+	u.Out().Linef("title\t%s", driveLabelTitle(label))
+	u.Out().Linef("type\t%s", label.LabelType)
+	u.Out().Linef("state\t%s", driveLabelState(label))
+	u.Out().Linef("revision\t%s", label.RevisionId)
 	if label.Properties != nil && strings.TrimSpace(label.Properties.Description) != "" {
-		u.Out().Printf("description\t%s", label.Properties.Description)
+		u.Out().Linef("description\t%s", label.Properties.Description)
 	}
 	if len(label.Fields) > 0 {
-		u.Out().Printf("fields\t%d", len(label.Fields))
+		u.Out().Linef("fields\t%d", len(label.Fields))
 	}
 	return nil
 }

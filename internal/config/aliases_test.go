@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -39,5 +40,29 @@ func TestAccountAliasesCRUD(t *testing.T) {
 
 	if !deleted {
 		t.Fatalf("expected alias delete")
+	}
+}
+
+func TestDeleteMissingAccountAliasDoesNotCreateConfig(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "xdg-config"))
+
+	deleted, err := DeleteAccountAlias("missing")
+	if err != nil {
+		t.Fatalf("delete alias: %v", err)
+	}
+
+	if deleted {
+		t.Fatalf("expected no delete")
+	}
+
+	path, err := ConfigPath()
+	if err != nil {
+		t.Fatalf("ConfigPath: %v", err)
+	}
+
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("expected no config file, stat err=%v", err)
 	}
 }

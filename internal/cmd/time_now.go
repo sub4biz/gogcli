@@ -45,10 +45,10 @@ func (c *TimeNowCmd) Run(ctx context.Context) error {
 		})
 	}
 	if u != nil {
-		u.Out().Printf("timezone\t%s", tz)
-		u.Out().Printf("current_time\t%s", now.Format(time.RFC3339))
-		u.Out().Printf("utc_offset\t%s", offset)
-		u.Out().Printf("formatted\t%s", formatted)
+		u.Out().Linef("timezone\t%s", tz)
+		u.Out().Linef("current_time\t%s", now.Format(time.RFC3339))
+		u.Out().Linef("utc_offset\t%s", offset)
+		u.Out().Linef("formatted\t%s", formatted)
 	}
 	return nil
 }

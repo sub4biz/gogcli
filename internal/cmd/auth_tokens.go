@@ -191,10 +191,10 @@ func (c *AuthTokensExportCmd) Run(ctx context.Context, _ *RootFlags) error {
 			"path":     outPath,
 		})
 	}
-	u.Out().Printf("exported\ttrue")
-	u.Out().Printf("email\t%s", tok.Email)
-	u.Out().Printf("client\t%s", client)
-	u.Out().Printf("path\t%s", outPath)
+	u.Out().Linef("exported\ttrue")
+	u.Out().Linef("email\t%s", tok.Email)
+	u.Out().Linef("client\t%s", client)
+	u.Out().Linef("path\t%s", outPath)
 	return nil
 }
 
@@ -299,8 +299,8 @@ func (c *AuthTokensImportCmd) Run(ctx context.Context, flags *RootFlags) error {
 			"client":   client,
 		})
 	}
-	u.Out().Printf("imported\ttrue")
-	u.Out().Printf("email\t%s", ex.Email)
-	u.Out().Printf("client\t%s", client)
+	u.Out().Linef("imported\ttrue")
+	u.Out().Linef("email\t%s", ex.Email)
+	u.Out().Linef("client\t%s", client)
 	return nil
 }

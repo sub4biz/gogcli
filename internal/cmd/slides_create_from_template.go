@@ -110,9 +110,9 @@ func (c *SlidesCreateFromTemplateCmd) Run(ctx context.Context, flags *RootFlags)
 		Requests: requests,
 	}).Context(ctx).Do()
 	if err != nil {
-		u.Err().Printf("Warning: presentation created but text replacement failed: %v", err)
-		u.Err().Printf("Presentation ID: %s", presentationID)
-		u.Err().Printf("You may need to manually edit or delete this presentation")
+		u.Err().Linef("Warning: presentation created but text replacement failed: %v", err)
+		u.Err().Linef("Presentation ID: %s", presentationID)
+		u.Err().Linef("You may need to manually edit or delete this presentation")
 		return fmt.Errorf("text replacement failed: %w", err)
 	}
 
@@ -128,11 +128,11 @@ func (c *SlidesCreateFromTemplateCmd) Run(ctx context.Context, flags *RootFlags)
 		})
 	}
 
-	u.Out().Printf("Created presentation from template")
-	u.Out().Printf("id\t%s", presentationID)
-	u.Out().Printf("name\t%s", created.Name)
+	u.Out().Linef("Created presentation from template")
+	u.Out().Linef("id\t%s", presentationID)
+	u.Out().Linef("name\t%s", created.Name)
 	if created.WebViewLink != "" {
-		u.Out().Printf("link\t%s", created.WebViewLink)
+		u.Out().Linef("link\t%s", created.WebViewLink)
 	}
 
 	if len(replacementStats) > 0 {
@@ -140,9 +140,9 @@ func (c *SlidesCreateFromTemplateCmd) Run(ctx context.Context, flags *RootFlags)
 		u.Out().Println("Replacements:")
 		for key, count := range replacementStats {
 			if count > 0 {
-				u.Out().Printf("  %s\t%d occurrences", key, count)
+				u.Out().Linef("  %s\t%d occurrences", key, count)
 			} else {
-				u.Out().Printf("  %s\tnot found", key)
+				u.Out().Linef("  %s\tnot found", key)
 			}
 		}
 	}

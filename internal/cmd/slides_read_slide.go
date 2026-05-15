@@ -120,7 +120,7 @@ func (c *SlidesReadSlideCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, result)
 	}
 
-	u.Out().Printf("Slide %d  (%s)", slideIndex+1, slideID)
+	u.Out().Linef("Slide %d  (%s)", slideIndex+1, slideID)
 	u.Out().Println("")
 
 	if notesText != "" {

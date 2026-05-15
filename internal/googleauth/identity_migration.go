@@ -16,7 +16,7 @@ func MigrateStoredSubjectIdentity(store secrets.Store, client string, identity I
 		return "", nil
 	}
 
-	tokens, err := store.ListTokens()
+	tokens, err := tokensForSubjectMigration(store, client)
 	if err != nil {
 		// Subject migration is best-effort compatibility cleanup. A stale or
 		// corrupted token must not make a freshly completed OAuth flow fail
@@ -31,7 +31,7 @@ func MigrateStoredSubjectIdentity(store secrets.Store, client string, identity I
 
 		oldEmail := normalizeEmail(tok.Email)
 		if oldEmail == "" || oldEmail == newEmail {
-			return "", nil
+			continue
 		}
 
 		if err := store.DeleteToken(client, oldEmail); err != nil {
@@ -52,6 +52,37 @@ func MigrateStoredSubjectIdentity(store secrets.Store, client string, identity I
 	}
 
 	return "", nil
+}
+
+func tokensForSubjectMigration(store secrets.Store, client string) ([]secrets.Token, error) {
+	keys, err := store.Keys()
+	if err == nil && len(keys) > 0 {
+		tokens := make([]secrets.Token, 0, len(keys))
+		for _, key := range keys {
+			keyClient, email, ok := secrets.ParseTokenKey(key)
+			if !ok || keyClient != client || email == "" {
+				continue
+			}
+
+			tok, getErr := store.GetToken(keyClient, email)
+			if getErr != nil {
+				continue
+			}
+
+			tokens = append(tokens, tok)
+		}
+
+		if len(tokens) > 0 {
+			return tokens, nil
+		}
+	}
+
+	tokens, listErr := store.ListTokens()
+	if listErr != nil {
+		return nil, fmt.Errorf("list tokens for subject migration: %w", listErr)
+	}
+
+	return tokens, nil
 }
 
 func migrateStoredSubjectConfig(oldEmail string, newEmail string) error {

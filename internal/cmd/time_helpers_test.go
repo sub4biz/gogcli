@@ -62,7 +62,7 @@ func TestParseTimeExprMore(t *testing.T) {
 		t.Fatalf("parseTimeExpr yesterday: %v", err)
 	}
 
-	if !parsed.Equal(startOfDay(now.AddDate(0, 0, -1))) {
+	if !parsed.Equal(startOfDay(now.In(loc).AddDate(0, 0, -1))) {
 		t.Fatalf("unexpected yesterday: %v", parsed)
 	}
 

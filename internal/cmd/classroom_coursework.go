@@ -155,27 +155,27 @@ func (c *ClassroomCourseworkGetCmd) Run(ctx context.Context, flags *RootFlags) e
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"coursework": work})
 	}
 
-	u.Out().Printf("id\t%s", work.Id)
-	u.Out().Printf("title\t%s", work.Title)
+	u.Out().Linef("id\t%s", work.Id)
+	u.Out().Linef("title\t%s", work.Title)
 	if work.Description != "" {
-		u.Out().Printf("description\t%s", work.Description)
+		u.Out().Linef("description\t%s", work.Description)
 	}
-	u.Out().Printf("state\t%s", work.State)
-	u.Out().Printf("type\t%s", work.WorkType)
+	u.Out().Linef("state\t%s", work.State)
+	u.Out().Linef("type\t%s", work.WorkType)
 	if due := formatClassroomDue(work.DueDate, work.DueTime); due != "" {
-		u.Out().Printf("due\t%s", due)
+		u.Out().Linef("due\t%s", due)
 	}
 	if work.ScheduledTime != "" {
-		u.Out().Printf("scheduled\t%s", work.ScheduledTime)
+		u.Out().Linef("scheduled\t%s", work.ScheduledTime)
 	}
 	if work.TopicId != "" {
-		u.Out().Printf("topic_id\t%s", work.TopicId)
+		u.Out().Linef("topic_id\t%s", work.TopicId)
 	}
 	if work.MaxPoints != 0 {
-		u.Out().Printf("max_points\t%s", formatFloatValue(work.MaxPoints))
+		u.Out().Linef("max_points\t%s", formatFloatValue(work.MaxPoints))
 	}
 	if work.AlternateLink != "" {
-		u.Out().Printf("link\t%s", work.AlternateLink)
+		u.Out().Linef("link\t%s", work.AlternateLink)
 	}
 	return nil
 }
@@ -274,9 +274,9 @@ func (c *ClassroomCourseworkCreateCmd) Run(ctx context.Context, flags *RootFlags
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"coursework": created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("title\t%s", created.Title)
-	u.Out().Printf("state\t%s", created.State)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("title\t%s", created.Title)
+	u.Out().Linef("state\t%s", created.State)
 	return nil
 }
 
@@ -394,9 +394,9 @@ func (c *ClassroomCourseworkUpdateCmd) Run(ctx context.Context, flags *RootFlags
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"coursework": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("title\t%s", updated.Title)
-	u.Out().Printf("state\t%s", updated.State)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("title\t%s", updated.Title)
+	u.Out().Linef("state\t%s", updated.State)
 	return nil
 }
 
@@ -491,7 +491,7 @@ func (c *ClassroomCourseworkAssigneesCmd) Run(ctx context.Context, flags *RootFl
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"coursework": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("assignee_mode\t%s", updated.AssigneeMode)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("assignee_mode\t%s", updated.AssigneeMode)
 	return nil
 }

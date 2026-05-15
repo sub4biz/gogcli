@@ -186,12 +186,12 @@ func writeAuthDoctorResult(ctx context.Context, u *ui.UI, checks []authDoctorChe
 		return nil
 	}
 	for _, check := range checks {
-		u.Out().Printf("%s\t%s\t%s", check.Status, check.Name, check.Detail)
+		u.Out().Linef("%s\t%s\t%s", check.Status, check.Name, check.Detail)
 		if check.Hint != "" {
-			u.Out().Printf("hint\t%s\t%s", check.Name, check.Hint)
+			u.Out().Linef("hint\t%s\t%s", check.Name, check.Hint)
 		}
 	}
-	u.Out().Printf("status\t%s", status)
+	u.Out().Linef("status\t%s", status)
 	return nil
 }
 

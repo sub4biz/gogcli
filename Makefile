@@ -3,7 +3,7 @@ SHELL := /bin/bash
 # `make` should build the binary by default.
 .DEFAULT_GOAL := build
 
-.PHONY: build build-safe gog gogcli gog-help gogcli-help help fmt fmt-check lint test ci tools docs-commands docs-site docs-check
+.PHONY: build build-safe gog gogcli gog-help gogcli-help help fmt fmt-check lint test ci tools pnpm-gate docs-commands docs-site docs-check
 .PHONY: worker-ci
 
 BIN_DIR := $(CURDIR)/bin
@@ -81,6 +81,7 @@ tools:
 	@if [ -x "$(GOFUMPT)" ] && [ -x "$(GOIMPORTS)" ] && [ -x "$(GOLANGCI_LINT)" ] && [ "$$(cat $(TOOLS_STAMP) 2>/dev/null)" = "$(TOOLS_VERSION)" ]; then \
 		echo "tools up to date"; \
 	else \
+		set -e; \
 		GOBIN=$(TOOLS_DIR) go install mvdan.cc/gofumpt@v0.9.2; \
 		GOBIN=$(TOOLS_DIR) go install golang.org/x/tools/cmd/goimports@v0.44.0; \
 		GOBIN=$(TOOLS_DIR) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4; \
@@ -92,9 +93,16 @@ fmt: tools
 	@$(GOFUMPT) -w .
 
 fmt-check: tools
-	@$(GOIMPORTS) -local github.com/steipete/gogcli -w .
-	@$(GOFUMPT) -w .
-	@git diff --exit-code -- '*.go' go.mod go.sum
+	@set -e; \
+	tmp="$$(mktemp)"; \
+	trap 'rm -f "$$tmp"' EXIT; \
+	$(GOIMPORTS) -local github.com/steipete/gogcli -l . > "$$tmp"; \
+	$(GOFUMPT) -l . >> "$$tmp"; \
+	unformatted="$$(sort -u "$$tmp")"; \
+	if [ -n "$$unformatted" ]; then \
+		printf 'formatting needed:\n%s\n' "$$unformatted"; \
+		exit 1; \
+	fi
 
 lint: tools
 	@$(GOLANGCI_LINT) run

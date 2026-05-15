@@ -124,7 +124,7 @@ func (c *SheetsReadFormatCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if len(formats) == 0 {
-		u.Err().Printf("No %s found", source)
+		u.Err().Linef("No %s found", source)
 		return nil
 	}
 

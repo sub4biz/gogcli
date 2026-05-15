@@ -117,16 +117,16 @@ func (c *ClassroomAnnouncementsGetCmd) Run(ctx context.Context, flags *RootFlags
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"announcement": ann})
 	}
 
-	u.Out().Printf("id\t%s", ann.Id)
-	u.Out().Printf("state\t%s", ann.State)
+	u.Out().Linef("id\t%s", ann.Id)
+	u.Out().Linef("state\t%s", ann.State)
 	if ann.Text != "" {
-		u.Out().Printf("text\t%s", ann.Text)
+		u.Out().Linef("text\t%s", ann.Text)
 	}
 	if ann.ScheduledTime != "" {
-		u.Out().Printf("scheduled\t%s", ann.ScheduledTime)
+		u.Out().Linef("scheduled\t%s", ann.ScheduledTime)
 	}
 	if ann.AlternateLink != "" {
-		u.Out().Printf("link\t%s", ann.AlternateLink)
+		u.Out().Linef("link\t%s", ann.AlternateLink)
 	}
 	return nil
 }
@@ -176,8 +176,8 @@ func (c *ClassroomAnnouncementsCreateCmd) Run(ctx context.Context, flags *RootFl
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"announcement": created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("state\t%s", created.State)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("state\t%s", created.State)
 	return nil
 }
 
@@ -241,8 +241,8 @@ func (c *ClassroomAnnouncementsUpdateCmd) Run(ctx context.Context, flags *RootFl
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"announcement": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("state\t%s", updated.State)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("state\t%s", updated.State)
 	return nil
 }
 
@@ -337,8 +337,8 @@ func (c *ClassroomAnnouncementsAssigneesCmd) Run(ctx context.Context, flags *Roo
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"announcement": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("assignee_mode\t%s", updated.AssigneeMode)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("assignee_mode\t%s", updated.AssigneeMode)
 	return nil
 }
 

@@ -131,6 +131,6 @@ func (c *SheetsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if c.Count == 1 {
 		plural = dimLabel
 	}
-	u.Out().Printf("Inserted %d %s %s %s %d in %q", c.Count, plural, position, dimLabel, c.Start, sheetName)
+	u.Out().Linef("Inserted %d %s %s %s %d in %q", c.Count, plural, position, dimLabel, c.Start, sheetName)
 	return nil
 }

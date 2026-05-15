@@ -185,14 +185,14 @@ func (c *DocsFormatCmd) writeResult(ctx context.Context, resp *docs.BatchUpdateD
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("id\t%s", resp.DocumentId)
-	u.Out().Printf("requests\t%d", requestCount)
-	u.Out().Printf("ranges\t%d", rangeCount)
+	u.Out().Linef("id\t%s", resp.DocumentId)
+	u.Out().Linef("requests\t%d", requestCount)
+	u.Out().Linef("ranges\t%d", rangeCount)
 	if tabID != "" {
-		u.Out().Printf("tabId\t%s", tabID)
+		u.Out().Linef("tabId\t%s", tabID)
 	}
 	if resp.WriteControl != nil && resp.WriteControl.RequiredRevisionId != "" {
-		u.Out().Printf("revision\t%s", resp.WriteControl.RequiredRevisionId)
+		u.Out().Linef("revision\t%s", resp.WriteControl.RequiredRevisionId)
 	}
 	return nil
 }

@@ -142,10 +142,10 @@ func sedOutputOK(ctx context.Context, u *ui.UI, id string, extra ...sedOutputKV)
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, result)
 	}
-	u.Out().Printf("status\tok")
-	u.Out().Printf("docId\t%s", id)
+	u.Out().Linef("status\tok")
+	u.Out().Linef("docId\t%s", id)
 	for _, kv := range extra {
-		u.Out().Printf("%s\t%v", kv.Key, kv.Value)
+		u.Out().Linef("%s\t%v", kv.Key, kv.Value)
 	}
 	return nil
 }

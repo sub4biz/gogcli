@@ -95,6 +95,16 @@ func TestFromEnvAndParseError(t *testing.T) {
 	}
 }
 
+func TestFromEnvJSONWinsOverPlain(t *testing.T) {
+	t.Setenv("GOG_JSON", "1")
+	t.Setenv("GOG_PLAIN", "1")
+
+	mode := FromEnv()
+	if !mode.JSON || mode.Plain {
+		t.Fatalf("unexpected env mode: %#v", mode)
+	}
+}
+
 func TestFromContext_WrongType(t *testing.T) {
 	ctx := context.WithValue(context.Background(), ctxKey{}, "nope")
 	if got := FromContext(ctx); got != (Mode{}) {

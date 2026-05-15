@@ -115,10 +115,10 @@ func (c *GmailTrackKeyRotateCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return fmt.Errorf("save tracking config: %w", err)
 	}
 
-	u.Out().Printf("tracking_key_rotated\ttrue")
-	u.Out().Printf("tracking_key_version\t%d", nextVersion)
-	u.Out().Printf("tracking_key_versions\t%s", formatTrackingKeyVersions(versions))
-	u.Out().Printf("deployed\t%t", !c.NoDeploy)
+	u.Out().Linef("tracking_key_rotated\ttrue")
+	u.Out().Linef("tracking_key_version\t%d", nextVersion)
+	u.Out().Linef("tracking_key_versions\t%s", formatTrackingKeyVersions(versions))
+	u.Out().Linef("deployed\t%t", !c.NoDeploy)
 
 	return nil
 }

@@ -104,6 +104,6 @@ func (c *SlidesInsertTextCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if resp != nil {
 		replies = len(resp.Replies)
 	}
-	u.Out().Printf("ok | revisionId=%s | replies=%d", revisionID, replies)
+	u.Out().Linef("ok | revisionId=%s | replies=%d", revisionID, replies)
 	return nil
 }

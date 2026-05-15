@@ -29,9 +29,9 @@ func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, path string, c
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"path": path, "cached": cached, "bytes": bytes})
 	}
-	u.Out().Printf("path\t%s", path)
-	u.Out().Printf("cached\t%t", cached)
-	u.Out().Printf("bytes\t%d", bytes)
+	u.Out().Linef("path\t%s", path)
+	u.Out().Linef("cached\t%t", cached)
+	u.Out().Linef("bytes\t%d", bytes)
 	return nil
 }
 

@@ -191,36 +191,36 @@ func (c *GmailTrackSetupCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	path, _ := tracking.ConfigPath()
-	u.Out().Printf("configured\ttrue")
-	u.Out().Printf("account\t%s", account)
+	u.Out().Linef("configured\ttrue")
+	u.Out().Linef("account\t%s", account)
 	if path != "" {
-		u.Out().Printf("config_path\t%s", path)
+		u.Out().Linef("config_path\t%s", path)
 	}
-	u.Out().Printf("worker_url\t%s", cfg.WorkerURL)
-	u.Out().Printf("worker_name\t%s", cfg.WorkerName)
-	u.Out().Printf("database_name\t%s", cfg.DatabaseName)
-	u.Out().Printf("tracking_key_version\t%d", cfg.TrackingCurrentKeyVersion)
+	u.Out().Linef("worker_url\t%s", cfg.WorkerURL)
+	u.Out().Linef("worker_name\t%s", cfg.WorkerName)
+	u.Out().Linef("database_name\t%s", cfg.DatabaseName)
+	u.Out().Linef("tracking_key_version\t%d", cfg.TrackingCurrentKeyVersion)
 	if cfg.DatabaseID != "" {
-		u.Out().Printf("database_id\t%s", cfg.DatabaseID)
+		u.Out().Linef("database_id\t%s", cfg.DatabaseID)
 	}
 
 	if !c.Deploy {
 		u.Err().Println("")
 		u.Err().Println("Next steps (manual worker deploy):")
-		u.Err().Printf("  - cd %s", c.WorkerDir)
+		u.Err().Linef("  - cd %s", c.WorkerDir)
 		u.Err().Println("  - use these values when prompted:")
-		u.Err().Printf("    TRACKING_KEY=%s", key)
+		u.Err().Linef("    TRACKING_KEY=%s", key)
 		for _, version := range versions {
-			u.Err().Printf("    TRACKING_KEY_V%d=%s", version, trackingKeys[version])
+			u.Err().Linef("    TRACKING_KEY_V%d=%s", version, trackingKeys[version])
 		}
-		u.Err().Printf("    TRACKING_CURRENT_KEY_VERSION=%d", currentVersion)
-		u.Err().Printf("    ADMIN_KEY=%s", adminKey)
-		u.Err().Printf("  - wrangler d1 create %s", c.DatabaseName)
-		u.Err().Printf("  - set wrangler.toml name=%s + database_id", cfg.WorkerName)
+		u.Err().Linef("    TRACKING_CURRENT_KEY_VERSION=%d", currentVersion)
+		u.Err().Linef("    ADMIN_KEY=%s", adminKey)
+		u.Err().Linef("  - wrangler d1 create %s", c.DatabaseName)
+		u.Err().Linef("  - set wrangler.toml name=%s + database_id", cfg.WorkerName)
 		u.Err().Println("  - wrangler d1 execute <db> --file schema.sql --remote")
 		u.Err().Println("  - wrangler secret put TRACKING_KEY")
 		for _, version := range versions {
-			u.Err().Printf("  - wrangler secret put TRACKING_KEY_V%d", version)
+			u.Err().Linef("  - wrangler secret put TRACKING_KEY_V%d", version)
 		}
 		u.Err().Println("  - wrangler secret put TRACKING_CURRENT_KEY_VERSION")
 		u.Err().Println("  - wrangler secret put ADMIN_KEY")

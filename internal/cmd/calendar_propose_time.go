@@ -160,11 +160,11 @@ func (c *CalendarProposeTimeCmd) Run(ctx context.Context, flags *RootFlags) erro
 	}
 
 	// Text output
-	u.Out().Printf("# API Limitation: %s", proposeTimeAPILimitation)
-	u.Out().Printf("# Issue tracker: %s", proposeTimeIssueTrackerURL)
-	u.Out().Printf("# Action: %s", proposeTimeUpvoteAction)
-	u.Out().Printf("")
-	u.Out().Printf("event\t%s", orEmpty(event.Summary, "(no title)"))
+	u.Out().Linef("# API Limitation: %s", proposeTimeAPILimitation)
+	u.Out().Linef("# Issue tracker: %s", proposeTimeIssueTrackerURL)
+	u.Out().Linef("# Action: %s", proposeTimeUpvoteAction)
+	u.Out().Linef("")
+	u.Out().Linef("event\t%s", orEmpty(event.Summary, "(no title)"))
 	if event.Start != nil {
 		start := event.Start.DateTime
 		if start == "" {
@@ -177,29 +177,29 @@ func (c *CalendarProposeTimeCmd) Run(ctx context.Context, flags *RootFlags) erro
 				end = event.End.Date
 			}
 		}
-		u.Out().Printf("current\t%s - %s", start, end)
+		u.Out().Linef("current\t%s - %s", start, end)
 	}
-	u.Out().Printf("propose_url\t%s", proposeURL)
+	u.Out().Linef("propose_url\t%s", proposeURL)
 
 	if decline {
-		u.Out().Printf("")
-		u.Out().Printf("declined\tyes")
+		u.Out().Linef("")
+		u.Out().Linef("declined\tyes")
 		if strings.TrimSpace(c.Comment) != "" {
-			u.Out().Printf("comment\t%s", strings.TrimSpace(c.Comment))
+			u.Out().Linef("comment\t%s", strings.TrimSpace(c.Comment))
 		}
 	} else {
-		u.Out().Printf("")
-		u.Out().Printf("Tip: To notify the organizer, decline with a comment:")
-		u.Out().Printf("  gog calendar propose-time %s %s --decline --comment \"Can we do 5pm instead?\"", calendarID, eventID)
+		u.Out().Linef("")
+		u.Out().Linef("Tip: To notify the organizer, decline with a comment:")
+		u.Out().Linef("  gog calendar propose-time %s %s --decline --comment \"Can we do 5pm instead?\"", calendarID, eventID)
 	}
 
 	// Open browser if requested
 	if c.Open {
-		u.Out().Printf("")
-		u.Out().Printf("Opening browser...")
+		u.Out().Linef("")
+		u.Out().Linef("Opening browser...")
 		if err := openProposeTimeBrowser(proposeURL); err != nil {
-			u.Err().Printf("Failed to open browser: %v", err)
-			u.Err().Printf("Please open the propose_url manually.")
+			u.Err().Linef("Failed to open browser: %v", err)
+			u.Err().Linef("Please open the propose_url manually.")
 		}
 	}
 

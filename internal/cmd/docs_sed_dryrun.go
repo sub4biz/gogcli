@@ -43,14 +43,14 @@ func (c *DocsSedCmd) runDryRun(_ context.Context, u *ui.UI, exprs []sedExpr) err
 		}
 
 		if braceInfo != "" {
-			u.Out().Printf("%d\t%s\t%s\t%s/%s/%s/%s%s\t%s", i+1, kind, valid, prefix, expr.pattern, truncateSed(expr.replacement, 40), flag, nthStr, braceInfo)
+			u.Out().Linef("%d\t%s\t%s\t%s/%s/%s/%s%s\t%s", i+1, kind, valid, prefix, expr.pattern, truncateSed(expr.replacement, 40), flag, nthStr, braceInfo)
 		} else {
-			u.Out().Printf("%d\t%s\t%s\t%s/%s/%s/%s%s", i+1, kind, valid, prefix, expr.pattern, truncateSed(expr.replacement, 40), flag, nthStr)
+			u.Out().Linef("%d\t%s\t%s\t%s/%s/%s/%s%s", i+1, kind, valid, prefix, expr.pattern, truncateSed(expr.replacement, 40), flag, nthStr)
 		}
 	}
 
-	u.Out().Printf("---")
-	u.Out().Printf("dry-run: %d expressions parsed, no changes made", len(exprs))
+	u.Out().Linef("---")
+	u.Out().Linef("dry-run: %d expressions parsed, no changes made", len(exprs))
 	return nil
 }
 

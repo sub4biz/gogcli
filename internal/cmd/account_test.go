@@ -118,6 +118,38 @@ func TestRequireAccount_AutoUsesDefault(t *testing.T) {
 	}
 }
 
+func TestRequireAccount_ExplicitAutoIgnoresEnv(t *testing.T) {
+	t.Setenv("GOG_ACCOUNT", "env@example.com")
+	flags := &RootFlags{Account: "auto"}
+
+	prev := openSecretsStoreForAccount
+	t.Cleanup(func() { openSecretsStoreForAccount = prev })
+	openSecretsStoreForAccount = func() (secrets.Store, error) {
+		return &fakeSecretsStore{defaultAccount: "default@example.com"}, nil
+	}
+
+	got, err := requireAccount(flags)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	if got != "default@example.com" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestRequireAccount_ADCNilFlags(t *testing.T) {
+	t.Setenv("GOG_AUTH_MODE", "adc")
+	t.Setenv("GOG_ACCOUNT", "")
+
+	got, err := requireAccount(nil)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	if got != "adc" {
+		t.Fatalf("got %q", got)
+	}
+}
+
 func TestRequireAccount_Missing(t *testing.T) {
 	t.Setenv("GOG_ACCOUNT", "")
 	flags := &RootFlags{}

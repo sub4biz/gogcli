@@ -33,6 +33,7 @@ go.work.sum
 
 # Local tools
 .tools/
+.clawpatch/
 
 # Local build output
 bin/

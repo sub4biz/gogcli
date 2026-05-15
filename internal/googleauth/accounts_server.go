@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -54,7 +55,9 @@ type ManageServer struct {
 	server        *http.Server
 	store         secrets.Store
 	fetchIdentity func(ctx context.Context, tok *oauth2.Token) (Identity, error)
+	oauthMu       sync.Mutex
 	oauthState    string
+	oauthStates   map[string]struct{}
 	resultCh      chan error
 }
 
@@ -230,6 +233,9 @@ func (ms *ManageServer) handleListAccounts(w http.ResponseWriter, r *http.Reques
 	}
 
 	defaultEmail, _ := ms.store.GetDefaultAccount(ms.client)
+	if !tokenListHasEmail(filtered, defaultEmail) {
+		defaultEmail = ""
+	}
 
 	accounts := make([]AccountInfo, 0, len(filtered))
 	for i, t := range filtered {
@@ -260,7 +266,8 @@ func (ms *ManageServer) handleAuthStart(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Failed to generate state", http.StatusInternalServerError)
 		return
 	}
-	ms.oauthState = state
+
+	ms.addOAuthState(state)
 
 	services := manageServices(ms.opts.Services)
 
@@ -303,7 +310,8 @@ func (ms *ManageServer) handleAuthUpgrade(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Failed to generate state", http.StatusInternalServerError)
 		return
 	}
-	ms.oauthState = state
+
+	ms.addOAuthState(state)
 
 	// Use requested manage services (exclude Keep)
 	services := manageServices(ms.opts.Services)
@@ -345,7 +353,7 @@ func (ms *ManageServer) handleOAuthCallback(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if q.Get("state") != ms.oauthState {
+	if !ms.consumeOAuthState(q.Get("state")) {
 		w.WriteHeader(http.StatusBadRequest)
 		renderErrorPage(w, "State mismatch - possible CSRF attack. Please try again.")
 
@@ -438,7 +446,6 @@ func (ms *ManageServer) handleOAuthCallback(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	// Store the token
 	serviceNames := make([]string, 0, len(services))
 	for _, svc := range services {
 		serviceNames = append(serviceNames, string(svc))
@@ -451,6 +458,8 @@ func (ms *ManageServer) handleOAuthCallback(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// Store the token after subject migration so deleting the old email alias
+	// cannot remove the freshly written subject-keyed token.
 	if err := ms.store.SetToken(ms.client, email, secrets.Token{
 		Subject:      identity.Subject,
 		Email:        email,
@@ -489,7 +498,13 @@ func (ms *ManageServer) handleSetDefault(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := ms.store.SetDefaultAccount(ms.client, req.Email); err != nil {
+	email := normalizeEmail(req.Email)
+	if !ms.accountExists(email) {
+		writeJSONError(w, "Account not found", http.StatusBadRequest)
+		return
+	}
+
+	if err := ms.store.SetDefaultAccount(ms.client, email); err != nil {
 		writeJSONError(w, "Failed to set default account", http.StatusInternalServerError)
 		return
 	}
@@ -517,12 +532,114 @@ func (ms *ManageServer) handleRemoveAccount(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if err := ms.store.DeleteToken(ms.client, req.Email); err != nil {
+	email := normalizeEmail(req.Email)
+	if err := ms.store.DeleteToken(ms.client, email); err != nil {
 		writeJSONError(w, "Failed to remove account", http.StatusInternalServerError)
 		return
 	}
 
+	if defaultEmail, err := ms.store.GetDefaultAccount(ms.client); err == nil && normalizeEmail(defaultEmail) == email {
+		if err := ms.resetDefaultAfterRemoval(email); err != nil {
+			writeJSONError(w, "Failed to update default account", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	writeJSON(w, map[string]any{"success": true})
+}
+
+type defaultAccountDeleter interface {
+	DeleteDefaultAccount(client string) error
+}
+
+func (ms *ManageServer) addOAuthState(state string) {
+	ms.oauthMu.Lock()
+	defer ms.oauthMu.Unlock()
+
+	ms.oauthState = state
+	if ms.oauthStates == nil {
+		ms.oauthStates = make(map[string]struct{})
+	}
+
+	ms.oauthStates[state] = struct{}{}
+}
+
+func (ms *ManageServer) consumeOAuthState(state string) bool {
+	ms.oauthMu.Lock()
+	defer ms.oauthMu.Unlock()
+
+	if ms.oauthStates != nil {
+		if _, ok := ms.oauthStates[state]; ok {
+			delete(ms.oauthStates, state)
+			return true
+		}
+
+		return false
+	}
+
+	if state == "" || state != ms.oauthState {
+		return false
+	}
+
+	ms.oauthState = ""
+
+	return true
+}
+
+func (ms *ManageServer) accountExists(email string) bool {
+	tokens, err := ms.store.ListTokens()
+	if err != nil {
+		return false
+	}
+
+	for _, tok := range tokens {
+		if tok.Client == ms.client && normalizeEmail(tok.Email) == email {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (ms *ManageServer) resetDefaultAfterRemoval(removedEmail string) error {
+	tokens, err := ms.store.ListTokens()
+	if err != nil {
+		return fmt.Errorf("list accounts after removing default: %w", err)
+	}
+
+	for _, tok := range tokens {
+		email := normalizeEmail(tok.Email)
+		if tok.Client == ms.client && email != "" && email != removedEmail {
+			if err := ms.store.SetDefaultAccount(ms.client, email); err != nil {
+				return fmt.Errorf("set replacement default account: %w", err)
+			}
+
+			return nil
+		}
+	}
+
+	if deleter, ok := ms.store.(defaultAccountDeleter); ok {
+		if err := deleter.DeleteDefaultAccount(ms.client); err != nil {
+			return fmt.Errorf("delete default account: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func tokenListHasEmail(tokens []secrets.Token, email string) bool {
+	email = normalizeEmail(email)
+	if email == "" {
+		return false
+	}
+
+	for _, tok := range tokens {
+		if normalizeEmail(tok.Email) == email {
+			return true
+		}
+	}
+
+	return false
 }
 
 func fetchUserIdentityDefault(ctx context.Context, tok *oauth2.Token) (Identity, error) {

@@ -65,7 +65,7 @@ func (c *GmailBatchDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Deleted %d messages", len(ids))
+	u.Out().Linef("Deleted %d messages", len(ids))
 	return nil
 }
 
@@ -135,6 +135,6 @@ func (c *GmailBatchModifyCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Modified %d messages", len(ids))
+	u.Out().Linef("Modified %d messages", len(ids))
 	return nil
 }

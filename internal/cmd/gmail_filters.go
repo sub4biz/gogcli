@@ -137,7 +137,7 @@ func (c *GmailFiltersDeleteCmd) Run(ctx context.Context, flags *RootFlags) error
 		})
 	}
 
-	ui.FromContext(ctx).Out().Printf("Filter %s deleted successfully", filterID)
+	ui.FromContext(ctx).Out().Linef("Filter %s deleted successfully", filterID)
 	return nil
 }
 
@@ -218,6 +218,6 @@ func (c *GmailFiltersExportCmd) Run(ctx context.Context, flags *RootFlags) error
 		})
 	}
 
-	ui.FromContext(ctx).Out().Printf("Exported %d filters to %s", len(resp.Filter), outPath)
+	ui.FromContext(ctx).Out().Linef("Exported %d filters to %s", len(resp.Filter), outPath)
 	return nil
 }

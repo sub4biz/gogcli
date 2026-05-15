@@ -156,7 +156,7 @@ func gmailBulkLabelOp(ctx context.Context, flags *RootFlags, messageIDs []string
 		})
 	}
 
-	u.Out().Printf("%s %d message%s", capitalizeFirst(verb), total, pluralS(total))
+	u.Out().Linef("%s %d message%s", capitalizeFirst(verb), total, pluralS(total))
 	return nil
 }
 

@@ -103,10 +103,10 @@ func (c *BackupInitCmd) Run(ctx context.Context) error {
 		})
 	}
 	u := ui.FromContext(ctx)
-	u.Out().Printf("repo\t%s", cfg.Repo)
-	u.Out().Printf("remote\t%s", cfg.Remote)
-	u.Out().Printf("identity\t%s", cfg.Identity)
-	u.Out().Printf("recipient\t%s", recipient)
+	u.Out().Linef("repo\t%s", cfg.Repo)
+	u.Out().Linef("remote\t%s", cfg.Remote)
+	u.Out().Linef("identity\t%s", cfg.Identity)
+	u.Out().Linef("recipient\t%s", recipient)
 	return nil
 }
 
@@ -332,19 +332,19 @@ func (c *BackupStatusCmd) Run(ctx context.Context) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"repo": repo, "manifest": manifest})
 	}
 	u := ui.FromContext(ctx)
-	u.Out().Printf("repo\t%s", repo)
-	u.Out().Printf("encrypted\t%t", manifest.Encrypted)
-	u.Out().Printf("exported\t%s", manifest.Exported.Format(time.RFC3339))
-	u.Out().Printf("services\t%s", strings.Join(manifest.Services, ","))
-	u.Out().Printf("accounts\t%s", strings.Join(manifest.Accounts, ","))
-	u.Out().Printf("shards\t%d", len(manifest.Shards))
+	u.Out().Linef("repo\t%s", repo)
+	u.Out().Linef("encrypted\t%t", manifest.Encrypted)
+	u.Out().Linef("exported\t%s", manifest.Exported.Format(time.RFC3339))
+	u.Out().Linef("services\t%s", strings.Join(manifest.Services, ","))
+	u.Out().Linef("accounts\t%s", strings.Join(manifest.Accounts, ","))
+	u.Out().Linef("shards\t%d", len(manifest.Shards))
 	keys := make([]string, 0, len(manifest.Counts))
 	for key := range manifest.Counts {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 	for _, key := range keys {
-		u.Out().Printf("count.%s\t%d", key, manifest.Counts[key])
+		u.Out().Linef("count.%s\t%d", key, manifest.Counts[key])
 	}
 	return nil
 }
@@ -384,17 +384,17 @@ func writeBackupResult(ctx context.Context, result backup.Result) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, result)
 	}
 	u := ui.FromContext(ctx)
-	u.Out().Printf("repo\t%s", result.Repo)
-	u.Out().Printf("changed\t%t", result.Changed)
-	u.Out().Printf("encrypted\t%t", result.Encrypted)
-	u.Out().Printf("shards\t%d", result.Shards)
+	u.Out().Linef("repo\t%s", result.Repo)
+	u.Out().Linef("changed\t%t", result.Changed)
+	u.Out().Linef("encrypted\t%t", result.Encrypted)
+	u.Out().Linef("shards\t%d", result.Shards)
 	keys := make([]string, 0, len(result.Counts))
 	for key := range result.Counts {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 	for _, key := range keys {
-		u.Out().Printf("count.%s\t%s", key, strconv.Itoa(result.Counts[key]))
+		u.Out().Linef("count.%s\t%s", key, strconv.Itoa(result.Counts[key]))
 	}
 	return nil
 }

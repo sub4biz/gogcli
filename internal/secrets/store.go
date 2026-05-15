@@ -779,3 +779,22 @@ func (s *KeyringStore) SetDefaultAccount(client string, email string) error {
 
 	return nil
 }
+
+func (s *KeyringStore) DeleteDefaultAccount(client string) error {
+	normalizedClient, err := normalizeClient(client)
+	if err != nil {
+		return err
+	}
+
+	if normalizedClient != "" {
+		if err := s.ring.Remove(defaultAccountKeyForClient(normalizedClient)); err != nil && !errors.Is(err, keyring.ErrKeyNotFound) {
+			return fmt.Errorf("delete default account: %w", err)
+		}
+	}
+
+	if err := s.ring.Remove(defaultAccountKey); err != nil && !errors.Is(err, keyring.ErrKeyNotFound) {
+		return fmt.Errorf("delete default account: %w", err)
+	}
+
+	return nil
+}

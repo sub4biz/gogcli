@@ -41,9 +41,9 @@ func writeResult(ctx context.Context, u *ui.UI, kvs ...resultKV) error {
 	for _, kv := range kvs {
 		switch v := kv.Value.(type) {
 		case bool:
-			u.Out().Printf("%s\t%t", kv.Key, v)
+			u.Out().Linef("%s\t%t", kv.Key, v)
 		default:
-			u.Out().Printf("%s\t%v", kv.Key, kv.Value)
+			u.Out().Linef("%s\t%v", kv.Key, kv.Value)
 		}
 	}
 	return nil
@@ -53,5 +53,5 @@ func printNextPageHint(u *ui.UI, nextPageToken string) {
 	if u == nil || nextPageToken == "" {
 		return
 	}
-	u.Err().Printf("# Next page: --page %s", nextPageToken)
+	u.Err().Linef("# Next page: --page %s", nextPageToken)
 }

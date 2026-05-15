@@ -140,12 +140,12 @@ func (c *GmailDraftsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, out)
 	}
 
-	u.Out().Printf("Draft-ID: %s", draft.Id)
-	u.Out().Printf("Message-ID: %s", msg.Id)
-	u.Out().Printf("To: %s", headerValue(msg.Payload, "To"))
-	u.Out().Printf("Cc: %s", headerValue(msg.Payload, "Cc"))
-	u.Out().Printf("Bcc: %s", headerValue(msg.Payload, "Bcc"))
-	u.Out().Printf("Subject: %s", headerValue(msg.Payload, "Subject"))
+	u.Out().Linef("Draft-ID: %s", draft.Id)
+	u.Out().Linef("Message-ID: %s", msg.Id)
+	u.Out().Linef("To: %s", headerValue(msg.Payload, "To"))
+	u.Out().Linef("Cc: %s", headerValue(msg.Payload, "Cc"))
+	u.Out().Linef("Bcc: %s", headerValue(msg.Payload, "Bcc"))
+	u.Out().Linef("Subject: %s", headerValue(msg.Payload, "Subject"))
 	u.Out().Println("")
 
 	body := bestBodyText(msg.Payload)
@@ -168,7 +168,7 @@ func (c *GmailDraftsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 		for _, a := range downloads {
 			if a.Cached {
-				u.Out().Printf("Cached: %s", a.Path)
+				u.Out().Linef("Cached: %s", a.Path)
 			} else {
 				u.Out().Successf("Saved: %s", a.Path)
 			}
@@ -331,12 +331,12 @@ func writeDraftResult(ctx context.Context, u *ui.UI, draft *gmail.Draft, threadI
 			"threadId": threadID,
 		})
 	}
-	u.Out().Printf("draft_id\t%s", draft.Id)
+	u.Out().Linef("draft_id\t%s", draft.Id)
 	if draft.Message != nil && draft.Message.Id != "" {
-		u.Out().Printf("message_id\t%s", draft.Message.Id)
+		u.Out().Linef("message_id\t%s", draft.Message.Id)
 	}
 	if threadID != "" {
-		u.Out().Printf("thread_id\t%s", threadID)
+		u.Out().Linef("thread_id\t%s", threadID)
 	}
 	return nil
 }

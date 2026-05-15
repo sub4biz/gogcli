@@ -130,12 +130,12 @@ func (c *SitesGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"site": f})
 	}
 
-	u.Out().Printf("id\t%s", f.Id)
-	u.Out().Printf("name\t%s", f.Name)
-	u.Out().Printf("type\t%s", f.MimeType)
-	u.Out().Printf("modified\t%s", f.ModifiedTime)
+	u.Out().Linef("id\t%s", f.Id)
+	u.Out().Linef("name\t%s", f.Name)
+	u.Out().Linef("type\t%s", f.MimeType)
+	u.Out().Linef("modified\t%s", f.ModifiedTime)
 	if f.WebViewLink != "" {
-		u.Out().Printf("link\t%s", f.WebViewLink)
+		u.Out().Linef("link\t%s", f.WebViewLink)
 	}
 	return nil
 }
@@ -162,7 +162,7 @@ func (c *SitesURLCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 		urls = append(urls, map[string]string{"id": siteID, "url": link})
 		if !outfmt.IsJSON(ctx) {
-			u.Out().Printf("%s\t%s", siteID, link)
+			u.Out().Linef("%s\t%s", siteID, link)
 		}
 	}
 	if outfmt.IsJSON(ctx) {

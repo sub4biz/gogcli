@@ -11,7 +11,10 @@ import (
 	"github.com/99designs/keyring"
 )
 
-var errInvalidTestFilename = errors.New("invalid filename")
+var (
+	errInvalidTestFilename = errors.New("invalid filename")
+	errLegacyRemoveFailed  = errors.New("legacy remove failed")
+)
 
 func TestFileSafeKeyRoundTrip(t *testing.T) {
 	keys := []string{
@@ -159,6 +162,32 @@ func TestFileSafeKeyringReadsAndRemovesLegacyRawKeys(t *testing.T) {
 	}
 }
 
+func TestFileSafeKeyringRemoveReportsLegacyDeleteError(t *testing.T) {
+	key := "token:default:user@example.com"
+	ring := newFileSafeKeyring(&legacyRemoveErrorKeyring{
+		key: key,
+		items: map[string]keyring.Item{
+			fileSafeKey(key): {Key: fileSafeKey(key), Data: []byte("encoded")},
+			key:              {Key: key, Data: []byte("legacy")},
+		},
+		err: errLegacyRemoveFailed,
+	})
+
+	err := ring.Remove(key)
+	if !errors.Is(err, errLegacyRemoveFailed) {
+		t.Fatalf("expected legacy remove error, got %v", err)
+	}
+
+	item, getErr := ring.Get(key)
+	if getErr != nil {
+		t.Fatalf("Get: %v", getErr)
+	}
+
+	if string(item.Data) != "legacy" {
+		t.Fatalf("expected legacy item still readable, got %q", string(item.Data))
+	}
+}
+
 func TestFileSafeKeyringTreatsInvalidLegacyFilenameAsNotFound(t *testing.T) {
 	orig := isInvalidFileKeyError
 	isInvalidFileKeyError = func(err error) bool { return errors.Is(err, errInvalidTestFilename) }
@@ -220,4 +249,55 @@ func (k *invalidFilenameKeyring) Remove(string) error {
 
 func (k *invalidFilenameKeyring) Keys() ([]string, error) {
 	return nil, nil
+}
+
+type legacyRemoveErrorKeyring struct {
+	key   string
+	items map[string]keyring.Item
+	err   error
+}
+
+func (k *legacyRemoveErrorKeyring) Get(key string) (keyring.Item, error) {
+	item, ok := k.items[key]
+	if !ok {
+		return keyring.Item{}, keyring.ErrKeyNotFound
+	}
+
+	return item, nil
+}
+
+func (k *legacyRemoveErrorKeyring) GetMetadata(key string) (keyring.Metadata, error) {
+	if _, ok := k.items[key]; !ok {
+		return keyring.Metadata{}, keyring.ErrKeyNotFound
+	}
+
+	return keyring.Metadata{}, nil
+}
+
+func (k *legacyRemoveErrorKeyring) Set(item keyring.Item) error {
+	k.items[item.Key] = item
+	return nil
+}
+
+func (k *legacyRemoveErrorKeyring) Remove(key string) error {
+	if key == k.key {
+		return k.err
+	}
+
+	if _, ok := k.items[key]; !ok {
+		return keyring.ErrKeyNotFound
+	}
+
+	delete(k.items, key)
+
+	return nil
+}
+
+func (k *legacyRemoveErrorKeyring) Keys() ([]string, error) {
+	keys := make([]string, 0, len(k.items))
+	for key := range k.items {
+		keys = append(keys, key)
+	}
+
+	return keys, nil
 }

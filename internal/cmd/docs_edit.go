@@ -26,7 +26,7 @@ func resolveTabArg(ctx context.Context, tab, tabID string) (string, error) {
 	}
 	if tabID != "" {
 		u := ui.FromContext(ctx)
-		u.Err().Printf("Warning: --tab-id is deprecated; use --tab instead")
+		u.Err().Linef("Warning: --tab-id is deprecated; use --tab instead")
 		return tabID, nil
 	}
 	return tab, nil
@@ -197,15 +197,15 @@ func (c *DocsWriteCmd) writePlainTextResult(ctx context.Context, resp *docs.Batc
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("id\t%s", resp.DocumentId)
-	u.Out().Printf("requests\t%d", requestCount)
-	u.Out().Printf("append\t%t", c.Append)
-	u.Out().Printf("index\t%d", insertIndex)
+	u.Out().Linef("id\t%s", resp.DocumentId)
+	u.Out().Linef("requests\t%d", requestCount)
+	u.Out().Linef("append\t%t", c.Append)
+	u.Out().Linef("index\t%d", insertIndex)
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	if resp.WriteControl != nil && resp.WriteControl.RequiredRevisionId != "" {
-		u.Out().Printf("revision\t%s", resp.WriteControl.RequiredRevisionId)
+		u.Out().Linef("revision\t%s", resp.WriteControl.RequiredRevisionId)
 	}
 	return nil
 }
@@ -286,14 +286,14 @@ func (c *DocsWriteCmd) writeMarkdown(ctx context.Context, flags *RootFlags, docI
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("documentId\t%s", updated.Id)
-	u.Out().Printf("written\t%d", len(content))
-	u.Out().Printf("mode\treplaced (markdown converted)")
+	u.Out().Linef("documentId\t%s", updated.Id)
+	u.Out().Linef("written\t%d", len(content))
+	u.Out().Linef("mode\treplaced (markdown converted)")
 	if c.Pageless {
-		u.Out().Printf("pageless\ttrue")
+		u.Out().Linef("pageless\ttrue")
 	}
 	if updated.WebViewLink != "" {
-		u.Out().Printf("link\t%s", updated.WebViewLink)
+		u.Out().Linef("link\t%s", updated.WebViewLink)
 	}
 	return nil
 }
@@ -352,13 +352,13 @@ func (c *DocsWriteCmd) appendMarkdown(ctx context.Context, flags *RootFlags, doc
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("documentId\t%s", docID)
-	u.Out().Printf("written\t%d", inserted)
-	u.Out().Printf("requests\t%d", requestCount)
-	u.Out().Printf("mode\tappended (markdown converted)")
-	u.Out().Printf("index\t%d", insertIndex)
+	u.Out().Linef("documentId\t%s", docID)
+	u.Out().Linef("written\t%d", inserted)
+	u.Out().Linef("requests\t%d", requestCount)
+	u.Out().Linef("mode\tappended (markdown converted)")
+	u.Out().Linef("index\t%d", insertIndex)
 	if c.Pageless {
-		u.Out().Printf("pageless\ttrue")
+		u.Out().Linef("pageless\ttrue")
 	}
 	return nil
 }
@@ -470,14 +470,14 @@ func (c *DocsUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *Root
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("id\t%s", resp.DocumentId)
-	u.Out().Printf("requests\t%d", len(reqs))
-	u.Out().Printf("index\t%d", insertIndex)
+	u.Out().Linef("id\t%s", resp.DocumentId)
+	u.Out().Linef("requests\t%d", len(reqs))
+	u.Out().Linef("index\t%d", insertIndex)
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	if resp.WriteControl != nil && resp.WriteControl.RequiredRevisionId != "" {
-		u.Out().Printf("revision\t%s", resp.WriteControl.RequiredRevisionId)
+		u.Out().Linef("revision\t%s", resp.WriteControl.RequiredRevisionId)
 	}
 	return nil
 }
@@ -558,11 +558,11 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("documentId\t%s", result.DocumentId)
-	u.Out().Printf("inserted\t%d bytes", len(content))
-	u.Out().Printf("atIndex\t%d", c.Index)
+	u.Out().Linef("documentId\t%s", result.DocumentId)
+	u.Out().Linef("inserted\t%d bytes", len(content))
+	u.Out().Linef("atIndex\t%d", c.Index)
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	return nil
 }
@@ -640,11 +640,11 @@ func (c *DocsDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("documentId\t%s", result.DocumentId)
-	u.Out().Printf("deleted\t%d characters", c.End-c.Start)
-	u.Out().Printf("range\t%d-%d", c.Start, c.End)
+	u.Out().Linef("documentId\t%s", result.DocumentId)
+	u.Out().Linef("deleted\t%d characters", c.End-c.Start)
+	u.Out().Linef("range\t%d-%d", c.Start, c.End)
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	return nil
 }
@@ -805,12 +805,12 @@ func (c *DocsFindReplaceCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("documentId\t%s", docID)
-	u.Out().Printf("find\t%s", c.Find)
-	u.Out().Printf("replace\t%s", replaceText)
-	u.Out().Printf("replacements\t%d", len(matches))
+	u.Out().Linef("documentId\t%s", docID)
+	u.Out().Linef("find\t%s", c.Find)
+	u.Out().Linef("replace\t%s", replaceText)
+	u.Out().Linef("replacements\t%d", len(matches))
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	return nil
 }
@@ -845,7 +845,7 @@ func (c *DocsFindReplaceCmd) runDryRun(ctx context.Context, u *ui.UI, svc *docs.
 		return err
 	}
 	if !outfmt.IsJSON(ctx) {
-		u.Out().Printf("matches\t%d", len(matches))
+		u.Out().Linef("matches\t%d", len(matches))
 	}
 	return nil
 }
@@ -869,12 +869,12 @@ func (c *DocsFindReplaceCmd) runReplaceAll(ctx context.Context, u *ui.UI, svc *d
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("documentId\t%s", documentID)
-	u.Out().Printf("find\t%s", c.Find)
-	u.Out().Printf("replace\t%s", replaceText)
-	u.Out().Printf("replacements\t%d", replacements)
+	u.Out().Linef("documentId\t%s", documentID)
+	u.Out().Linef("find\t%s", c.Find)
+	u.Out().Linef("replace\t%s", replaceText)
+	u.Out().Linef("replacements\t%d", replacements)
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	return nil
 }
@@ -901,15 +901,15 @@ func (c *DocsFindReplaceCmd) printFirstResult(ctx context.Context, u *ui.UI, doc
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("documentId\t%s", docID)
-	u.Out().Printf("find\t%s", c.Find)
-	u.Out().Printf("replace\t%s", replaceText)
-	u.Out().Printf("replacements\t%d", replacements)
+	u.Out().Linef("documentId\t%s", docID)
+	u.Out().Linef("find\t%s", c.Find)
+	u.Out().Linef("replace\t%s", replaceText)
+	u.Out().Linef("replacements\t%d", replacements)
 	if remaining := total - replacements; remaining > 0 {
-		u.Out().Printf("remaining\t%d", remaining)
+		u.Out().Linef("remaining\t%d", remaining)
 	}
 	if c.Tab != "" {
-		u.Out().Printf("tabId\t%s", c.Tab)
+		u.Out().Linef("tabId\t%s", c.Tab)
 	}
 	return nil
 }

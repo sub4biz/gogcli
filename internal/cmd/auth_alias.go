@@ -83,8 +83,8 @@ func (c *AuthAliasSetCmd) Run(ctx context.Context, flags *RootFlags) error {
 			"email": strings.ToLower(email),
 		})
 	}
-	u.Out().Printf("alias\t%s", alias)
-	u.Out().Printf("email\t%s", strings.ToLower(email))
+	u.Out().Linef("alias\t%s", alias)
+	u.Out().Linef("email\t%s", strings.ToLower(email))
 	return nil
 }
 

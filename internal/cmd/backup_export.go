@@ -122,7 +122,7 @@ func (c *BackupExportCmd) Run(ctx context.Context) error {
 			if strings.TrimSpace(shard.Kind) != "" {
 				key += "." + shard.Kind
 			}
-			u.Err().Printf("export\t%d/%d\t%s\trows=%d", shardIndex, len(snapshot.Shards), key, shard.Rows)
+			u.Err().Linef("export\t%d/%d\t%s\trows=%d", shardIndex, len(snapshot.Shards), key, shard.Rows)
 		}
 		_, count, shardErr := exportPlainShard(outDir, shard, exportOpts)
 		if shardErr != nil {
@@ -151,16 +151,16 @@ func (c *BackupExportCmd) Run(ctx context.Context) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, result)
 	}
-	u.Out().Printf("out\t%s", result.Out)
-	u.Out().Printf("repo\t%s", result.Repo)
-	u.Out().Printf("files\t%d", result.Files)
+	u.Out().Linef("out\t%s", result.Out)
+	u.Out().Linef("repo\t%s", result.Repo)
+	u.Out().Linef("files\t%d", result.Files)
 	keys := make([]string, 0, len(result.Counts))
 	for key := range result.Counts {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 	for _, key := range keys {
-		u.Out().Printf("count.%s\t%d", key, result.Counts[key])
+		u.Out().Linef("count.%s\t%d", key, result.Counts[key])
 	}
 	return nil
 }

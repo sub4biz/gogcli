@@ -63,16 +63,16 @@ func (c *CalendarCreateCalendarCmd) Run(ctx context.Context, flags *RootFlags) e
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"calendar": created})
 	}
 
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("summary\t%s", created.Summary)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("summary\t%s", created.Summary)
 	if created.TimeZone != "" {
-		u.Out().Printf("timezone\t%s", created.TimeZone)
+		u.Out().Linef("timezone\t%s", created.TimeZone)
 	}
 	if created.Description != "" {
-		u.Out().Printf("description\t%s", created.Description)
+		u.Out().Linef("description\t%s", created.Description)
 	}
 	if created.Location != "" {
-		u.Out().Printf("location\t%s", created.Location)
+		u.Out().Linef("location\t%s", created.Location)
 	}
 	return nil
 }

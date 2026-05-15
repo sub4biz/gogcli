@@ -181,10 +181,10 @@ func (c *SlidesReplaceSlideCmd) Run(ctx context.Context, flags *RootFlags) error
 		})
 	}
 
-	u.Out().Printf("Replaced image on slide %d (%s)", slideIndex+1, slideID)
+	u.Out().Linef("Replaced image on slide %d (%s)", slideIndex+1, slideID)
 	if updateNotes {
-		u.Out().Printf("Updated speaker notes")
+		u.Out().Linef("Updated speaker notes")
 	}
-	u.Out().Printf("link\t%s", link)
+	u.Out().Linef("link\t%s", link)
 	return nil
 }

@@ -54,7 +54,7 @@ func (c *SlidesListSlidesCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Presentation: %s (%d slides)", pres.Title, len(pres.Slides))
+	u.Out().Linef("Presentation: %s (%d slides)", pres.Title, len(pres.Slides))
 	u.Out().Println("")
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)

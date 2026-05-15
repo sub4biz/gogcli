@@ -130,10 +130,10 @@ func (c *ClassroomInvitationsGetCmd) Run(ctx context.Context, flags *RootFlags) 
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"invitation": inv})
 	}
 
-	u.Out().Printf("id\t%s", inv.Id)
-	u.Out().Printf("course_id\t%s", inv.CourseId)
-	u.Out().Printf("user_id\t%s", inv.UserId)
-	u.Out().Printf("role\t%s", inv.Role)
+	u.Out().Linef("id\t%s", inv.Id)
+	u.Out().Linef("course_id\t%s", inv.CourseId)
+	u.Out().Linef("user_id\t%s", inv.UserId)
+	u.Out().Linef("role\t%s", inv.Role)
 	return nil
 }
 
@@ -183,10 +183,10 @@ func (c *ClassroomInvitationsCreateCmd) Run(ctx context.Context, flags *RootFlag
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"invitation": created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("course_id\t%s", created.CourseId)
-	u.Out().Printf("user_id\t%s", created.UserId)
-	u.Out().Printf("role\t%s", created.Role)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("course_id\t%s", created.CourseId)
+	u.Out().Linef("user_id\t%s", created.UserId)
+	u.Out().Linef("role\t%s", created.Role)
 	return nil
 }
 
@@ -227,8 +227,8 @@ func (c *ClassroomInvitationsAcceptCmd) Run(ctx context.Context, flags *RootFlag
 			"invitationId": invitationID,
 		})
 	}
-	u.Out().Printf("accepted\ttrue")
-	u.Out().Printf("invitation_id\t%s", invitationID)
+	u.Out().Linef("accepted\ttrue")
+	u.Out().Linef("invitation_id\t%s", invitationID)
 	return nil
 }
 

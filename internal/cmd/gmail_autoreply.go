@@ -151,9 +151,9 @@ func (c *GmailAutoReplyCmd) Run(ctx context.Context, flags *RootFlags) error {
 			sanitizeTab(item.Subject),
 		)
 	}
-	u.Out().Printf("matched\t%d", summary.Matched)
-	u.Out().Printf("replied\t%d", summary.Replied)
-	u.Out().Printf("skipped\t%d", summary.Skipped)
+	u.Out().Linef("matched\t%d", summary.Matched)
+	u.Out().Linef("replied\t%d", summary.Replied)
+	u.Out().Linef("skipped\t%d", summary.Skipped)
 	return nil
 }
 

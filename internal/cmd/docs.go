@@ -157,14 +157,14 @@ func (c *DocsInfoCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("id\t%s", doc.DocumentId)
-	u.Out().Printf("name\t%s", doc.Title)
-	u.Out().Printf("mime\t%s", driveMimeGoogleDoc)
+	u.Out().Linef("id\t%s", doc.DocumentId)
+	u.Out().Linef("name\t%s", doc.Title)
+	u.Out().Linef("mime\t%s", driveMimeGoogleDoc)
 	if link := docsWebViewLink(doc.DocumentId); link != "" {
-		u.Out().Printf("link\t%s", link)
+		u.Out().Linef("link\t%s", link)
 	}
 	if doc.RevisionId != "" {
-		u.Out().Printf("revision\t%s", doc.RevisionId)
+		u.Out().Linef("revision\t%s", doc.RevisionId)
 	}
 	return nil
 }
@@ -256,11 +256,11 @@ func (c *DocsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{strFile: created})
 	}
 
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("name\t%s", created.Name)
-	u.Out().Printf("mime\t%s", created.MimeType)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("name\t%s", created.Name)
+	u.Out().Linef("mime\t%s", created.MimeType)
 	if created.WebViewLink != "" {
-		u.Out().Printf("link\t%s", created.WebViewLink)
+		u.Out().Linef("link\t%s", created.WebViewLink)
 	}
 	return nil
 }

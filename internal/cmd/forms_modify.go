@@ -141,12 +141,12 @@ func (c *FormsAddQuestionCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("created\ttrue")
-	u.Out().Printf("form_id\t%s", formID)
-	u.Out().Printf("question\t%s", title)
-	u.Out().Printf("type\t%s", qType)
-	u.Out().Printf("index\t%d", insertIndex)
-	u.Out().Printf("edit_url\t%s", formEditURL(formID))
+	u.Out().Linef("created\ttrue")
+	u.Out().Linef("form_id\t%s", formID)
+	u.Out().Linef("question\t%s", title)
+	u.Out().Linef("type\t%s", qType)
+	u.Out().Linef("index\t%d", insertIndex)
+	u.Out().Linef("edit_url\t%s", formEditURL(formID))
 	return nil
 }
 
@@ -318,9 +318,9 @@ func (c *FormsDeleteQuestionCmd) Run(ctx context.Context, flags *RootFlags) erro
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("deleted\ttrue")
-	u.Out().Printf("form_id\t%s", formID)
-	u.Out().Printf("index\t%d", c.Index)
+	u.Out().Linef("deleted\ttrue")
+	u.Out().Linef("form_id\t%s", formID)
+	u.Out().Linef("index\t%d", c.Index)
 	return nil
 }
 
@@ -384,10 +384,10 @@ func (c *FormsMoveQuestionCmd) Run(ctx context.Context, flags *RootFlags) error 
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("moved\ttrue")
-	u.Out().Printf("form_id\t%s", formID)
-	u.Out().Printf("old_index\t%d", c.OldIndex)
-	u.Out().Printf("new_index\t%d", c.NewIndex)
+	u.Out().Linef("moved\ttrue")
+	u.Out().Linef("form_id\t%s", formID)
+	u.Out().Linef("old_index\t%d", c.OldIndex)
+	u.Out().Linef("new_index\t%d", c.NewIndex)
 	return nil
 }
 
@@ -500,7 +500,7 @@ func (c *FormsUpdateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("updated\ttrue")
+	u.Out().Linef("updated\ttrue")
 	printFormSummary(u, resp.Form, formID)
 	return nil
 }

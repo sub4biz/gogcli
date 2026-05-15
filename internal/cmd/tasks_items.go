@@ -162,16 +162,16 @@ func (c *TasksGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"task": task})
 	}
-	u.Out().Printf("id\t%s", task.Id)
-	u.Out().Printf("title\t%s", task.Title)
+	u.Out().Linef("id\t%s", task.Id)
+	u.Out().Linef("title\t%s", task.Title)
 	if strings.TrimSpace(task.Status) != "" {
-		u.Out().Printf("status\t%s", task.Status)
+		u.Out().Linef("status\t%s", task.Status)
 	}
 	if strings.TrimSpace(task.Due) != "" {
-		u.Out().Printf("due\t%s", task.Due)
+		u.Out().Linef("due\t%s", task.Due)
 	}
 	if strings.TrimSpace(task.WebViewLink) != "" {
-		u.Out().Printf("link\t%s", task.WebViewLink)
+		u.Out().Linef("link\t%s", task.WebViewLink)
 	}
 	return nil
 }
@@ -327,16 +327,16 @@ func (c *TasksAddCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if outfmt.IsJSON(ctx) {
 			return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"task": created})
 		}
-		u.Out().Printf("id\t%s", created.Id)
-		u.Out().Printf("title\t%s", created.Title)
+		u.Out().Linef("id\t%s", created.Id)
+		u.Out().Linef("title\t%s", created.Title)
 		if strings.TrimSpace(created.Status) != "" {
-			u.Out().Printf("status\t%s", created.Status)
+			u.Out().Linef("status\t%s", created.Status)
 		}
 		if strings.TrimSpace(created.Due) != "" {
-			u.Out().Printf("due\t%s", created.Due)
+			u.Out().Linef("due\t%s", created.Due)
 		}
 		if strings.TrimSpace(created.WebViewLink) != "" {
-			u.Out().Printf("link\t%s", created.WebViewLink)
+			u.Out().Linef("link\t%s", created.WebViewLink)
 		}
 		return nil
 	}
@@ -426,16 +426,16 @@ func (c *TasksAddCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 	if len(createdTasks) == 1 {
 		created := createdTasks[0]
-		u.Out().Printf("id\t%s", created.Id)
-		u.Out().Printf("title\t%s", created.Title)
+		u.Out().Linef("id\t%s", created.Id)
+		u.Out().Linef("title\t%s", created.Title)
 		if strings.TrimSpace(created.Status) != "" {
-			u.Out().Printf("status\t%s", created.Status)
+			u.Out().Linef("status\t%s", created.Status)
 		}
 		if strings.TrimSpace(created.Due) != "" {
-			u.Out().Printf("due\t%s", created.Due)
+			u.Out().Linef("due\t%s", created.Due)
 		}
 		if strings.TrimSpace(created.WebViewLink) != "" {
-			u.Out().Printf("link\t%s", created.WebViewLink)
+			u.Out().Linef("link\t%s", created.WebViewLink)
 		}
 		return nil
 	}
@@ -536,16 +536,16 @@ func (c *TasksUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *Roo
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"task": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("title\t%s", updated.Title)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("title\t%s", updated.Title)
 	if strings.TrimSpace(updated.Status) != "" {
-		u.Out().Printf("status\t%s", updated.Status)
+		u.Out().Linef("status\t%s", updated.Status)
 	}
 	if strings.TrimSpace(updated.Due) != "" {
-		u.Out().Printf("due\t%s", updated.Due)
+		u.Out().Linef("due\t%s", updated.Due)
 	}
 	if strings.TrimSpace(updated.WebViewLink) != "" {
-		u.Out().Printf("link\t%s", updated.WebViewLink)
+		u.Out().Linef("link\t%s", updated.WebViewLink)
 	}
 	return nil
 }
@@ -594,8 +594,8 @@ func (c *TasksDoneCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"task": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("status\t%s", strings.TrimSpace(updated.Status))
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("status\t%s", strings.TrimSpace(updated.Status))
 	return nil
 }
 
@@ -643,8 +643,8 @@ func (c *TasksUndoCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"task": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("status\t%s", strings.TrimSpace(updated.Status))
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("status\t%s", strings.TrimSpace(updated.Status))
 	return nil
 }
 

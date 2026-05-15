@@ -172,7 +172,7 @@ func (c *KeepSearchCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd
 	}
 
 	if len(allNotes) == 0 {
-		u.Err().Printf("No notes matching %q", c.Query)
+		u.Err().Linef("No notes matching %q", c.Query)
 		return nil
 	}
 
@@ -186,7 +186,7 @@ func (c *KeepSearchCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd
 		}
 		fmt.Fprintf(w, "%s\t%s\t%s\n", n.Name, title, n.UpdateTime)
 	}
-	u.Err().Printf("Found %d notes matching %q", len(allNotes), c.Query)
+	u.Err().Linef("Found %d notes matching %q", len(allNotes), c.Query)
 	return nil
 }
 
@@ -216,20 +216,20 @@ func (c *KeepGetCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd) e
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"note": note})
 	}
 
-	u.Out().Printf("name\t%s", note.Name)
-	u.Out().Printf("title\t%s", note.Title)
-	u.Out().Printf("created\t%s", note.CreateTime)
-	u.Out().Printf("updated\t%s", note.UpdateTime)
-	u.Out().Printf("trashed\t%v", note.Trashed)
+	u.Out().Linef("name\t%s", note.Name)
+	u.Out().Linef("title\t%s", note.Title)
+	u.Out().Linef("created\t%s", note.CreateTime)
+	u.Out().Linef("updated\t%s", note.UpdateTime)
+	u.Out().Linef("trashed\t%v", note.Trashed)
 	if note.Body != nil && note.Body.Text != nil {
 		u.Out().Println("")
 		u.Out().Println(note.Body.Text.Text)
 	}
 	if len(note.Attachments) > 0 {
 		u.Out().Println("")
-		u.Out().Printf("attachments\t%d", len(note.Attachments))
+		u.Out().Linef("attachments\t%d", len(note.Attachments))
 		for _, a := range note.Attachments {
-			u.Out().Printf("  %s\t%s", a.Name, a.MimeType)
+			u.Out().Linef("  %s\t%s", a.Name, a.MimeType)
 		}
 	}
 	return nil
@@ -299,8 +299,8 @@ func (c *KeepAttachmentCmd) Run(ctx context.Context, flags *RootFlags, keep *Kee
 		})
 	}
 
-	u.Out().Printf("path\t%s", outPath)
-	u.Out().Printf("bytes\t%d", written)
+	u.Out().Linef("path\t%s", outPath)
+	u.Out().Linef("bytes\t%d", written)
 	return nil
 }
 
@@ -372,9 +372,9 @@ func (c *KeepCreateCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"note": created})
 	}
 
-	u.Out().Printf("name\t%s", created.Name)
-	u.Out().Printf("title\t%s", created.Title)
-	u.Out().Printf("created\t%s", created.CreateTime)
+	u.Out().Linef("name\t%s", created.Name)
+	u.Out().Linef("title\t%s", created.Title)
+	u.Out().Linef("created\t%s", created.CreateTime)
 	return nil
 }
 

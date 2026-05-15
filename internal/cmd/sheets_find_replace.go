@@ -102,7 +102,7 @@ func (c *SheetsFindReplaceCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf(
+	u.Out().Linef(
 		"Replaced %d occurrences across %d values in %d sheets",
 		result.OccurrencesChanged,
 		result.ValuesChanged,

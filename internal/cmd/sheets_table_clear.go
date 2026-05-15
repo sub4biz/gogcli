@@ -83,7 +83,7 @@ func (c *SheetsTableClearCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Cleared data rows in %s", resp.ClearedRange)
+	u.Out().Linef("Cleared data rows in %s", resp.ClearedRange)
 	return nil
 }
 

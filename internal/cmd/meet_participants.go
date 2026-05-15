@@ -99,7 +99,7 @@ func (c *MeetParticipantsCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if len(participants) == 0 {
-		u.Err().Printf("No participants found for %s", c.MeetingCode)
+		u.Err().Linef("No participants found for %s", c.MeetingCode)
 
 		return failEmptyExit(c.FailEmpty)
 	}

@@ -192,7 +192,7 @@ func (c *GmailMessagesModifyCmd) Run(ctx context.Context, flags *RootFlags) erro
 		})
 	}
 
-	u.Out().Printf("Modified message %s", messageID)
+	u.Out().Linef("Modified message %s", messageID)
 	return nil
 }
 

@@ -50,8 +50,8 @@ func writeGmailEmailStatusItem(ctx context.Context, jsonKey string, raw any, ema
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("%s\t%s", emailKey, row.Email)
-	u.Out().Printf("verification_status\t%s", row.Status)
+	u.Out().Linef("%s\t%s", emailKey, row.Email)
+	u.Out().Linef("verification_status\t%s", row.Status)
 	return nil
 }
 
@@ -62,8 +62,8 @@ func writeGmailEmailStatusCreateResult(ctx context.Context, jsonKey string, raw 
 
 	u := ui.FromContext(ctx)
 	u.Out().Println(successMessage)
-	u.Out().Printf("%s\t%s", emailKey, row.Email)
-	u.Out().Printf("verification_status\t%s", row.Status)
+	u.Out().Linef("%s\t%s", emailKey, row.Email)
+	u.Out().Linef("verification_status\t%s", row.Status)
 	for _, note := range notes {
 		if note == "" {
 			continue

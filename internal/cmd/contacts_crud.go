@@ -157,44 +157,44 @@ func (c *ContactsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"contact": p})
 	}
 
-	u.Out().Printf("resource\t%s", p.ResourceName)
-	u.Out().Printf("name\t%s", primaryName(p))
+	u.Out().Linef("resource\t%s", p.ResourceName)
+	u.Out().Linef("name\t%s", primaryName(p))
 	if e := primaryEmail(p); e != "" {
-		u.Out().Printf("email\t%s", e)
+		u.Out().Linef("email\t%s", e)
 	}
 	if ph := primaryPhone(p); ph != "" {
-		u.Out().Printf("phone\t%s", ph)
+		u.Out().Linef("phone\t%s", ph)
 	}
 	if bd := primaryBirthday(p); bd != "" {
-		u.Out().Printf("birthday\t%s", bd)
+		u.Out().Linef("birthday\t%s", bd)
 	}
 	if gender := primaryGender(p); gender != "" {
-		u.Out().Printf("gender\t%s", gender)
+		u.Out().Linef("gender\t%s", gender)
 	}
 	if org, title := primaryOrganization(p); org != "" || title != "" {
 		switch {
 		case org != "" && title != "":
-			u.Out().Printf("organization\t%s (%s)", org, title)
+			u.Out().Linef("organization\t%s (%s)", org, title)
 		case org != "":
-			u.Out().Printf("organization\t%s", org)
+			u.Out().Linef("organization\t%s", org)
 		default:
-			u.Out().Printf("title\t%s", title)
+			u.Out().Linef("title\t%s", title)
 		}
 	}
 	for _, url := range allURLs(p) {
-		u.Out().Printf("url\t%s", url)
+		u.Out().Linef("url\t%s", url)
 	}
 	for _, addr := range allAddresses(p) {
-		u.Out().Printf("address\t%s", sanitizeTab(addr))
+		u.Out().Linef("address\t%s", sanitizeTab(addr))
 	}
 	if bio := primaryBio(p); bio != "" {
-		u.Out().Printf("note\t%s", bio)
+		u.Out().Linef("note\t%s", bio)
 	}
 	for _, rel := range p.Relations {
 		if rel == nil {
 			continue
 		}
-		u.Out().Printf("relation:%s\t%s", rel.Type, rel.Person)
+		u.Out().Linef("relation:%s\t%s", rel.Type, rel.Person)
 	}
 	customFields := userDefinedFields(p)
 	if len(customFields) > 0 {
@@ -204,7 +204,7 @@ func (c *ContactsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			u.Out().Printf("custom:%s\t%s", k, customFields[k])
+			u.Out().Linef("custom:%s\t%s", k, customFields[k])
 		}
 	}
 	return nil
@@ -458,7 +458,7 @@ func (c *ContactsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"contact": created})
 	}
-	u.Out().Printf("resource\t%s", created.ResourceName)
+	u.Out().Linef("resource\t%s", created.ResourceName)
 	return nil
 }
 
@@ -743,7 +743,7 @@ func (c *ContactsUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"contact": updated})
 	}
-	u.Out().Printf("resource\t%s", updated.ResourceName)
+	u.Out().Linef("resource\t%s", updated.ResourceName)
 	return nil
 }
 

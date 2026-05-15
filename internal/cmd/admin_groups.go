@@ -275,7 +275,7 @@ func (c *AdminGroupsMembersAddCmd) Run(ctx context.Context, flags *RootFlags) er
 		})
 	}
 
-	u.Out().Printf("Added %s to %s as %s", created.Email, groupEmail, created.Role)
+	u.Out().Linef("Added %s to %s as %s", created.Email, groupEmail, created.Role)
 	return nil
 }
 
@@ -321,6 +321,6 @@ func (c *AdminGroupsMembersRemoveCmd) Run(ctx context.Context, flags *RootFlags)
 	}
 
 	u := ui.FromContext(ctx)
-	u.Out().Printf("Removed %s from %s", memberEmail, groupEmail)
+	u.Out().Linef("Removed %s from %s", memberEmail, groupEmail)
 	return nil
 }

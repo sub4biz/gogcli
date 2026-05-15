@@ -74,8 +74,8 @@ func (c *CalendarAliasSetCmd) Run(ctx context.Context) error {
 			"calendar_id": calendarID,
 		})
 	}
-	u.Out().Printf("alias\t%s", strings.ToLower(alias))
-	u.Out().Printf("calendar_id\t%s", calendarID)
+	u.Out().Linef("alias\t%s", strings.ToLower(alias))
+	u.Out().Linef("calendar_id\t%s", calendarID)
 	return nil
 }
 
@@ -102,7 +102,7 @@ func (c *CalendarAliasUnsetCmd) Run(ctx context.Context) error {
 			"alias":   strings.ToLower(alias),
 		})
 	}
-	u.Out().Printf("deleted\ttrue")
-	u.Out().Printf("alias\t%s", strings.ToLower(alias))
+	u.Out().Linef("deleted\ttrue")
+	u.Out().Linef("alias\t%s", strings.ToLower(alias))
 	return nil
 }

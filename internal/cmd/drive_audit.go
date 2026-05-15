@@ -105,7 +105,7 @@ func (c *DriveAuditUserCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return failEmptyExit(c.FailFound && len(findings) > 0)
 	}
 	if len(findings) == 0 {
-		u.Err().Printf("No permissions found for %s", targetUser)
+		u.Err().Linef("No permissions found for %s", targetUser)
 		if truncated {
 			u.Err().Println("Results truncated; increase --max to scan more.")
 		}

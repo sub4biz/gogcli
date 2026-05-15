@@ -20,8 +20,10 @@ type asyncPushJob struct {
 }
 
 type asyncRepoPusher struct {
-	cfg      Config
-	progress func(format string, args ...any)
+	cfg Config
+
+	progressMu sync.RWMutex
+	progress   func(format string, args ...any)
 
 	mu      sync.Mutex
 	cond    *sync.Cond
@@ -111,7 +113,7 @@ func asyncPusherFor(ctx context.Context, cfg Config, progress func(format string
 	defer asyncPushers.mu.Unlock()
 	if pusher := asyncPushers.m[repo]; pusher != nil {
 		if progress != nil {
-			pusher.progress = progress
+			pusher.setProgress(progress)
 		}
 		return pusher
 	}
@@ -131,7 +133,7 @@ func existingAsyncPusher(repo string, progress func(format string, args ...any))
 	defer asyncPushers.mu.Unlock()
 	pusher := asyncPushers.m[strings.TrimSpace(repo)]
 	if pusher != nil && progress != nil {
-		pusher.progress = progress
+		pusher.setProgress(progress)
 	}
 	return pusher
 }
@@ -184,14 +186,37 @@ func (p *asyncRepoPusher) pushWithRetry(ctx context.Context, job asyncPushJob) e
 		}
 		delay := time.Duration(attempt*15) * time.Second
 		p.progressf("backup git push\tretry\tsha=%s\tattempt=%d\tdelay=%s\terr=%q", shortSHA(job.sha), attempt, delay, err.Error())
-		time.Sleep(delay)
+		if err := waitAsyncPushRetry(ctx, delay); err != nil {
+			return err
+		}
 	}
 	return lastErr
 }
 
+func (p *asyncRepoPusher) setProgress(progress func(format string, args ...any)) {
+	p.progressMu.Lock()
+	defer p.progressMu.Unlock()
+	p.progress = progress
+}
+
 func (p *asyncRepoPusher) progressf(format string, args ...any) {
-	if p.progress != nil {
-		p.progress(format, args...)
+	p.progressMu.RLock()
+	progress := p.progress
+	p.progressMu.RUnlock()
+	if progress != nil {
+		progress(format, args...)
+	}
+}
+
+func waitAsyncPushRetry(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("retry async backup push: %w", ctx.Err())
+	case <-timer.C:
+		return nil
 	}
 }
 

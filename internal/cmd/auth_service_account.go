@@ -105,13 +105,13 @@ func (c *AuthServiceAccountSetCmd) Run(ctx context.Context, flags *RootFlags) er
 			"client_id":    info.ClientID,
 		})
 	}
-	u.Out().Printf("email\t%s", email)
-	u.Out().Printf("path\t%s", destPath)
+	u.Out().Linef("email\t%s", email)
+	u.Out().Linef("path\t%s", destPath)
 	if info.ClientEmail != "" {
-		u.Out().Printf("client_email\t%s", info.ClientEmail)
+		u.Out().Linef("client_email\t%s", info.ClientEmail)
 	}
 	if info.ClientID != "" {
-		u.Out().Printf("client_id\t%s", info.ClientID)
+		u.Out().Linef("client_id\t%s", info.ClientID)
 	}
 	u.Out().Println("Service account configured. Use: gog <cmd> --account " + email)
 	return nil

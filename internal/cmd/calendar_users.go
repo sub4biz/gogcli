@@ -126,7 +126,7 @@ func (c *CalendarUsersCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 	u.Err().Println("\nTip: Use any email above as a calendar ID, e.g.:")
 	if firstEmail != "" {
-		u.Err().Printf("  gog calendar events %s", firstEmail)
+		u.Err().Linef("  gog calendar events %s", firstEmail)
 	}
 
 	return nil

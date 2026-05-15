@@ -117,7 +117,7 @@ func exportViaDrive(ctx context.Context, flags *RootFlags, opts exportViaDriveOp
 	if isStdoutPath(downloadedPath) {
 		return nil
 	}
-	u.Out().Printf("path\t%s", downloadedPath)
-	u.Out().Printf("size\t%s", formatDriveSize(size))
+	u.Out().Linef("path\t%s", downloadedPath)
+	u.Out().Linef("size\t%s", formatDriveSize(size))
 	return nil
 }

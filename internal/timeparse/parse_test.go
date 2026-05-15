@@ -58,6 +58,7 @@ func TestParseDateTimeOrDate(t *testing.T) {
 		{name: "rfc3339", value: "2026-02-13T10:20:30Z", wantHasTime: true, wantHour: 10, wantMin: 20, wantOffset: 0},
 		{name: "rfc3339 nano", value: "2026-02-13T10:20:30.123456789Z", wantHasTime: true, wantHour: 10, wantMin: 20, wantOffset: 0},
 		{name: "iso tz no colon", value: "2026-02-13T10:20:30-0800", wantHasTime: true, wantHour: 10, wantMin: 20, wantOffset: -8 * 3600},
+		{name: "iso minutes tz no colon", value: "2026-02-13T10:20-0800", wantHasTime: true, wantHour: 10, wantMin: 20, wantOffset: -8 * 3600},
 		{name: "date only", value: "2026-02-13", wantHasTime: false, wantHour: 0, wantMin: 0, wantOffset: -8 * 3600},
 		{name: "local datetime seconds", value: "2026-02-13T10:20:30", wantHasTime: true, wantHour: 10, wantMin: 20, wantOffset: -8 * 3600},
 		{name: "local datetime minutes", value: "2026-02-13 10:20", wantHasTime: true, wantHour: 10, wantMin: 20, wantOffset: -8 * 3600},
@@ -88,6 +89,22 @@ func TestParseDateTimeOrDate(t *testing.T) {
 				t.Fatalf("offset=%d want %d", offset, tc.wantOffset)
 			}
 		})
+	}
+}
+
+func TestParseRangeExprUsesLocationForRelativeDate(t *testing.T) {
+	t.Parallel()
+
+	loc := time.FixedZone("Pacific", -8*3600)
+	now := time.Date(2026, 2, 14, 4, 30, 0, 0, time.UTC)
+
+	got, err := ParseRangeExpr("today", now, loc)
+	if err != nil {
+		t.Fatalf("ParseRangeExpr: %v", err)
+	}
+
+	if got.Format("2006-01-02") != "2026-02-13" {
+		t.Fatalf("got %s, want local date 2026-02-13", got.Format("2006-01-02"))
 	}
 }
 

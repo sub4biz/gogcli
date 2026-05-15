@@ -169,17 +169,17 @@ func (c *ClassroomSubmissionsGetCmd) Run(ctx context.Context, flags *RootFlags) 
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"submission": sub})
 	}
 
-	u.Out().Printf("id\t%s", sub.Id)
-	u.Out().Printf("user_id\t%s", sub.UserId)
-	u.Out().Printf("state\t%s", sub.State)
-	u.Out().Printf("late\t%t", sub.Late)
-	u.Out().Printf("draft_grade\t%s", formatFloatValue(sub.DraftGrade))
-	u.Out().Printf("assigned_grade\t%s", formatFloatValue(sub.AssignedGrade))
+	u.Out().Linef("id\t%s", sub.Id)
+	u.Out().Linef("user_id\t%s", sub.UserId)
+	u.Out().Linef("state\t%s", sub.State)
+	u.Out().Linef("late\t%t", sub.Late)
+	u.Out().Linef("draft_grade\t%s", formatFloatValue(sub.DraftGrade))
+	u.Out().Linef("assigned_grade\t%s", formatFloatValue(sub.AssignedGrade))
 	if sub.UpdateTime != "" {
-		u.Out().Printf("updated\t%s", sub.UpdateTime)
+		u.Out().Linef("updated\t%s", sub.UpdateTime)
 	}
 	if sub.AlternateLink != "" {
-		u.Out().Printf("link\t%s", sub.AlternateLink)
+		u.Out().Linef("link\t%s", sub.AlternateLink)
 	}
 	return nil
 }
@@ -274,11 +274,11 @@ func submissionAction(ctx context.Context, flags *RootFlags, courseID, coursewor
 			"action":       action,
 		})
 	}
-	u.Out().Printf("ok\ttrue")
-	u.Out().Printf("course_id\t%s", courseID)
-	u.Out().Printf("coursework_id\t%s", courseworkID)
-	u.Out().Printf("submission_id\t%s", submissionID)
-	u.Out().Printf("action\t%s", action)
+	u.Out().Linef("ok\ttrue")
+	u.Out().Linef("course_id\t%s", courseID)
+	u.Out().Linef("coursework_id\t%s", courseworkID)
+	u.Out().Linef("submission_id\t%s", submissionID)
+	u.Out().Linef("action\t%s", action)
 	return nil
 }
 
@@ -356,8 +356,8 @@ func (c *ClassroomSubmissionsGradeCmd) Run(ctx context.Context, flags *RootFlags
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"submission": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("draft_grade\t%s", formatFloatValue(updated.DraftGrade))
-	u.Out().Printf("assigned_grade\t%s", formatFloatValue(updated.AssignedGrade))
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("draft_grade\t%s", formatFloatValue(updated.DraftGrade))
+	u.Out().Linef("assigned_grade\t%s", formatFloatValue(updated.AssignedGrade))
 	return nil
 }

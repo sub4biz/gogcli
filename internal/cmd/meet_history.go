@@ -99,7 +99,7 @@ func (c *MeetHistoryCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if len(records) == 0 {
-		u.Err().Printf("No past calls found for %s", c.MeetingCode)
+		u.Err().Linef("No past calls found for %s", c.MeetingCode)
 
 		return failEmptyExit(c.FailEmpty)
 	}

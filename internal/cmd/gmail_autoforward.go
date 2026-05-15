@@ -40,12 +40,12 @@ func (c *GmailAutoForwardGetCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"autoForwarding": autoForward})
 	}
 
-	u.Out().Printf("enabled\t%t", autoForward.Enabled)
+	u.Out().Linef("enabled\t%t", autoForward.Enabled)
 	if autoForward.EmailAddress != "" {
-		u.Out().Printf("email_address\t%s", autoForward.EmailAddress)
+		u.Out().Linef("email_address\t%s", autoForward.EmailAddress)
 	}
 	if autoForward.Disposition != "" {
-		u.Out().Printf("disposition\t%s", autoForward.Disposition)
+		u.Out().Linef("disposition\t%s", autoForward.Disposition)
 	}
 	return nil
 }
@@ -140,12 +140,12 @@ func (c *GmailAutoForwardUpdateCmd) Run(ctx context.Context, kctx *kong.Context,
 	}
 
 	u.Out().Println("Auto-forwarding settings updated successfully")
-	u.Out().Printf("enabled\t%t", updated.Enabled)
+	u.Out().Linef("enabled\t%t", updated.Enabled)
 	if updated.EmailAddress != "" {
-		u.Out().Printf("email_address\t%s", updated.EmailAddress)
+		u.Out().Linef("email_address\t%s", updated.EmailAddress)
 	}
 	if updated.Disposition != "" {
-		u.Out().Printf("disposition\t%s", updated.Disposition)
+		u.Out().Linef("disposition\t%s", updated.Disposition)
 	}
 	return nil
 }

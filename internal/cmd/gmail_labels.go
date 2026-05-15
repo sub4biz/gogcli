@@ -58,13 +58,13 @@ func (c *GmailLabelsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"label": l})
 	}
 	u := ui.FromContext(ctx)
-	u.Out().Printf("id\t%s", l.Id)
-	u.Out().Printf("name\t%s", l.Name)
-	u.Out().Printf("type\t%s", l.Type)
-	u.Out().Printf("messages_total\t%d", l.MessagesTotal)
-	u.Out().Printf("messages_unread\t%d", l.MessagesUnread)
-	u.Out().Printf("threads_total\t%d", l.ThreadsTotal)
-	u.Out().Printf("threads_unread\t%d", l.ThreadsUnread)
+	u.Out().Linef("id\t%s", l.Id)
+	u.Out().Linef("name\t%s", l.Name)
+	u.Out().Linef("type\t%s", l.Type)
+	u.Out().Linef("messages_total\t%d", l.MessagesTotal)
+	u.Out().Linef("messages_unread\t%d", l.MessagesUnread)
+	u.Out().Linef("threads_total\t%d", l.ThreadsTotal)
+	u.Out().Linef("threads_unread\t%d", l.ThreadsUnread)
 	return nil
 }
 
@@ -108,7 +108,7 @@ func (c *GmailLabelsCreateCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"label": label})
 	}
-	u.Out().Printf("Created label: %s (id: %s)", label.Name, label.Id)
+	u.Out().Linef("Created label: %s (id: %s)", label.Name, label.Id)
 	return nil
 }
 
@@ -175,7 +175,7 @@ func (c *GmailLabelsRenameCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"label": updated})
 	}
-	u.Out().Printf("Renamed label: %s → %s (id: %s)", label.Name, updated.Name, updated.Id)
+	u.Out().Linef("Renamed label: %s → %s (id: %s)", label.Name, updated.Name, updated.Id)
 	return nil
 }
 
@@ -264,7 +264,7 @@ func (c *GmailLabelsStyleCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"label": updated})
 	}
-	u.Out().Printf("Styled label: %s (id: %s)", updated.Name, updated.Id)
+	u.Out().Linef("Styled label: %s (id: %s)", updated.Name, updated.Id)
 	return nil
 }
 
@@ -381,7 +381,7 @@ func (c *GmailLabelsModifyCmd) Run(ctx context.Context, flags *RootFlags) error 
 		}
 		results = append(results, result{ThreadID: tid, Success: true})
 		if !outfmt.IsJSON(ctx) {
-			u.Out().Printf("%s\tok", tid)
+			u.Out().Linef("%s\tok", tid)
 		}
 	}
 	if outfmt.IsJSON(ctx) {

@@ -92,35 +92,35 @@ func writeCreatedGmailFilter(ctx context.Context, filter *gmail.Filter) error {
 }
 
 func printGmailFilterDetails(u *ui.UI, filter *gmail.Filter, includeActions bool) {
-	u.Out().Printf("id\t%s", filter.Id)
+	u.Out().Linef("id\t%s", filter.Id)
 	if filter.Criteria != nil {
 		c := filter.Criteria
 		if c.From != "" {
-			u.Out().Printf("from\t%s", c.From)
+			u.Out().Linef("from\t%s", c.From)
 		}
 		if c.To != "" {
-			u.Out().Printf("to\t%s", c.To)
+			u.Out().Linef("to\t%s", c.To)
 		}
 		if c.Subject != "" {
-			u.Out().Printf("subject\t%s", c.Subject)
+			u.Out().Linef("subject\t%s", c.Subject)
 		}
 		if c.Query != "" {
-			u.Out().Printf("query\t%s", c.Query)
+			u.Out().Linef("query\t%s", c.Query)
 		}
 		if c.HasAttachment {
-			u.Out().Printf("has_attachment\ttrue")
+			u.Out().Linef("has_attachment\ttrue")
 		}
 		if c.NegatedQuery != "" {
-			u.Out().Printf("negated_query\t%s", c.NegatedQuery)
+			u.Out().Linef("negated_query\t%s", c.NegatedQuery)
 		}
 		if c.Size != 0 {
-			u.Out().Printf("size\t%d", c.Size)
+			u.Out().Linef("size\t%d", c.Size)
 		}
 		if c.SizeComparison != "" {
-			u.Out().Printf("size_comparison\t%s", c.SizeComparison)
+			u.Out().Linef("size_comparison\t%s", c.SizeComparison)
 		}
 		if c.ExcludeChats {
-			u.Out().Printf("exclude_chats\ttrue")
+			u.Out().Linef("exclude_chats\ttrue")
 		}
 	}
 	if !includeActions || filter.Action == nil {
@@ -129,13 +129,13 @@ func printGmailFilterDetails(u *ui.UI, filter *gmail.Filter, includeActions bool
 
 	a := filter.Action
 	if len(a.AddLabelIds) > 0 {
-		u.Out().Printf("add_label_ids\t%s", strings.Join(a.AddLabelIds, ","))
+		u.Out().Linef("add_label_ids\t%s", strings.Join(a.AddLabelIds, ","))
 	}
 	if len(a.RemoveLabelIds) > 0 {
-		u.Out().Printf("remove_label_ids\t%s", strings.Join(a.RemoveLabelIds, ","))
+		u.Out().Linef("remove_label_ids\t%s", strings.Join(a.RemoveLabelIds, ","))
 	}
 	if a.Forward != "" {
-		u.Out().Printf("forward\t%s", a.Forward)
+		u.Out().Linef("forward\t%s", a.Forward)
 	}
 }
 

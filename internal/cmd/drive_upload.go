@@ -341,13 +341,13 @@ func writeDriveUploadResult(ctx context.Context, file *drive.File, replaced bool
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("id\t%s", file.Id)
-	u.Out().Printf("name\t%s", file.Name)
+	u.Out().Linef("id\t%s", file.Id)
+	u.Out().Linef("name\t%s", file.Name)
 	if replaced {
-		u.Out().Printf("replaced\t%t", true)
+		u.Out().Linef("replaced\t%t", true)
 	}
 	if file.WebViewLink != "" {
-		u.Out().Printf("link\t%s", file.WebViewLink)
+		u.Out().Linef("link\t%s", file.WebViewLink)
 	}
 	return nil
 }

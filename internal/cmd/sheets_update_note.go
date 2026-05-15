@@ -120,9 +120,9 @@ func (c *SheetsUpdateNoteCmd) Run(ctx context.Context, flags *RootFlags) error {
 		action = "Cleared"
 	}
 	if cellCount == 1 {
-		u.Out().Printf("%s note on %s", action, rangeSpec)
+		u.Out().Linef("%s note on %s", action, rangeSpec)
 	} else {
-		u.Out().Printf("%s note on %d cells in %s", action, cellCount, rangeSpec)
+		u.Out().Linef("%s note on %d cells in %s", action, cellCount, rangeSpec)
 	}
 	return nil
 }

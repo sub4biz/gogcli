@@ -259,7 +259,7 @@ func (c *SlidesAddSlideCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("slide\t%d", slideNum)
-	u.Out().Printf("link\t%s", link)
+	u.Out().Linef("slide\t%d", slideNum)
+	u.Out().Linef("link\t%s", link)
 	return nil
 }

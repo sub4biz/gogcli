@@ -34,7 +34,7 @@ func driveUploadReader(ctx context.Context, reader io.Reader, opts driveUploadOp
 		reader:  reader,
 		size:    opts.size,
 		nextPct: driveUploadProgressStep,
-		logf:    u.Err().Printf,
+		logf:    u.Err().Linef,
 	}
 }
 

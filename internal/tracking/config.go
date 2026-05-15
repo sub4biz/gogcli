@@ -13,7 +13,10 @@ import (
 	"github.com/steipete/gogcli/internal/config"
 )
 
-var errMissingAccount = errors.New("missing account")
+var (
+	errMissingAccount            = errors.New("missing account")
+	errTrackingConfigLockTimeout = errors.New("acquire tracking config lock timeout")
+)
 
 const trackingConfigVersion = 1
 
@@ -89,6 +92,44 @@ func readConfigBytes(path string) ([]byte, bool, error) {
 	return nil, false, fmt.Errorf("read legacy tracking config: %w", legacyReadErr)
 }
 
+func trackingConfigLockPath() (string, error) {
+	dir, err := config.EnsureDir()
+	if err != nil {
+		return "", fmt.Errorf("ensure config dir: %w", err)
+	}
+
+	return filepath.Join(dir, "tracking.lock"), nil
+}
+
+func acquireTrackingConfigLock() (func(), error) {
+	path, err := trackingConfigLockPath()
+	if err != nil {
+		return nil, err
+	}
+
+	deadline := time.Now().Add(2 * time.Second)
+
+	for {
+		f, openErr := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600) //nolint:gosec // lock path is computed inside config dir
+		if openErr == nil {
+			_, _ = fmt.Fprintf(f, "%d\n", os.Getpid())
+			_ = f.Close()
+
+			return func() { _ = os.Remove(path) }, nil
+		}
+
+		if !os.IsExist(openErr) {
+			return nil, fmt.Errorf("acquire tracking config lock: %w", openErr)
+		}
+
+		if time.Now().After(deadline) {
+			return nil, fmt.Errorf("%w: %s", errTrackingConfigLockTimeout, path)
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
 // LoadConfig loads tracking configuration from disk for the specified account.
 func LoadConfig(account string) (*Config, error) {
 	account = normalizeAccount(account)
@@ -140,8 +181,17 @@ func SaveConfig(account string, cfg *Config) error {
 		return err
 	}
 
+	unlock, err := acquireTrackingConfigLock()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+
 	fileCfg := fileConfig{Accounts: map[string]*Config{}}
-	if data, ok, readErr := readConfigBytes(path); readErr == nil && ok {
+
+	if data, ok, readErr := readConfigBytes(path); readErr != nil {
+		return readErr
+	} else if ok {
 		if unmarshalErr := json.Unmarshal(data, &fileCfg); unmarshalErr != nil {
 			return fmt.Errorf("parse tracking config: %w", unmarshalErr)
 		}
@@ -171,8 +221,13 @@ func SaveConfig(account string, cfg *Config) error {
 		return fmt.Errorf("marshal tracking config: %w", err)
 	}
 
-	if writeErr := os.WriteFile(path, data, 0o600); writeErr != nil {
+	tmp := path + ".tmp"
+	if writeErr := os.WriteFile(tmp, data, 0o600); writeErr != nil {
 		return fmt.Errorf("write tracking config: %w", writeErr)
+	}
+
+	if renameErr := os.Rename(tmp, path); renameErr != nil {
+		return fmt.Errorf("commit tracking config: %w", renameErr)
 	}
 
 	return nil

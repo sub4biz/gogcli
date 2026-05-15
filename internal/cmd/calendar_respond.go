@@ -103,14 +103,14 @@ func (c *CalendarRespondCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return mutation.writeEvent(ctx, updated)
 	}
 
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("summary\t%s", orEmpty(updated.Summary, "(no title)"))
-	u.Out().Printf("response_status\t%s", status)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("summary\t%s", orEmpty(updated.Summary, "(no title)"))
+	u.Out().Linef("response_status\t%s", status)
 	if strings.TrimSpace(c.Comment) != "" {
-		u.Out().Printf("comment\t%s", strings.TrimSpace(c.Comment))
+		u.Out().Linef("comment\t%s", strings.TrimSpace(c.Comment))
 	}
 	if updated.HtmlLink != "" {
-		u.Out().Printf("link\t%s", updated.HtmlLink)
+		u.Out().Linef("link\t%s", updated.HtmlLink)
 	}
 	return nil
 }

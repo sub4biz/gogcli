@@ -1,6 +1,10 @@
 package config
 
+import "errors"
+
 type aliasMapField func(*File) *map[string]string
+
+var errAliasNotFound = errors.New("alias not found")
 
 func resolveAliasValue(alias string, normalizeAlias func(string) string, field aliasMapField) (string, bool, error) {
 	alias = normalizeAlias(alias)
@@ -50,11 +54,11 @@ func deleteAliasValue(alias string, normalizeAlias func(string) string, field al
 	err := UpdateConfig(func(cfg *File) error {
 		aliases := field(cfg)
 		if *aliases == nil {
-			return nil
+			return errAliasNotFound
 		}
 
 		if _, ok := (*aliases)[alias]; !ok {
-			return nil
+			return errAliasNotFound
 		}
 
 		delete(*aliases, alias)
@@ -62,6 +66,10 @@ func deleteAliasValue(alias string, normalizeAlias func(string) string, field al
 
 		return nil
 	})
+
+	if errors.Is(err, errAliasNotFound) {
+		return false, nil
+	}
 
 	return deleted, err
 }

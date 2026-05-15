@@ -258,7 +258,7 @@ func (c *SheetsUpdateCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Updated %d cells in %s", resp.UpdatedCells, resp.UpdatedRange)
+	u.Out().Linef("Updated %d cells in %s", resp.UpdatedCells, resp.UpdatedRange)
 	return nil
 }
 
@@ -370,7 +370,7 @@ func (c *SheetsAppendCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Appended %d cells to %s", resp.Updates.UpdatedCells, resp.Updates.UpdatedRange)
+	u.Out().Linef("Appended %d cells to %s", resp.Updates.UpdatedCells, resp.Updates.UpdatedRange)
 	return nil
 }
 
@@ -418,7 +418,7 @@ func (c *SheetsClearCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Cleared %s", resp.ClearedRange)
+	u.Out().Linef("Cleared %s", resp.ClearedRange)
 	return nil
 }
 
@@ -505,11 +505,11 @@ func (c *SheetsMetadataCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("ID\t%s", resp.SpreadsheetId)
-	u.Out().Printf("Title\t%s", resp.Properties.Title)
-	u.Out().Printf("Locale\t%s", resp.Properties.Locale)
-	u.Out().Printf("TimeZone\t%s", resp.Properties.TimeZone)
-	u.Out().Printf("URL\t%s", resp.SpreadsheetUrl)
+	u.Out().Linef("ID\t%s", resp.SpreadsheetId)
+	u.Out().Linef("Title\t%s", resp.Properties.Title)
+	u.Out().Linef("Locale\t%s", resp.Properties.Locale)
+	u.Out().Linef("TimeZone\t%s", resp.Properties.TimeZone)
+	u.Out().Linef("URL\t%s", resp.SpreadsheetUrl)
 	u.Out().Println("")
 	u.Out().Println("Sheets:")
 
@@ -630,8 +630,8 @@ func (c *SheetsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	u.Out().Printf("Created spreadsheet: %s", resp.Properties.Title)
-	u.Out().Printf("ID: %s", resp.SpreadsheetId)
-	u.Out().Printf("URL: %s", resp.SpreadsheetUrl)
+	u.Out().Linef("Created spreadsheet: %s", resp.Properties.Title)
+	u.Out().Linef("ID: %s", resp.SpreadsheetId)
+	u.Out().Linef("URL: %s", resp.SpreadsheetUrl)
 	return nil
 }

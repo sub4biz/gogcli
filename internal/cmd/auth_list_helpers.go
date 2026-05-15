@@ -245,7 +245,7 @@ func (c *AuthListCmd) writeAuthListText(ctx context.Context, u *ui.UI, entries [
 			continue
 		}
 
-		u.Out().Printf("%s\t%s\t%s\t%s\t%s", e.Email, client, servicesCSV, created, e.authType())
+		u.Out().Linef("%s\t%s\t%s\t%s\t%s", e.Email, client, servicesCSV, created, e.authType())
 	}
 
 	return nil
@@ -255,18 +255,18 @@ func writeAuthListReadWarning(u *ui.UI, e authListEntry) {
 	if e.ReadErr == nil {
 		return
 	}
-	u.Err().Printf("WARN\t%s\t%s", e.Email, e.ReadErr.Error())
+	u.Err().Linef("WARN\t%s\t%s", e.Email, e.ReadErr.Error())
 	if e.ReadHint != "" {
-		u.Err().Printf("hint\t%s\t%s", e.Email, e.ReadHint)
+		u.Err().Linef("hint\t%s\t%s", e.Email, e.ReadHint)
 	}
 }
 
 func (c *AuthListCmd) writeAuthListCheckRow(ctx context.Context, u *ui.UI, e authListEntry, client string, servicesCSV string, created string) {
 	switch {
 	case e.ReadErr != nil:
-		u.Out().Printf("%s\t%s\t%s\t%s\t%t\t%s\t%s", e.Email, client, servicesCSV, created, false, e.ReadErr.Error(), e.authType())
+		u.Out().Linef("%s\t%s\t%s\t%s\t%t\t%s\t%s", e.Email, client, servicesCSV, created, false, e.ReadErr.Error(), e.authType())
 	case e.Token == nil:
-		u.Out().Printf("%s\t%s\t%s\t%s\t%t\t%s\t%s", e.Email, client, servicesCSV, created, true, "service account (not checked)", e.authType())
+		u.Out().Linef("%s\t%s\t%s\t%s\t%t\t%s\t%s", e.Email, client, servicesCSV, created, true, "service account (not checked)", e.authType())
 	default:
 		err := checkRefreshToken(ctx, e.Token.Client, e.Token.RefreshToken, e.Token.Scopes, c.Timeout)
 		valid := err == nil
@@ -274,7 +274,7 @@ func (c *AuthListCmd) writeAuthListCheckRow(ctx context.Context, u *ui.UI, e aut
 		if err != nil {
 			msg = err.Error()
 		}
-		u.Out().Printf("%s\t%s\t%s\t%s\t%t\t%s\t%s", e.Email, client, servicesCSV, created, valid, msg, e.authType())
+		u.Out().Linef("%s\t%s\t%s\t%s\t%t\t%s\t%s", e.Email, client, servicesCSV, created, valid, msg, e.authType())
 	}
 }
 

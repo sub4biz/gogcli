@@ -129,14 +129,14 @@ func (c *GmailThreadGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	// Show message count upfront so users know how many messages to expect
-	u.Out().Printf("Thread contains %d message(s)", len(thread.Messages))
+	u.Out().Linef("Thread contains %d message(s)", len(thread.Messages))
 	u.Out().Println("")
 
 	for i, msg := range thread.Messages {
 		if msg == nil {
 			continue
 		}
-		u.Out().Printf("=== Message %d/%d: %s ===", i+1, len(thread.Messages), msg.Id)
+		u.Out().Linef("=== Message %d/%d: %s ===", i+1, len(thread.Messages), msg.Id)
 		header := func(name string) string {
 			value := headerValue(msg.Payload, name)
 			if c.SanitizeContent {
@@ -144,10 +144,10 @@ func (c *GmailThreadGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 			}
 			return value
 		}
-		u.Out().Printf("From: %s", header("From"))
-		u.Out().Printf("To: %s", header("To"))
-		u.Out().Printf("Subject: %s", header("Subject"))
-		u.Out().Printf("Date: %s", header("Date"))
+		u.Out().Linef("From: %s", header("From"))
+		u.Out().Linef("To: %s", header("To"))
+		u.Out().Linef("Subject: %s", header("Subject"))
+		u.Out().Linef("Date: %s", header("Date"))
 		u.Out().Println("")
 
 		body, isHTML := bestBodyForDisplay(msg.Payload)
@@ -179,7 +179,7 @@ func (c *GmailThreadGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 			}
 			for _, a := range downloads {
 				if a.Cached {
-					u.Out().Printf("Cached: %s", a.Path)
+					u.Out().Linef("Cached: %s", a.Path)
 				} else {
 					u.Out().Successf("Saved: %s", a.Path)
 				}
@@ -251,7 +251,7 @@ func (c *GmailThreadModifyCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Modified thread %s", threadID)
+	u.Out().Linef("Modified thread %s", threadID)
 	return nil
 }
 
@@ -337,14 +337,14 @@ func (c *GmailThreadAttachmentsCmd) Run(ctx context.Context, flags *RootFlags) e
 		return nil
 	}
 
-	u.Out().Printf("Found %d attachment(s):", len(allAttachments))
+	u.Out().Linef("Found %d attachment(s):", len(allAttachments))
 	if c.Download {
 		for _, a := range allAttachments {
 			status := "Saved"
 			if a.Cached {
 				status = "Cached"
 			}
-			u.Out().Printf("  %s: %s (%s) - %s", status, a.Filename, a.SizeHuman, a.Path)
+			u.Out().Linef("  %s: %s (%s) - %s", status, a.Filename, a.SizeHuman, a.Path)
 		}
 		return nil
 	}
@@ -376,7 +376,7 @@ func (c *GmailURLCmd) Run(ctx context.Context, flags *RootFlags) error {
 	for _, id := range c.ThreadIDs {
 		id = normalizeGmailThreadID(id)
 		threadURL := fmt.Sprintf("https://mail.google.com/mail/?authuser=%s#all/%s", url.QueryEscape(account), id)
-		u.Out().Printf("%s\t%s", id, threadURL)
+		u.Out().Linef("%s\t%s", id, threadURL)
 	}
 	return nil
 }

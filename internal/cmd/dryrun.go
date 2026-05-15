@@ -39,7 +39,7 @@ func dryRunExit(ctx context.Context, flags *RootFlags, op string, request any) e
 	}
 
 	if u := ui.FromContext(ctx); u != nil {
-		u.Out().Printf("Dry run: would %s", op)
+		u.Out().Linef("Dry run: would %s", op)
 		if request != nil {
 			if b, err := json.MarshalIndent(request, "", "  "); err == nil {
 				u.Out().Println(string(b))

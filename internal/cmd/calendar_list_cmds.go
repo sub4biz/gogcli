@@ -125,9 +125,9 @@ func (c *CalendarSubscribeCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"calendar": added})
 	}
-	u.Out().Printf("subscribed\t%s", added.Id)
-	u.Out().Printf("name\t%s", added.Summary)
-	u.Out().Printf("role\t%s", added.AccessRole)
+	u.Out().Linef("subscribed\t%s", added.Id)
+	u.Out().Linef("name\t%s", added.Summary)
+	u.Out().Linef("role\t%s", added.AccessRole)
 	return nil
 }
 

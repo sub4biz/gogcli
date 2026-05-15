@@ -238,22 +238,22 @@ func writeDriveCommentDetail(ctx context.Context, u *ui.UI, comment *drive.Comme
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"comment": comment})
 	}
 
-	u.Out().Printf("id\t%s", comment.Id)
+	u.Out().Linef("id\t%s", comment.Id)
 	if comment.Author != nil {
-		u.Out().Printf("author\t%s", comment.Author.DisplayName)
+		u.Out().Linef("author\t%s", comment.Author.DisplayName)
 	}
-	u.Out().Printf("content\t%s", comment.Content)
-	u.Out().Printf("created\t%s", comment.CreatedTime)
-	u.Out().Printf("modified\t%s", comment.ModifiedTime)
-	u.Out().Printf("resolved\t%t", comment.Resolved)
+	u.Out().Linef("content\t%s", comment.Content)
+	u.Out().Linef("created\t%s", comment.CreatedTime)
+	u.Out().Linef("modified\t%s", comment.ModifiedTime)
+	u.Out().Linef("resolved\t%t", comment.Resolved)
 	if comment.QuotedFileContent != nil && comment.QuotedFileContent.Value != "" {
-		u.Out().Printf("quoted\t%s", comment.QuotedFileContent.Value)
+		u.Out().Linef("quoted\t%s", comment.QuotedFileContent.Value)
 	}
 	if includeAnchor && strings.TrimSpace(comment.Anchor) != "" {
-		u.Out().Printf("anchor\t%s", comment.Anchor)
+		u.Out().Linef("anchor\t%s", comment.Anchor)
 	}
 	if len(comment.Replies) > 0 {
-		u.Out().Printf("replies\t%d", len(comment.Replies))
+		u.Out().Linef("replies\t%d", len(comment.Replies))
 	}
 	if includeReplyDetails {
 		for _, reply := range comment.Replies {
@@ -268,7 +268,7 @@ func writeDriveCommentDetail(ctx context.Context, u *ui.UI, comment *drive.Comme
 			if strings.TrimSpace(reply.Action) != "" {
 				action = reply.Action
 			}
-			u.Out().Printf("  reply\t%s\t%s\t%s\t%s", reply.Id, author, truncateString(reply.Content, 60), action)
+			u.Out().Linef("  reply\t%s\t%s\t%s\t%s", reply.Id, author, truncateString(reply.Content, 60), action)
 		}
 	}
 	return nil
@@ -299,16 +299,16 @@ func writeDriveCommentMutation(ctx context.Context, u *ui.UI, comment *drive.Com
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"comment": comment})
 	}
-	u.Out().Printf("id\t%s", comment.Id)
-	u.Out().Printf("content\t%s", comment.Content)
+	u.Out().Linef("id\t%s", comment.Id)
+	u.Out().Linef("content\t%s", comment.Content)
 	if comment.CreatedTime != "" {
-		u.Out().Printf("created\t%s", comment.CreatedTime)
+		u.Out().Linef("created\t%s", comment.CreatedTime)
 	}
 	if comment.ModifiedTime != "" {
-		u.Out().Printf("modified\t%s", comment.ModifiedTime)
+		u.Out().Linef("modified\t%s", comment.ModifiedTime)
 	}
 	if includeAnchor && strings.TrimSpace(comment.Anchor) != "" {
-		u.Out().Printf("anchor\t%s", comment.Anchor)
+		u.Out().Linef("anchor\t%s", comment.Anchor)
 	}
 	return nil
 }
@@ -345,15 +345,15 @@ func writeDriveReplyMutation(ctx context.Context, u *ui.UI, reply *drive.Reply, 
 	}
 
 	if resolved {
-		u.Out().Printf("resolved\ttrue")
-		u.Out().Printf("%s\t%s", resourceKey, resourceID)
-		u.Out().Printf("commentId\t%s", commentID)
+		u.Out().Linef("resolved\ttrue")
+		u.Out().Linef("%s\t%s", resourceKey, resourceID)
+		u.Out().Linef("commentId\t%s", commentID)
 		return nil
 	}
 
-	u.Out().Printf("id\t%s", reply.Id)
-	u.Out().Printf("content\t%s", reply.Content)
-	u.Out().Printf("created\t%s", reply.CreatedTime)
+	u.Out().Linef("id\t%s", reply.Id)
+	u.Out().Linef("content\t%s", reply.Content)
+	u.Out().Linef("created\t%s", reply.CreatedTime)
 	return nil
 }
 

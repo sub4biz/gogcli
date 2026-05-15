@@ -57,6 +57,6 @@ func (c *SlidesDeleteSlideCmd) Run(ctx context.Context, flags *RootFlags) error 
 		return fmt.Errorf("delete slide: %w", err)
 	}
 
-	u.Out().Printf("Deleted slide %s", slideID)
+	u.Out().Linef("Deleted slide %s", slideID)
 	return nil
 }

@@ -105,14 +105,14 @@ func (c *GmailSendAsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"sendAs": sa})
 	}
 
-	u.Out().Printf("send_as_email\t%s", sa.SendAsEmail)
-	u.Out().Printf("display_name\t%s", sa.DisplayName)
-	u.Out().Printf("reply_to\t%s", sa.ReplyToAddress)
-	u.Out().Printf("signature\t%s", sa.Signature)
-	u.Out().Printf("is_primary\t%t", sa.IsPrimary)
-	u.Out().Printf("is_default\t%t", sa.IsDefault)
-	u.Out().Printf("treat_as_alias\t%t", sa.TreatAsAlias)
-	u.Out().Printf("verification_status\t%s", sa.VerificationStatus)
+	u.Out().Linef("send_as_email\t%s", sa.SendAsEmail)
+	u.Out().Linef("display_name\t%s", sa.DisplayName)
+	u.Out().Linef("reply_to\t%s", sa.ReplyToAddress)
+	u.Out().Linef("signature\t%s", sa.Signature)
+	u.Out().Linef("is_primary\t%t", sa.IsPrimary)
+	u.Out().Linef("is_default\t%t", sa.IsDefault)
+	u.Out().Linef("treat_as_alias\t%t", sa.TreatAsAlias)
+	u.Out().Linef("verification_status\t%s", sa.VerificationStatus)
 	return nil
 }
 
@@ -164,8 +164,8 @@ func (c *GmailSendAsCreateCmd) Run(ctx context.Context, flags *RootFlags) error 
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"sendAs": created})
 	}
 
-	u.Out().Printf("send_as_email\t%s", created.SendAsEmail)
-	u.Out().Printf("verification_status\t%s", created.VerificationStatus)
+	u.Out().Linef("send_as_email\t%s", created.SendAsEmail)
+	u.Out().Linef("verification_status\t%s", created.VerificationStatus)
 	u.Err().Println("Verification email sent. Check your inbox to complete setup.")
 	return nil
 }
@@ -209,7 +209,7 @@ func (c *GmailSendAsVerifyCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Verification email sent to %s", sendAsEmail)
+	u.Out().Linef("Verification email sent to %s", sendAsEmail)
 	return nil
 }
 
@@ -252,7 +252,7 @@ func (c *GmailSendAsDeleteCmd) Run(ctx context.Context, flags *RootFlags) error 
 		})
 	}
 
-	u.Out().Printf("Deleted send-as alias: %s", sendAsEmail)
+	u.Out().Linef("Deleted send-as alias: %s", sendAsEmail)
 	return nil
 }
 
@@ -338,6 +338,6 @@ func (c *GmailSendAsUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flag
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"sendAs": updated})
 	}
 
-	u.Out().Printf("Updated send-as alias: %s", updated.SendAsEmail)
+	u.Out().Linef("Updated send-as alias: %s", updated.SendAsEmail)
 	return nil
 }

@@ -42,12 +42,12 @@ func (c *ClassroomProfileGetCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"profile": profile})
 	}
 
-	u.Out().Printf("id\t%s", profile.Id)
-	u.Out().Printf("email\t%s", profile.EmailAddress)
-	u.Out().Printf("name\t%s", profileName(profile))
-	u.Out().Printf("verified_teacher\t%t", profile.VerifiedTeacher)
+	u.Out().Linef("id\t%s", profile.Id)
+	u.Out().Linef("email\t%s", profile.EmailAddress)
+	u.Out().Linef("name\t%s", profileName(profile))
+	u.Out().Linef("verified_teacher\t%t", profile.VerifiedTeacher)
 	if profile.PhotoUrl != "" {
-		u.Out().Printf("photo_url\t%s", profile.PhotoUrl)
+		u.Out().Linef("photo_url\t%s", profile.PhotoUrl)
 	}
 	return nil
 }

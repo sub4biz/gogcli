@@ -87,11 +87,11 @@ func copyViaDrive(ctx context.Context, flags *RootFlags, opts copyViaDriveOption
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{strFile: created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("name\t%s", created.Name)
-	u.Out().Printf("mime\t%s", created.MimeType)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("name\t%s", created.Name)
+	u.Out().Linef("mime\t%s", created.MimeType)
 	if created.WebViewLink != "" {
-		u.Out().Printf("link\t%s", created.WebViewLink)
+		u.Out().Linef("link\t%s", created.WebViewLink)
 	}
 	return nil
 }

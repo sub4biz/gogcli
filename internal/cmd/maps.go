@@ -209,15 +209,15 @@ func writeMapsPlace(ctx context.Context, place *googleapi.Place) error {
 		u.Err().Println("No place")
 		return nil
 	}
-	u.Out().Printf("id\t%s", place.ID)
+	u.Out().Linef("id\t%s", place.ID)
 	if strings.TrimSpace(place.Name) != "" {
-		u.Out().Printf("name\t%s", place.Name)
+		u.Out().Linef("name\t%s", place.Name)
 	}
 	if strings.TrimSpace(place.FormattedAddress) != "" {
-		u.Out().Printf("address\t%s", place.FormattedAddress)
+		u.Out().Linef("address\t%s", place.FormattedAddress)
 	}
 	if strings.TrimSpace(place.GoogleMapsURI) != "" {
-		u.Out().Printf("maps_uri\t%s", place.GoogleMapsURI)
+		u.Out().Linef("maps_uri\t%s", place.GoogleMapsURI)
 	}
 	return nil
 }

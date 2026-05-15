@@ -116,7 +116,7 @@ func (c *TasksListsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"tasklist": created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("title\t%s", created.Title)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("title\t%s", created.Title)
 	return nil
 }

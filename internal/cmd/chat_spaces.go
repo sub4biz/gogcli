@@ -283,14 +283,14 @@ func (c *ChatSpacesCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if resp == nil {
-		u.Out().Printf("space\t%s", displayName)
+		u.Out().Linef("space\t%s", displayName)
 		return nil
 	}
 	if resp.Name != "" {
-		u.Out().Printf("resource\t%s", resp.Name)
+		u.Out().Linef("resource\t%s", resp.Name)
 	}
 	if resp.DisplayName != "" {
-		u.Out().Printf("name\t%s", resp.DisplayName)
+		u.Out().Linef("name\t%s", resp.DisplayName)
 	}
 	return nil
 }

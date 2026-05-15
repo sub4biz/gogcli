@@ -143,29 +143,29 @@ func (c *ClassroomCoursesGetCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"course": course})
 	}
 
-	u.Out().Printf("id\t%s", course.Id)
-	u.Out().Printf("name\t%s", course.Name)
+	u.Out().Linef("id\t%s", course.Id)
+	u.Out().Linef("name\t%s", course.Name)
 	if course.Section != "" {
-		u.Out().Printf("section\t%s", course.Section)
+		u.Out().Linef("section\t%s", course.Section)
 	}
 	if course.DescriptionHeading != "" {
-		u.Out().Printf("description_heading\t%s", course.DescriptionHeading)
+		u.Out().Linef("description_heading\t%s", course.DescriptionHeading)
 	}
 	if course.Description != "" {
-		u.Out().Printf("description\t%s", course.Description)
+		u.Out().Linef("description\t%s", course.Description)
 	}
 	if course.Room != "" {
-		u.Out().Printf("room\t%s", course.Room)
+		u.Out().Linef("room\t%s", course.Room)
 	}
-	u.Out().Printf("state\t%s", course.CourseState)
+	u.Out().Linef("state\t%s", course.CourseState)
 	if course.OwnerId != "" {
-		u.Out().Printf("owner\t%s", course.OwnerId)
+		u.Out().Linef("owner\t%s", course.OwnerId)
 	}
 	if course.EnrollmentCode != "" {
-		u.Out().Printf("enrollment_code\t%s", course.EnrollmentCode)
+		u.Out().Linef("enrollment_code\t%s", course.EnrollmentCode)
 	}
 	if course.AlternateLink != "" {
-		u.Out().Printf("link\t%s", course.AlternateLink)
+		u.Out().Linef("link\t%s", course.AlternateLink)
 	}
 	return nil
 }
@@ -235,10 +235,10 @@ func (c *ClassroomCoursesCreateCmd) Run(ctx context.Context, flags *RootFlags) e
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"course": created})
 	}
-	u.Out().Printf("id\t%s", created.Id)
-	u.Out().Printf("name\t%s", created.Name)
-	u.Out().Printf("state\t%s", created.CourseState)
-	u.Out().Printf("owner\t%s", created.OwnerId)
+	u.Out().Linef("id\t%s", created.Id)
+	u.Out().Linef("name\t%s", created.Name)
+	u.Out().Linef("state\t%s", created.CourseState)
+	u.Out().Linef("owner\t%s", created.OwnerId)
 	return nil
 }
 
@@ -323,9 +323,9 @@ func (c *ClassroomCoursesUpdateCmd) Run(ctx context.Context, flags *RootFlags) e
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"course": updated})
 	}
 	u := ui.FromContext(ctx)
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("name\t%s", updated.Name)
-	u.Out().Printf("state\t%s", updated.CourseState)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("name\t%s", updated.Name)
+	u.Out().Linef("state\t%s", updated.CourseState)
 	return nil
 }
 
@@ -423,8 +423,8 @@ func updateCourseState(ctx context.Context, flags *RootFlags, courseID, state st
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"course": updated})
 	}
-	u.Out().Printf("id\t%s", updated.Id)
-	u.Out().Printf("state\t%s", updated.CourseState)
+	u.Out().Linef("id\t%s", updated.Id)
+	u.Out().Linef("state\t%s", updated.CourseState)
 	return nil
 }
 
@@ -480,9 +480,9 @@ func (c *ClassroomCoursesJoinCmd) Run(ctx context.Context, flags *RootFlags) err
 		if outfmt.IsJSON(ctx) {
 			return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"student": created})
 		}
-		u.Out().Printf("user_id\t%s", created.UserId)
-		u.Out().Printf("email\t%s", profileEmail(created.Profile))
-		u.Out().Printf("name\t%s", profileName(created.Profile))
+		u.Out().Linef("user_id\t%s", created.UserId)
+		u.Out().Linef("email\t%s", profileEmail(created.Profile))
+		u.Out().Linef("name\t%s", profileName(created.Profile))
 		return nil
 	case "teacher":
 		teacher := &classroom.Teacher{UserId: userID}
@@ -493,9 +493,9 @@ func (c *ClassroomCoursesJoinCmd) Run(ctx context.Context, flags *RootFlags) err
 		if outfmt.IsJSON(ctx) {
 			return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"teacher": created})
 		}
-		u.Out().Printf("user_id\t%s", created.UserId)
-		u.Out().Printf("email\t%s", profileEmail(created.Profile))
-		u.Out().Printf("name\t%s", profileName(created.Profile))
+		u.Out().Linef("user_id\t%s", created.UserId)
+		u.Out().Linef("email\t%s", profileEmail(created.Profile))
+		u.Out().Linef("name\t%s", profileName(created.Profile))
 		return nil
 	default:
 		return usagef("invalid role %q (expected student or teacher)", role)
@@ -595,7 +595,7 @@ func (c *ClassroomCoursesURLCmd) Run(ctx context.Context, flags *RootFlags) erro
 		if err != nil {
 			return err
 		}
-		u.Out().Printf("%s\t%s", id, link)
+		u.Out().Linef("%s\t%s", id, link)
 	}
 	return nil
 }

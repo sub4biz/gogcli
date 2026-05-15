@@ -115,7 +115,7 @@ func (c *SheetsFormatCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
-	u.Out().Printf("Formatted %s", rangeSpec)
+	u.Out().Linef("Formatted %s", rangeSpec)
 	return nil
 }
 

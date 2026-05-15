@@ -193,7 +193,7 @@ func runDocsTabExport(ctx context.Context, flags *RootFlags, p tabExportParams) 
 		return err
 	}
 
-	u.Err().Printf("Resolving tab %q…", p.TabQuery)
+	u.Err().Linef("Resolving tab %q…", p.TabQuery)
 	tabID, err := resolveTabID(ctx, docsSvc, p.DocID, p.TabQuery)
 	if err != nil {
 		return err
@@ -205,7 +205,7 @@ func runDocsTabExport(ctx context.Context, flags *RootFlags, p tabExportParams) 
 	}
 	httpClient.CheckRedirect = googleExportRedirectPolicy
 
-	u.Err().Printf("Exporting tab %q as %s…", p.TabQuery, format)
+	u.Err().Linef("Exporting tab %q as %s…", p.TabQuery, format)
 	exportURL := docsTabExportURL(p.DocID, formatParam, tabID)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, exportURL, nil)
@@ -242,8 +242,8 @@ func runDocsTabExport(ctx context.Context, flags *RootFlags, p tabExportParams) 
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"path": outPath, "size": n})
 	}
-	u.Out().Printf("path\t%s", outPath)
-	u.Out().Printf("size\t%s", formatDriveSize(n))
+	u.Out().Linef("path\t%s", outPath)
+	u.Out().Linef("size\t%s", formatDriveSize(n))
 	return nil
 }
 

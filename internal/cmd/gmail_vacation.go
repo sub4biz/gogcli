@@ -41,18 +41,18 @@ func (c *GmailVacationGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"vacation": vacation})
 	}
 
-	u.Out().Printf("enable_auto_reply\t%t", vacation.EnableAutoReply)
-	u.Out().Printf("response_subject\t%s", vacation.ResponseSubject)
-	u.Out().Printf("response_body_html\t%s", vacation.ResponseBodyHtml)
-	u.Out().Printf("response_body_plain_text\t%s", vacation.ResponseBodyPlainText)
+	u.Out().Linef("enable_auto_reply\t%t", vacation.EnableAutoReply)
+	u.Out().Linef("response_subject\t%s", vacation.ResponseSubject)
+	u.Out().Linef("response_body_html\t%s", vacation.ResponseBodyHtml)
+	u.Out().Linef("response_body_plain_text\t%s", vacation.ResponseBodyPlainText)
 	if vacation.StartTime != 0 {
-		u.Out().Printf("start_time\t%d", vacation.StartTime)
+		u.Out().Linef("start_time\t%d", vacation.StartTime)
 	}
 	if vacation.EndTime != 0 {
-		u.Out().Printf("end_time\t%d", vacation.EndTime)
+		u.Out().Linef("end_time\t%d", vacation.EndTime)
 	}
-	u.Out().Printf("restrict_to_contacts\t%t", vacation.RestrictToContacts)
-	u.Out().Printf("restrict_to_domain\t%t", vacation.RestrictToDomain)
+	u.Out().Linef("restrict_to_contacts\t%t", vacation.RestrictToContacts)
+	u.Out().Linef("restrict_to_domain\t%t", vacation.RestrictToDomain)
 	return nil
 }
 
@@ -192,16 +192,16 @@ func (c *GmailVacationUpdateCmd) Run(ctx context.Context, kctx *kong.Context, fl
 	}
 
 	u.Out().Println("Vacation responder updated successfully")
-	u.Out().Printf("enable_auto_reply\t%t", updated.EnableAutoReply)
-	u.Out().Printf("response_subject\t%s", updated.ResponseSubject)
+	u.Out().Linef("enable_auto_reply\t%t", updated.EnableAutoReply)
+	u.Out().Linef("response_subject\t%s", updated.ResponseSubject)
 	if updated.StartTime != 0 {
-		u.Out().Printf("start_time\t%d", updated.StartTime)
+		u.Out().Linef("start_time\t%d", updated.StartTime)
 	}
 	if updated.EndTime != 0 {
-		u.Out().Printf("end_time\t%d", updated.EndTime)
+		u.Out().Linef("end_time\t%d", updated.EndTime)
 	}
-	u.Out().Printf("restrict_to_contacts\t%t", updated.RestrictToContacts)
-	u.Out().Printf("restrict_to_domain\t%t", updated.RestrictToDomain)
+	u.Out().Linef("restrict_to_contacts\t%t", updated.RestrictToContacts)
+	u.Out().Linef("restrict_to_domain\t%t", updated.RestrictToDomain)
 	return nil
 }
 

@@ -47,7 +47,7 @@ func (c *DriveChangesStartTokenCmd) Run(ctx context.Context, flags *RootFlags) e
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"startPageToken": resp.StartPageToken})
 	}
-	u.Out().Printf("startPageToken\t%s", resp.StartPageToken)
+	u.Out().Linef("startPageToken\t%s", resp.StartPageToken)
 	return nil
 }
 
@@ -198,10 +198,10 @@ func (c *DriveChangesWatchCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"channel": resp})
 	}
-	u.Out().Printf("id\t%s", resp.Id)
-	u.Out().Printf("resourceId\t%s", resp.ResourceId)
-	u.Out().Printf("resourceUri\t%s", resp.ResourceUri)
-	u.Out().Printf("expiration\t%d", resp.Expiration)
+	u.Out().Linef("id\t%s", resp.Id)
+	u.Out().Linef("resourceId\t%s", resp.ResourceId)
+	u.Out().Linef("resourceUri\t%s", resp.ResourceUri)
+	u.Out().Linef("expiration\t%d", resp.Expiration)
 	return nil
 }
 
@@ -235,7 +235,7 @@ func (c *DriveChangesStopCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"stopped": true, "channelId": channelID, "resourceId": resourceID})
 	}
-	u.Out().Printf("stopped\ttrue")
+	u.Out().Linef("stopped\ttrue")
 	return nil
 }
 
