@@ -2,6 +2,7 @@ package googleapi
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,6 +12,8 @@ import (
 )
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
+
+var errUnexpectedRequestBody = errors.New("unexpected request body")
 
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
@@ -422,12 +425,14 @@ func TestRetryTransportRoundTripDoesNotRetryLargeNonReplayableBody(t *testing.T)
 	calls := 0
 	base := roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls++
+
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			return nil, fmt.Errorf("read body: %w", err)
 		}
 		if string(body) != "payload" {
-			return nil, fmt.Errorf("unexpected body: %q", body)
+			t.Errorf("unexpected body: %q", body)
+			return nil, errUnexpectedRequestBody
 		}
 
 		return newTestResponse(http.StatusTooManyRequests, "rate"), nil

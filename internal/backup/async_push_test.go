@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var errAsyncPushFailed = errors.New("push failed")
+
 func TestWaitAsyncPushRetryCanceled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -37,7 +39,7 @@ func TestAsyncPusherProgressCanBeUpdated(t *testing.T) {
 
 func TestAsyncPushErrorEvictsFailedPusher(t *testing.T) {
 	repo := t.TempDir()
-	wantErr := errors.New("push failed")
+	wantErr := errAsyncPushFailed
 	p := &asyncRepoPusher{err: wantErr}
 
 	asyncPushers.mu.Lock()
@@ -54,9 +56,11 @@ func TestAsyncPushErrorEvictsFailedPusher(t *testing.T) {
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("expected push error, got %v", err)
 	}
+
 	if existingAsyncPusher(repo, nil) != nil {
 		t.Fatalf("expected failed pusher to be evicted")
 	}
+
 	if err := asyncPushError(repo); err != nil {
 		t.Fatalf("expected second error check to be clear, got %v", err)
 	}
@@ -64,7 +68,7 @@ func TestAsyncPushErrorEvictsFailedPusher(t *testing.T) {
 
 func TestEnqueueAsyncPushEvictsFailedPusher(t *testing.T) {
 	repo := t.TempDir()
-	wantErr := errors.New("push failed")
+	wantErr := errAsyncPushFailed
 	p := &asyncRepoPusher{err: wantErr}
 
 	asyncPushers.mu.Lock()
@@ -81,6 +85,7 @@ func TestEnqueueAsyncPushEvictsFailedPusher(t *testing.T) {
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("expected push error, got %v", err)
 	}
+
 	if existingAsyncPusher(repo, nil) != nil {
 		t.Fatalf("expected failed pusher to be evicted")
 	}

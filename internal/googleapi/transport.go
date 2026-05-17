@@ -3,6 +3,7 @@ package googleapi
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -13,6 +14,8 @@ import (
 )
 
 const maxBufferedReplayBodyBytes = int64(16 << 20)
+
+var errRequestBodyTooLarge = errors.New("request body too large to buffer for retry")
 
 // RetryTransport wraps an http.RoundTripper with retry logic for
 // rate limits (429) and server errors (5xx).
@@ -208,7 +211,7 @@ func ensureReplayableBody(req *http.Request) (bool, error) {
 		return false, fmt.Errorf("read request body: %w", err)
 	}
 	if int64(len(bodyBytes)) > maxBufferedReplayBodyBytes {
-		return false, fmt.Errorf("request body too large to buffer for retry: %d bytes exceeds %d bytes", len(bodyBytes), maxBufferedReplayBodyBytes)
+		return false, fmt.Errorf("%w: %d bytes exceeds %d bytes", errRequestBodyTooLarge, len(bodyBytes), maxBufferedReplayBodyBytes)
 	}
 	_ = req.Body.Close()
 
