@@ -24,6 +24,7 @@
 - CLI: preserve command-local `--fields` API masks for Drive, Drive Labels, Sites, and Calendar Events instead of rewriting them to JSON `--select`.
 - Gmail: make `gmail track setup`, `gmail track status`, and `gmail track key rotate` honor `--json` on success without printing generated tracking secrets to stderr.
 - Gmail: return an empty JSON array, not null, for empty Gmail filter lists and JSON filter exports.
+- People: return an empty JSON array, not null, for `people relations --json` when a profile has no relation entries.
 - Sheets: return an empty JSON array, not null, for blank ranges read with `sheets get --json`.
 - Slides: return empty JSON arrays, not null, for blank slide text and image lists in `slides read-slide`.
 - Slides: avoid invalid `deleteText` requests when updating speaker notes on a blank notes page.

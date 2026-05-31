@@ -319,6 +319,54 @@ func TestExecute_PeopleRelations_JSON(t *testing.T) {
 	}
 }
 
+func TestExecute_PeopleRelations_JSON_EmptyArray(t *testing.T) {
+	origNew := newPeopleDirectoryService
+	t.Cleanup(func() { newPeopleDirectoryService = origNew })
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !(strings.Contains(r.URL.Path, "/people/123") && r.Method == http.MethodGet) {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"resourceName": "people/123",
+		})
+	}))
+	defer srv.Close()
+
+	svc, err := people.NewService(context.Background(),
+		option.WithoutAuthentication(),
+		option.WithHTTPClient(srv.Client()),
+		option.WithEndpoint(srv.URL+"/"),
+	)
+	if err != nil {
+		t.Fatalf("NewService: %v", err)
+	}
+	newPeopleDirectoryService = func(context.Context, string) (*people.Service, error) { return svc, nil }
+
+	out := captureStdout(t, func() {
+		_ = captureStderr(t, func() {
+			if err := Execute([]string{"--json", "--account", "a@b.com", "people", "relations", "123"}); err != nil {
+				t.Fatalf("Execute: %v", err)
+			}
+		})
+	})
+	var parsed struct {
+		Resource  string             `json:"resource"`
+		Relations []*people.Relation `json:"relations"`
+	}
+	if err := json.Unmarshal([]byte(out), &parsed); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if parsed.Resource != "people/123" {
+		t.Fatalf("resource = %q", parsed.Resource)
+	}
+	if parsed.Relations == nil || len(parsed.Relations) != 0 {
+		t.Fatalf("relations = %#v, want empty non-nil slice", parsed.Relations)
+	}
+}
+
 func TestExecute_PeopleRelations_Text(t *testing.T) {
 	origNew := newPeopleDirectoryService
 	t.Cleanup(func() { newPeopleDirectoryService = origNew })

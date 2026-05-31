@@ -192,13 +192,15 @@ func (c *PeopleRelationsCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	relationType := strings.TrimSpace(c.Type)
-	relations := person.Relations
+	relations := make([]*people.Relation, 0, len(person.Relations))
+	for _, rel := range person.Relations {
+		if rel != nil {
+			relations = append(relations, rel)
+		}
+	}
 	if relationType != "" {
 		filtered := relations[:0]
 		for _, rel := range relations {
-			if rel == nil {
-				continue
-			}
 			if strings.EqualFold(rel.Type, relationType) {
 				filtered = append(filtered, rel)
 			}
@@ -231,9 +233,6 @@ func (c *PeopleRelationsCmd) Run(ctx context.Context, flags *RootFlags) error {
 	defer flush()
 	fmt.Fprintln(w, "TYPE\tPERSON")
 	for _, rel := range relations {
-		if rel == nil {
-			continue
-		}
 		typ := rel.Type
 		if typ == "" {
 			typ = rel.FormattedType
