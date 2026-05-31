@@ -62,6 +62,7 @@ func (c *ClassroomGuardiansListCmd) Run(ctx context.Context, flags *RootFlags) e
 	if err != nil {
 		return err
 	}
+	guardians = nonNilClassroomItems(guardians)
 
 	if outfmt.IsJSON(ctx) {
 		if err := outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
@@ -241,6 +242,7 @@ func (c *ClassroomGuardianInvitesListCmd) Run(ctx context.Context, flags *RootFl
 	if err != nil {
 		return err
 	}
+	invitations = nonNilClassroomItems(invitations)
 
 	if outfmt.IsJSON(ctx) {
 		if err := outfmt.WriteJSON(ctx, os.Stdout, map[string]any{

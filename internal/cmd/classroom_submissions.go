@@ -90,6 +90,7 @@ func (c *ClassroomSubmissionsListCmd) Run(ctx context.Context, flags *RootFlags)
 	if err != nil {
 		return err
 	}
+	submissions = nonNilClassroomItems(submissions)
 
 	if outfmt.IsJSON(ctx) {
 		if err := outfmt.WriteJSON(ctx, os.Stdout, map[string]any{

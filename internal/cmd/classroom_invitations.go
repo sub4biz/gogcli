@@ -67,6 +67,7 @@ func (c *ClassroomInvitationsListCmd) Run(ctx context.Context, flags *RootFlags)
 	if err != nil {
 		return err
 	}
+	invitations = nonNilClassroomItems(invitations)
 
 	if outfmt.IsJSON(ctx) {
 		if err := outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
