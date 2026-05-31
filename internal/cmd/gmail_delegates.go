@@ -31,8 +31,9 @@ func (c *GmailDelegatesListCmd) Run(ctx context.Context, flags *RootFlags) error
 	if err != nil {
 		return err
 	}
-	rows := make([]gmailEmailStatusRow, 0, len(resp.Delegates))
-	for _, d := range resp.Delegates {
+	delegates := normalizeGmailSettingsItems(resp.Delegates)
+	rows := make([]gmailEmailStatusRow, 0, len(delegates))
+	for _, d := range delegates {
 		if d == nil {
 			continue
 		}
@@ -41,7 +42,7 @@ func (c *GmailDelegatesListCmd) Run(ctx context.Context, flags *RootFlags) error
 			Status: d.VerificationStatus,
 		})
 	}
-	return writeGmailEmailStatusList(ctx, "delegates", resp.Delegates, "No delegates", rows)
+	return writeGmailEmailStatusList(ctx, "delegates", delegates, "No delegates", rows)
 }
 
 type GmailDelegatesGetCmd struct {

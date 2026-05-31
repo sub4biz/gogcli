@@ -31,8 +31,9 @@ func (c *GmailForwardingListCmd) Run(ctx context.Context, flags *RootFlags) erro
 	if err != nil {
 		return err
 	}
-	rows := make([]gmailEmailStatusRow, 0, len(resp.ForwardingAddresses))
-	for _, f := range resp.ForwardingAddresses {
+	addresses := normalizeGmailSettingsItems(resp.ForwardingAddresses)
+	rows := make([]gmailEmailStatusRow, 0, len(addresses))
+	for _, f := range addresses {
 		if f == nil {
 			continue
 		}
@@ -41,7 +42,7 @@ func (c *GmailForwardingListCmd) Run(ctx context.Context, flags *RootFlags) erro
 			Status: f.VerificationStatus,
 		})
 	}
-	return writeGmailEmailStatusList(ctx, "forwardingAddresses", resp.ForwardingAddresses, "No forwarding addresses", rows)
+	return writeGmailEmailStatusList(ctx, "forwardingAddresses", addresses, "No forwarding addresses", rows)
 }
 
 type GmailForwardingGetCmd struct {

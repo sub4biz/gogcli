@@ -44,19 +44,20 @@ func (c *GmailSendAsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
+	sendAs := normalizeGmailSettingsItems(resp.SendAs)
 
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"sendAs": resp.SendAs})
+		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{"sendAs": sendAs})
 	}
 
-	if len(resp.SendAs) == 0 {
+	if len(sendAs) == 0 {
 		u.Err().Println("No send-as aliases")
 		return nil
 	}
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "EMAIL\tDISPLAY NAME\tDEFAULT\tVERIFIED\tTREAT AS ALIAS")
-	for _, sa := range resp.SendAs {
+	for _, sa := range sendAs {
 		isDefault := ""
 		if sa.IsDefault {
 			isDefault = sendAsYes
