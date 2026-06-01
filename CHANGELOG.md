@@ -66,6 +66,7 @@
 - Sheets: infer `sheets format --format-fields` from `--format-json` when callers do not need a custom mask.
 - Sheets: return usage exit code 2 for missing or invalid `sheets update` and `sheets append` values instead of reporting them as generic runtime failures.
 - Sheets: return usage exit code 2 for invalid chart specs and format JSON instead of reporting them as generic runtime failures.
+- Sheets: validate chart anchors before dry-run and return usage exit code 2 for invalid `sheets chart create --anchor` values.
 - Sheets: return usage exit code 2 for invalid formatting field masks instead of reporting them as generic runtime failures.
 - Sheets: return usage exit code 2 for invalid banding properties JSON instead of reporting it as a generic runtime failure.
 - Sheets: return usage exit code 2 for invalid `sheets batch-update --data-json` values instead of reporting them as generic runtime failures.

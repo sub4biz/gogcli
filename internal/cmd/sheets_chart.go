@@ -211,6 +211,11 @@ func (c *SheetsChartCreateCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if err != nil {
 		return usagef("invalid --spec-json: %v", err)
 	}
+	if c.Anchor != "" {
+		if _, anchorErr := parseA1Cell(c.Anchor); anchorErr != nil {
+			return usagef("invalid --anchor %q: %v", c.Anchor, anchorErr)
+		}
+	}
 
 	if dryErr := dryRunExit(ctx, flags, "sheets.chart.create", map[string]any{
 		"spreadsheet_id": spreadsheetID,
