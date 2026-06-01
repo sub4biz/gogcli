@@ -27,10 +27,10 @@ type serviceAccountJSONInfo struct {
 func parseServiceAccountJSON(data []byte) (serviceAccountJSONInfo, error) {
 	var saJSON map[string]any
 	if err := json.Unmarshal(data, &saJSON); err != nil {
-		return serviceAccountJSONInfo{}, fmt.Errorf("invalid service account JSON: %w", err)
+		return serviceAccountJSONInfo{}, usagef("invalid service account JSON: %v", err)
 	}
 	if saJSON["type"] != "service_account" {
-		return serviceAccountJSONInfo{}, fmt.Errorf("invalid service account JSON: expected type=service_account")
+		return serviceAccountJSONInfo{}, usage("invalid service account JSON: expected type=service_account")
 	}
 
 	info := serviceAccountJSONInfo{}

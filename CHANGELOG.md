@@ -15,6 +15,7 @@
 - Backup: return usage exit code 2 when `backup export --out` points inside the backup repo.
 - Backup: keep semantic manifest counts such as `contacts.connections` and `contacts.other` in `backup verify` and `backup export` results after shard verification.
 - Auth: return usage exit code 2 for unknown `--services` values instead of reporting them as generic runtime failures.
+- Auth: return usage exit code 2 for invalid service-account key JSON instead of reporting it as a generic runtime failure.
 - Auth: make `auth keep --dry-run` report the planned service-account paths without writing files.
 - Calendar: make `calendar conflicts` check all calendars by default and reject explicit one-calendar selections instead of silently reporting no cross-calendar conflicts.
 - Calendar: return an empty JSON array, not null, for `calendar conflicts --json` when no conflicts are found.
