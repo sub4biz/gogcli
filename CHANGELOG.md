@@ -40,6 +40,7 @@
 - Chat: validate space member emails and `users/...` identifiers before dry-run instead of accepting invalid space setup requests.
 - Chat: return usage exit code 2 for non-positive list/find `--max` values before account/workspace setup.
 - Contacts: warm the People API contact-search cache, including Google's documented propagation wait, before contact and other-contact searches plus Gmail `--from-contact` resolution so fresh contact changes are visible.
+- Contacts: make `contacts raw <email>` and `people raw <email>` resolve the email to its contact resource before calling People.Get.
 - Contacts: use an other-contact-safe read mask for `contacts other list` and `contacts other search` so Google does not reject the request.
 - Contacts: validate create/update email inputs before reporting dry-run success.
 - Contacts: return usage exit code 2 for non-positive `contacts list/search --max` values before auth/API setup.
