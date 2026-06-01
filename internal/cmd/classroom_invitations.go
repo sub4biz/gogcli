@@ -34,6 +34,9 @@ func (c *ClassroomInvitationsListCmd) Run(ctx context.Context, flags *RootFlags)
 	if strings.TrimSpace(c.CourseID) == "" && strings.TrimSpace(c.UserID) == "" {
 		return usage("at least one of --course or --user is required")
 	}
+	if c.Max <= 0 {
+		return usage("max must be > 0")
+	}
 	account, err := requireAccount(flags)
 	if err != nil {
 		return err
