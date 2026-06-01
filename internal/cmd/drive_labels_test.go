@@ -200,6 +200,47 @@ func TestDriveLabelsFileApply_InvalidFieldsJSONIsUsageError(t *testing.T) {
 	}
 }
 
+func TestDriveLabelsFileApply_RejectsMalformedFieldMods(t *testing.T) {
+	tests := []struct {
+		name string
+		cmd  DriveLabelsFileApplyCmd
+		want string
+	}{
+		{
+			name: "fractional json integer",
+			cmd:  DriveLabelsFileApplyCmd{FileID: "file1", LabelID: "label1", FieldsJSON: `{"count":1.5}`},
+			want: "invalid integer label value",
+		},
+		{
+			name: "trailing json token",
+			cmd:  DriveLabelsFileApplyCmd{FileID: "file1", LabelID: "label1", FieldsJSON: `{"count":1} true`},
+			want: "trailing JSON value",
+		},
+		{
+			name: "invalid date",
+			cmd:  DriveLabelsFileApplyCmd{FileID: "file1", LabelID: "label1", Date: []string{"due=not-a-date"}},
+			want: "invalid date label value",
+		},
+		{
+			name: "invalid user email",
+			cmd:  DriveLabelsFileApplyCmd{FileID: "file1", LabelID: "label1", User: []string{"owner=nope"}},
+			want: "invalid --user",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.cmd.Run(newCmdOutputContext(t, io.Discard, io.Discard), &RootFlags{Account: "a@example.com", DryRun: true})
+			if err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Fatalf("expected %q error, got: %v", tt.want, err)
+			}
+			if got := ExitCode(err); got != 2 {
+				t.Fatalf("expected usage exit code 2, got %d (err=%v)", got, err)
+			}
+		})
+	}
+}
+
 func TestWrapDriveLabelsErrorValidCustomer(t *testing.T) {
 	err := wrapDriveLabelsError(errors.New("Cannot perform this action without a valid customer"))
 	if err == nil || !strings.Contains(err.Error(), "requires a Google Workspace customer") {
