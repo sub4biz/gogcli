@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/slides/v1"
 
 	"github.com/steipete/gogcli/internal/app"
 )
@@ -79,6 +80,31 @@ func TestDriveServiceUsesRuntimeFactory(t *testing.T) {
 	}
 	if got != want {
 		t.Fatalf("driveService() = %p, want %p", got, want)
+	}
+	if gotAccount != "test@example.com" {
+		t.Fatalf("factory account = %q, want test@example.com", gotAccount)
+	}
+}
+
+func TestSlidesServiceUsesRuntimeFactory(t *testing.T) {
+	t.Parallel()
+
+	want := &slides.Service{}
+	var gotAccount string
+	runtime := &app.Runtime{Services: app.Services{
+		Slides: func(_ context.Context, account string) (*slides.Service, error) {
+			gotAccount = account
+			return want, nil
+		},
+	}}
+	ctx := app.WithRuntime(context.Background(), runtime)
+
+	got, err := slidesService(ctx, "test@example.com")
+	if err != nil {
+		t.Fatalf("slidesService() error = %v", err)
+	}
+	if got != want {
+		t.Fatalf("slidesService() = %p, want %p", got, want)
 	}
 	if gotAccount != "test@example.com" {
 		t.Fatalf("factory account = %q, want test@example.com", gotAccount)

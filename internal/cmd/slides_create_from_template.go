@@ -98,7 +98,7 @@ func (c *SlidesCreateFromTemplateCmd) Run(ctx context.Context, flags *RootFlags)
 	presentationID := created.Id
 
 	// Create Slides service for text replacement
-	slidesSvc, err := newSlidesService(ctx, account)
+	slidesSvc, err := slidesService(ctx, account)
 	if err != nil {
 		return fmt.Errorf("failed to create slides service: %w", err)
 	}

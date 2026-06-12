@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/slides/v1"
 
 	"github.com/steipete/gogcli/internal/app"
 	"github.com/steipete/gogcli/internal/googleapi"
@@ -24,6 +25,7 @@ func newDefaultRuntime() *app.Runtime {
 		},
 		Services: app.Services{
 			Drive:         newDriveService,
+			Slides:        newSlidesService,
 			DriveDownload: driveDownload,
 			DriveExport:   driveExportDownload,
 		},
@@ -47,6 +49,9 @@ func normalizedRuntime(runtime *app.Runtime) *app.Runtime {
 	}
 	if normalized.Services.Drive == nil {
 		normalized.Services.Drive = defaults.Services.Drive
+	}
+	if normalized.Services.Slides == nil {
+		normalized.Services.Slides = defaults.Services.Slides
 	}
 	if normalized.Services.DriveDownload == nil {
 		normalized.Services.DriveDownload = defaults.Services.DriveDownload
@@ -82,6 +87,13 @@ func driveService(ctx context.Context, account string) (*drive.Service, error) {
 		return runtime.Services.Drive(ctx, account)
 	}
 	return newDriveService(ctx, account)
+}
+
+func slidesService(ctx context.Context, account string) (*slides.Service, error) {
+	if runtime, ok := app.FromContext(ctx); ok && runtime.Services.Slides != nil {
+		return runtime.Services.Slides(ctx, account)
+	}
+	return newSlidesService(ctx, account)
 }
 
 func driveDownloadRequest(ctx context.Context, svc *drive.Service, fileID string) (*http.Response, error) {

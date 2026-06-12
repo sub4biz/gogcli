@@ -58,7 +58,7 @@ func (c *SlidesRawCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	svc, err := newSlidesService(ctx, account)
+	svc, err := slidesService(ctx, account)
 	if err != nil {
 		return err
 	}
@@ -265,7 +265,7 @@ func (c *SlidesCreateFromMarkdownCmd) Run(ctx context.Context, flags *RootFlags)
 		return err
 	}
 
-	slidesSvc, err := newSlidesService(ctx, account)
+	slidesSvc, err := slidesService(ctx, account)
 	if err != nil {
 		return err
 	}

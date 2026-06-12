@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/slides/v1"
 )
 
 type IO struct {
@@ -15,13 +16,15 @@ type IO struct {
 }
 
 type (
-	DriveServiceFactory func(context.Context, string) (*drive.Service, error)
-	DriveDownloadFunc   func(context.Context, *drive.Service, string) (*http.Response, error)
-	DriveExportFunc     func(context.Context, *drive.Service, string, string) (*http.Response, error)
+	DriveServiceFactory  func(context.Context, string) (*drive.Service, error)
+	SlidesServiceFactory func(context.Context, string) (*slides.Service, error)
+	DriveDownloadFunc    func(context.Context, *drive.Service, string) (*http.Response, error)
+	DriveExportFunc      func(context.Context, *drive.Service, string, string) (*http.Response, error)
 )
 
 type Services struct {
 	Drive         DriveServiceFactory
+	Slides        SlidesServiceFactory
 	DriveDownload DriveDownloadFunc
 	DriveExport   DriveExportFunc
 }
