@@ -28,7 +28,7 @@ func newDefaultRuntime() *app.Runtime {
 			Err: os.Stderr,
 		},
 		Services: app.Services{
-			Calendar:      newCalendarService,
+			Calendar:      googleapi.NewCalendar,
 			CloudIdentity: newCloudIdentityService,
 			Docs:          googleapi.NewDocs,
 			DocsHTTP: func(ctx context.Context, account string) (*http.Client, error) {
@@ -132,7 +132,7 @@ func calendarService(ctx context.Context, account string) (*calendar.Service, er
 	if runtime, ok := app.FromContext(ctx); ok && runtime.Services.Calendar != nil {
 		return runtime.Services.Calendar(ctx, account)
 	}
-	return newCalendarService(ctx, account)
+	return googleapi.NewCalendar(ctx, account)
 }
 
 func cloudIdentityService(ctx context.Context, account string) (*cloudidentity.Service, error) {
