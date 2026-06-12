@@ -9,8 +9,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
-
-	"google.golang.org/api/gmail/v1"
 )
 
 type gmailRawHit struct {
@@ -39,11 +37,6 @@ func newGmailRawTestServer(t *testing.T, status int, body map[string]any, hit *g
 	}))
 }
 
-func newMockGmailService(t *testing.T, srv *httptest.Server) *gmail.Service {
-	t.Helper()
-	return newGoogleTestServiceWithEndpoint(t, srv.Client(), srv.URL+"/", gmail.NewService)
-}
-
 func fullGmailMessageResponse(id string) map[string]any {
 	return map[string]any{
 		"id":       id,
@@ -68,7 +61,7 @@ func TestGmailRaw_HappyPath_DefaultFormatFull(t *testing.T) {
 	var out bytes.Buffer
 	ctx := withGmailTestService(
 		newCmdRuntimeOutputContext(t, &out, io.Discard),
-		newMockGmailService(t, srv),
+		newGmailServiceFromServer(t, srv),
 	)
 	flags := &RootFlags{Account: "a@b.com"}
 	if err := runKong(t, &GmailRawCmd{}, []string{"m1"}, ctx, flags); err != nil {
@@ -101,7 +94,7 @@ func TestGmailRaw_FormatPropagation(t *testing.T) {
 
 			ctx := withGmailTestService(
 				newCmdRuntimeOutputContext(t, io.Discard, io.Discard),
-				newMockGmailService(t, srv),
+				newGmailServiceFromServer(t, srv),
 			)
 			flags := &RootFlags{Account: "a@b.com"}
 			if err := runKong(t, &GmailRawCmd{}, []string{"m1", "--format", fmt}, ctx, flags); err != nil {
@@ -132,7 +125,7 @@ func TestGmailRaw_APIError(t *testing.T) {
 
 	ctx := withGmailTestService(
 		newCmdRuntimeOutputContext(t, io.Discard, io.Discard),
-		newMockGmailService(t, srv),
+		newGmailServiceFromServer(t, srv),
 	)
 	flags := &RootFlags{Account: "a@b.com"}
 	if err := runKong(t, &GmailRawCmd{}, []string{"m1"}, ctx, flags); err == nil {
@@ -146,7 +139,7 @@ func TestGmailRaw_NotFound(t *testing.T) {
 
 	ctx := withGmailTestService(
 		newCmdRuntimeOutputContext(t, io.Discard, io.Discard),
-		newMockGmailService(t, srv),
+		newGmailServiceFromServer(t, srv),
 	)
 	flags := &RootFlags{Account: "a@b.com"}
 	if err := runKong(t, &GmailRawCmd{}, []string{"m1"}, ctx, flags); err == nil {
