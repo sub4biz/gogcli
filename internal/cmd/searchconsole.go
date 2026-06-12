@@ -15,12 +15,9 @@ import (
 	searchconsoleapi "google.golang.org/api/searchconsole/v1"
 
 	"github.com/steipete/gogcli/internal/config"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 )
-
-var newSearchConsoleService = googleapi.NewSearchConsole
 
 const (
 	defaultSearchConsoleRowLimit = int64(1000)

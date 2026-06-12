@@ -35,8 +35,8 @@ func newDefaultRuntime() *app.Runtime {
 			Err: os.Stderr,
 		},
 		Services: app.Services{
-			AnalyticsAdmin: newAnalyticsAdminService,
-			AnalyticsData:  newAnalyticsDataService,
+			AnalyticsAdmin: googleapi.NewAnalyticsAdmin,
+			AnalyticsData:  googleapi.NewAnalyticsData,
 			Calendar:       googleapi.NewCalendar,
 			Chat:           googleapi.NewChat,
 			Classroom:      googleapi.NewClassroom,
@@ -51,7 +51,7 @@ func newDefaultRuntime() *app.Runtime {
 			PeopleContacts:  googleapi.NewPeopleContacts,
 			PeopleDirectory: googleapi.NewPeopleDirectory,
 			PeopleOther:     googleapi.NewPeopleOtherContacts,
-			SearchConsole:   newSearchConsoleService,
+			SearchConsole:   googleapi.NewSearchConsole,
 			Sheets:          googleapi.NewSheets,
 			Slides:          googleapi.NewSlides,
 			Tasks:           googleapi.NewTasks,
@@ -171,14 +171,14 @@ func analyticsAdminService(ctx context.Context, account string) (*analyticsadmin
 	if runtime, ok := app.FromContext(ctx); ok && runtime.Services.AnalyticsAdmin != nil {
 		return runtime.Services.AnalyticsAdmin(ctx, account)
 	}
-	return newAnalyticsAdminService(ctx, account)
+	return googleapi.NewAnalyticsAdmin(ctx, account)
 }
 
 func analyticsDataService(ctx context.Context, account string) (*analyticsdata.Service, error) {
 	if runtime, ok := app.FromContext(ctx); ok && runtime.Services.AnalyticsData != nil {
 		return runtime.Services.AnalyticsData(ctx, account)
 	}
-	return newAnalyticsDataService(ctx, account)
+	return googleapi.NewAnalyticsData(ctx, account)
 }
 
 func calendarService(ctx context.Context, account string) (*calendar.Service, error) {
@@ -241,7 +241,7 @@ func searchConsoleService(ctx context.Context, account string) (*searchconsoleap
 	if runtime, ok := app.FromContext(ctx); ok && runtime.Services.SearchConsole != nil {
 		return runtime.Services.SearchConsole(ctx, account)
 	}
-	return newSearchConsoleService(ctx, account)
+	return googleapi.NewSearchConsole(ctx, account)
 }
 
 func gmailService(ctx context.Context, account string) (*gmail.Service, error) {

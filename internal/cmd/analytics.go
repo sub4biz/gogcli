@@ -8,14 +8,8 @@ import (
 	analyticsadmin "google.golang.org/api/analyticsadmin/v1beta"
 	analyticsdata "google.golang.org/api/analyticsdata/v1beta"
 
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
-)
-
-var (
-	newAnalyticsAdminService = googleapi.NewAnalyticsAdmin
-	newAnalyticsDataService  = googleapi.NewAnalyticsData
 )
 
 type AnalyticsCmd struct {
