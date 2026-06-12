@@ -31,15 +31,9 @@ func withCalendarTestService(ctx context.Context, svc *calendar.Service) context
 }
 
 func withCalendarTestServiceFactory(ctx context.Context, factory app.CalendarServiceFactory) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	runtime := &app.Runtime{}
-	if existing, ok := app.FromContext(ctx); ok {
-		*runtime = *existing
-	}
-	runtime.Services.Calendar = factory
-	return app.WithRuntime(ctx, runtime)
+	return withTestRuntime(ctx, func(runtime *app.Runtime) {
+		runtime.Services.Calendar = factory
+	})
 }
 
 func executeWithCalendarTestService(t *testing.T, args []string, svc *calendar.Service) executeTestResult {
