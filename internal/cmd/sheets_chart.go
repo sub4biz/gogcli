@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -51,15 +50,7 @@ func (c *SheetsChartListCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return err
 	}
 
-	type chartItem struct {
-		ChartID    int64  `json:"chartId"`
-		Title      string `json:"title"`
-		Type       string `json:"type"`
-		SheetID    int64  `json:"sheetId"`
-		SheetTitle string `json:"sheetTitle"`
-	}
-
-	items := make([]chartItem, 0)
+	items := make([]sheetsChartItem, 0)
 	for _, sheet := range resp.Sheets {
 		sheetTitle := ""
 		var sheetID int64
@@ -71,7 +62,7 @@ func (c *SheetsChartListCmd) Run(ctx context.Context, flags *RootFlags) error {
 			if ch == nil {
 				continue
 			}
-			it := chartItem{
+			it := sheetsChartItem{
 				ChartID:    ch.ChartId,
 				SheetID:    sheetID,
 				SheetTitle: sheetTitle,
@@ -95,15 +86,7 @@ func (c *SheetsChartListCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return nil
 	}
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "CHART_ID\tTITLE\tTYPE\tSHEET_ID\tSHEET_TITLE")
-	for _, it := range items {
-		fmt.Fprintf(w, "%d\t%s\t%s\t%d\t%s\n",
-			it.ChartID, it.Title, it.Type, it.SheetID, it.SheetTitle,
-		)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), items, sheetsChartColumns())
 }
 
 // ---------- get ----------

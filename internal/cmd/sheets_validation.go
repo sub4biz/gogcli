@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -95,31 +94,7 @@ func (c *SheetsValidationGetCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return nil
 	}
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "A1\tTYPE\tVALUES\tSTRICT\tSHOW_CUSTOM_UI\tINPUT_MESSAGE")
-	for _, item := range validations {
-		conditionType := ""
-		values := []string{}
-		if item.Rule != nil && item.Rule.Condition != nil {
-			conditionType = item.Rule.Condition.Type
-			for _, value := range item.Rule.Condition.Values {
-				if value != nil {
-					values = append(values, value.UserEnteredValue)
-				}
-			}
-		}
-		encodedValues, _ := json.Marshal(values)
-		fmt.Fprintf(w, "%s\t%s\t%s\t%t\t%t\t%s\n",
-			oneLine(item.A1),
-			oneLine(conditionType),
-			encodedValues,
-			item.Rule != nil && item.Rule.Strict,
-			item.Rule != nil && item.Rule.ShowCustomUi,
-			oneLine(validationInputMessage(item.Rule)),
-		)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), validations, sheetsValidationColumns())
 }
 
 func resolveValidationReadRange(input string, catalog *spreadsheetRangeCatalog) (string, *sheets.GridRange, error) {

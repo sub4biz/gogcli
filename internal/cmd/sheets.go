@@ -608,19 +608,7 @@ func (c *SheetsMetadataCmd) Run(ctx context.Context, flags *RootFlags) error {
 	u.Out().Println("")
 	u.Out().Println("Sheets:")
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "ID\tTITLE\tROWS\tCOLS")
-	for _, sheet := range resp.Sheets {
-		props := sheet.Properties
-		fmt.Fprintf(w, "%d\t%s\t%d\t%d\n",
-			props.SheetId,
-			props.Title,
-			props.GridProperties.RowCount,
-			props.GridProperties.ColumnCount,
-		)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), resp.Sheets, sheetsMetadataColumns())
 }
 
 type SheetsCreateCmd struct {

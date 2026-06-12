@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/steipete/gogcli/internal/outfmt"
@@ -41,16 +40,7 @@ func (c *SheetsNotesCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return err
 	}
 
-	type cellNote struct {
-		Sheet string `json:"sheet"`
-		A1    string `json:"a1"`
-		Row   int    `json:"row"`
-		Col   int    `json:"col"`
-		Value string `json:"value"`
-		Note  string `json:"note"`
-	}
-
-	var notes []cellNote
+	var notes []sheetsCellNote
 
 	for _, sheet := range resp.Sheets {
 		if sheet == nil {
@@ -79,7 +69,7 @@ func (c *SheetsNotesCmd) Run(ctx context.Context, flags *RootFlags) error {
 					}
 					absRow := startRow + ri + 1
 					absCol := startCol + ci + 1
-					notes = append(notes, cellNote{
+					notes = append(notes, sheetsCellNote{
 						Sheet: sheetTitle,
 						A1:    sheetsa1.FormatCell(sheetTitle, absRow, absCol),
 						Row:   absRow,
@@ -105,17 +95,7 @@ func (c *SheetsNotesCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return nil
 	}
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "A1\tVALUE\tNOTE")
-	for _, n := range notes {
-		fmt.Fprintf(w, "%s\t%s\t%s\n",
-			oneLine(n.A1),
-			oneLine(n.Value),
-			oneLine(n.Note),
-		)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), notes, sheetsNoteColumns())
 }
 
 func oneLine(s string) string {

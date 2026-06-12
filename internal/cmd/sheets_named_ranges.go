@@ -71,23 +71,7 @@ func (c *SheetsNamedRangesListCmd) Run(ctx context.Context, flags *RootFlags) er
 		return nil
 	}
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "NAME\tID\tSHEET_ID\tSHEET_TITLE\tSTART_ROW\tEND_ROW\tSTART_COL\tEND_COL\tA1")
-	for _, it := range items {
-		fmt.Fprintf(w, "%s\t%s\t%d\t%s\t%d\t%d\t%d\t%d\t%s\n",
-			it.Name,
-			it.NamedRangeID,
-			it.SheetID,
-			it.SheetTitle,
-			it.StartRowIndex,
-			it.EndRowIndex,
-			it.StartColIndex,
-			it.EndColIndex,
-			it.A1,
-		)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), items, sheetsNamedRangeColumns())
 }
 
 type SheetsNamedRangesGetCmd struct {

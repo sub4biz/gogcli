@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"strings"
 
@@ -131,13 +130,7 @@ func (c *SheetsBandingListCmd) Run(ctx context.Context, flags *RootFlags) error 
 		u.Err().Println("No banded ranges")
 		return nil
 	}
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "BANDED_RANGE_ID\tSHEET\tRANGE")
-	for _, item := range items {
-		fmt.Fprintf(w, "%d\t%s\t%s\n", item.BandedRangeID, item.SheetTitle, item.A1)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), items, sheetsBandingColumns())
 }
 
 type SheetsBandingClearCmd struct {

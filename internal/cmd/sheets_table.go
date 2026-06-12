@@ -63,20 +63,7 @@ func (c *SheetsTableListCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return nil
 	}
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "NAME\tTABLE_ID\tSHEET_ID\tSHEET_TITLE\tA1\tCOLUMNS")
-	for _, table := range tables {
-		fmt.Fprintf(w, "%s\t%s\t%d\t%s\t%s\t%d\n",
-			table.Name,
-			table.TableID,
-			table.SheetID,
-			table.SheetTitle,
-			table.A1,
-			len(table.Columns),
-		)
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), tables, sheetsTableColumns())
 }
 
 type SheetsTableGetCmd struct {

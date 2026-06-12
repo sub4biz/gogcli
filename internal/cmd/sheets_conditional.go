@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 
@@ -145,13 +144,7 @@ func (c *SheetsConditionalListCmd) Run(ctx context.Context, flags *RootFlags) er
 		return nil
 	}
 
-	w, flush := tableWriter(ctx)
-	defer flush()
-	fmt.Fprintln(w, "SHEET\tINDEX\tTYPE\tRANGES")
-	for _, item := range items {
-		fmt.Fprintf(w, "%s\t%d\t%s\t%s\n", item.SheetTitle, item.Index, item.Type, strings.Join(item.Ranges, ","))
-	}
-	return nil
+	return outfmt.WriteTable(ctx, stdoutWriter(ctx), items, sheetsConditionalColumns())
 }
 
 type SheetsConditionalClearCmd struct {
