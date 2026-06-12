@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"google.golang.org/api/drive/v3"
@@ -149,7 +148,7 @@ func (c *SheetsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if values == nil {
 			values = [][]interface{}{}
 		}
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{
 			"range":  resp.Range,
 			"values": values,
 		})
@@ -274,7 +273,7 @@ func (c *SheetsUpdateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{
 			"updatedRange":   resp.UpdatedRange,
 			"updatedRows":    resp.UpdatedRows,
 			"updatedColumns": resp.UpdatedColumns,
@@ -351,7 +350,7 @@ func (c *SheetsBatchUpdateCmd) Run(ctx context.Context, flags *RootFlags) error 
 	}
 
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{
 			"spreadsheetId":       resp.SpreadsheetId,
 			"totalUpdatedRows":    resp.TotalUpdatedRows,
 			"totalUpdatedColumns": resp.TotalUpdatedColumns,
@@ -495,7 +494,7 @@ func (c *SheetsAppendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{
 			"updatedRange":   resp.Updates.UpdatedRange,
 			"updatedRows":    resp.Updates.UpdatedRows,
 			"updatedColumns": resp.Updates.UpdatedColumns,
@@ -546,7 +545,7 @@ func (c *SheetsClearCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{
 			"clearedRange": resp.ClearedRange,
 		})
 	}
@@ -629,7 +628,7 @@ func (c *SheetsMetadataCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, os.Stdout, map[string]any{
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{
 			"spreadsheetId": resp.SpreadsheetId,
 			"title":         resp.Properties.Title,
 			"locale":        resp.Properties.Locale,
