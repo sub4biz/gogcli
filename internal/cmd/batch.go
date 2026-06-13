@@ -49,7 +49,7 @@ func (c *BatchBeginCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (c *BatchBeginCmd) Run(ctx context.Context, flags *RootFlags) error {
 type BatchListCmd struct{}
 
 func (c *BatchListCmd) Run(ctx context.Context) error {
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ type BatchShowCmd struct {
 }
 
 func (c *BatchShowCmd) Run(ctx context.Context) error {
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func (c *BatchAbortCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err := dryRunExit(ctx, flags, "batch.abort", map[string]any{"batch_id": batchID}); err != nil {
 		return err
 	}
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (c *BatchPruneCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err := dryRunExit(ctx, flags, "batch.prune", map[string]any{"older_than": c.OlderThan.String()}); err != nil {
 		return err
 	}
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -207,7 +207,7 @@ func (c *BatchEndCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if c.ContinueOnError && c.AutoSplit {
 		return usage("--continue-on-error and --auto-split are mutually exclusive")
 	}
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -336,7 +336,7 @@ func validateDocsBatchTarget(ctx context.Context, flags *RootFlags, batchID, doc
 	if err != nil {
 		return err
 	}
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func queueDocsBatchRequests(ctx context.Context, flags *RootFlags, batchID, docu
 	if err != nil {
 		return true, err
 	}
-	store, err := newDocsBatchStore()
+	store, err := newDocsBatchStore(ctx)
 	if err != nil {
 		return true, err
 	}
