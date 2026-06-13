@@ -97,7 +97,7 @@ func classifyExpression(expr sedExpr) string {
 		return "positional"
 	}
 	// Check for brace formatting
-	if expr.brace != nil && braceExprHasAnyFormat(expr.brace) {
+	if expr.brace != nil && docssed.BraceExpressionHasAnyFormat(expr.brace) {
 		return "brace"
 	}
 	if canUseNativeReplace(expr.replacement) && expr.global && expr.brace == nil {

@@ -38,6 +38,13 @@ type Expression struct {
 	NthMatch    int
 	Command     Command
 	Address     *Address
+
+	Cell        *CellReference
+	Table       *TableReference
+	Image       *ImageReference
+	Brace       *BraceExpression
+	BraceSpans  []*BraceSpan
+	TableCreate *TableCreateSpec
 }
 
 // Program is an ordered sequence of sed expressions.

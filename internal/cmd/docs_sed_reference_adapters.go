@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -29,6 +30,21 @@ func tableCellRefFromParsed(ref *docssed.CellReference) *tableCellRef {
 		opTarget:   ref.OperationTarget,
 		endRow:     ref.EndRow,
 		endCol:     ref.EndColumn,
+	}
+}
+
+func imageReferencePattern(ref *docssed.ImageReference) string {
+	switch {
+	case ref == nil:
+		return ""
+	case ref.AllImages:
+		return "!(*)"
+	case ref.ByPosition:
+		return fmt.Sprintf("!(%d)", ref.Position)
+	case ref.ByAlt && ref.AltRegex != nil:
+		return fmt.Sprintf("![%s]", ref.Pattern)
+	default:
+		return ""
 	}
 }
 
@@ -96,15 +112,4 @@ func parseRowColOpValue(value string) (string, int) {
 		return opDelete, parsedTarget
 	}
 	return "", 0
-}
-
-func braceTableToTableCreateSpec(ref *docssed.TableReference) *tableCreateSpec {
-	if ref == nil || !ref.IsCreate {
-		return nil
-	}
-	return &tableCreateSpec{
-		rows:   ref.CreateRows,
-		cols:   ref.CreateCols,
-		header: ref.HasHeader,
-	}
 }

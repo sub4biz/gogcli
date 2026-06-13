@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/api/docs/v1"
+
+	"github.com/steipete/gogcli/internal/docssed"
 )
 
 func TestParseFullExpr_SCommands(t *testing.T) {
@@ -229,10 +231,8 @@ func TestEscapeUnescapeMarkdown(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			escaped := escapeMarkdown(tt.input)
-			restored := unescapeMarkdown(escaped)
-			// After escape+unescape, \n should be real newline, others literal
-			assert.Equal(t, tt.want, restored)
+			parsed := docssed.ParseMarkdownReplacement(tt.input)
+			assert.Equal(t, tt.want, parsed.Text)
 		})
 	}
 }

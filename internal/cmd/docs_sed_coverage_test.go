@@ -474,23 +474,6 @@ func TestResolveBreak_AllValues(t *testing.T) {
 	assert.Equal(t, "x", resolveBreak("x"))
 }
 
-// --- tokenizeBraceContent edge cases ---
-
-func TestTokenizeBraceContent_Extended(t *testing.T) {
-	// Already tested at 70%, add edge cases
-	tokens := tokenizeBraceContent("{b,i,_}")
-	assert.NotEmpty(t, tokens)
-
-	// Nested braces
-	tokens = tokenizeBraceContent("{b,{color:#FF0000}}")
-	assert.NotEmpty(t, tokens)
-
-	// Empty
-	tokens = tokenizeBraceContent("{}")
-	// May return empty or single empty token depending on impl
-	_ = tokens
-}
-
 // --- parseFullExpr edge cases to increase coverage ---
 
 func TestParseFullExpr_BraceAndTableRef(t *testing.T) {

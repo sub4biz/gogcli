@@ -87,15 +87,6 @@ func TestParseFullExprBraceReferences(t *testing.T) {
 	}
 }
 
-func TestBraceTableToTableCreateSpec(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, braceTableToTableCreateSpec(nil))
-	assert.Nil(t, braceTableToTableCreateSpec(&braceTableRef{TableIndex: 1}))
-	assert.Equal(t, &tableCreateSpec{rows: 2, cols: 3, header: true}, braceTableToTableCreateSpec(&braceTableRef{
-		IsCreate: true, CreateRows: 2, CreateCols: 3, HasHeader: true,
-	}))
-}
-
 func TestParseRowColOpValue(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
