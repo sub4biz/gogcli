@@ -20,11 +20,6 @@ import (
 	"github.com/steipete/gogcli/internal/secrets"
 )
 
-var (
-	readClientCredentials func(string) (config.ClientCredentials, error)
-	openSecretsStore      func() (secrets.Store, error)
-)
-
 type persistingTokenSource struct {
 	base   oauth2.TokenSource
 	store  secrets.Store
@@ -155,29 +150,15 @@ func (p *persistingTokenSource) Token() (*oauth2.Token, error) {
 	return t, nil
 }
 
-func tokenSourceForAccount(ctx context.Context, service googleauth.Service, email string) (oauth2.TokenSource, error) {
-	client, creds, err := clientCredentialsForAccount(ctx, email)
+func clientCredentialsForAccount(ctx context.Context, dependencies AuthDependencies, email string) (string, config.ClientCredentials, error) {
+	client, err := dependencies.resolveClient(email, authclient.ClientOverrideFromContext(ctx))
 	if err != nil {
-		return nil, err
+		return "", config.ClientCredentials{}, err
 	}
 
-	scopes, err := googleauth.Scopes(service)
+	creds, err := dependencies.readCredentials(client)
 	if err != nil {
-		return nil, fmt.Errorf("resolve scopes: %w", err)
-	}
-
-	return tokenSourceForAccountScopes(ctx, string(service), email, client, creds.ClientID, creds.ClientSecret, scopes)
-}
-
-func clientCredentialsForAccount(ctx context.Context, email string) (string, config.ClientCredentials, error) {
-	client, err := authclient.ResolveClient(ctx, email)
-	if err != nil {
-		return "", config.ClientCredentials{}, fmt.Errorf("resolve client: %w", err)
-	}
-
-	creds, err := readGoogleClientCredentials(ctx, client)
-	if err != nil {
-		return "", config.ClientCredentials{}, fmt.Errorf("read credentials: %w", err)
+		return "", config.ClientCredentials{}, err
 	}
 
 	return client, creds, nil
@@ -195,20 +176,29 @@ func tokenSourceForAvailableAccountAuthWithStoredScopeCheck(
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken}), nil
 	}
 
-	if serviceAccountTS, saPath, ok, err := tokenSourceForServiceAccountScopes(ctx, serviceLabel, email, scopes); err != nil {
+	dependencies, err := requireAuthDependencies(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	serviceAccountTS, saPath, ok, err := tokenSourceForServiceAccountScopes(ctx, dependencies, serviceLabel, email, scopes)
+	if err != nil {
 		return nil, fmt.Errorf("service account token source: %w", err)
-	} else if ok {
+	}
+
+	if ok {
 		slog.Debug("using service account credentials", "email", email, "path", saPath)
 		return serviceAccountTS, nil
 	}
 
-	client, creds, err := clientCredentialsForAccount(ctx, email)
+	client, creds, err := clientCredentialsForAccount(ctx, dependencies, email)
 	if err != nil {
 		return nil, err
 	}
 
 	tokenSource, err := tokenSourceForAccountScopesWithStoredScopeCheck(
 		ctx,
+		dependencies,
 		serviceLabel,
 		email,
 		client,
@@ -224,21 +214,9 @@ func tokenSourceForAvailableAccountAuthWithStoredScopeCheck(
 	return tokenSource, nil
 }
 
-func tokenSourceForAccountScopes(ctx context.Context, serviceLabel string, email string, client string, clientID string, clientSecret string, requiredScopes []string) (oauth2.TokenSource, error) {
-	return tokenSourceForAccountScopesWithStoredScopeCheck(
-		ctx,
-		serviceLabel,
-		email,
-		client,
-		clientID,
-		clientSecret,
-		requiredScopes,
-		false,
-	)
-}
-
 func tokenSourceForAccountScopesWithStoredScopeCheck(
 	ctx context.Context,
+	dependencies AuthDependencies,
 	serviceLabel string,
 	email string,
 	client string,
@@ -249,8 +227,8 @@ func tokenSourceForAccountScopesWithStoredScopeCheck(
 ) (oauth2.TokenSource, error) {
 	var store secrets.Store
 
-	if s, err := openGoogleSecretsStore(ctx); err != nil {
-		return nil, fmt.Errorf("open secrets store: %w", err)
+	if s, err := dependencies.openTokens(); err != nil {
+		return nil, err
 	} else {
 		store = s
 	}
@@ -304,35 +282,7 @@ func tokenSourceForAccountScopesWithStoredScopeCheck(
 		Expiry:       tok.AccessTokenExpiresAt,
 	})
 
-	return newPersistingTokenSource(baseSource, store, client, email, tok, serviceLabel, func(oldEmail, newEmail string) error {
-		return authclient.UpdateEmailReferences(ctx, oldEmail, newEmail)
-	}), nil
-}
-
-func readGoogleClientCredentials(ctx context.Context, client string) (config.ClientCredentials, error) {
-	if readClientCredentials != nil {
-		return readClientCredentials(client)
-	}
-
-	credentials, err := authclient.ReadCredentials(ctx, client)
-	if err != nil {
-		return config.ClientCredentials{}, fmt.Errorf("read Google client credentials: %w", err)
-	}
-
-	return credentials, nil
-}
-
-func openGoogleSecretsStore(ctx context.Context) (secrets.Store, error) {
-	if openSecretsStore != nil {
-		return openSecretsStore()
-	}
-
-	store, err := authclient.OpenSecretsStore(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("open Google secrets store: %w", err)
-	}
-
-	return store, nil
+	return newPersistingTokenSource(baseSource, store, client, email, tok, serviceLabel, dependencies.updateEmailReferences), nil
 }
 
 func tokenGrantedScopes(t *oauth2.Token) []string {

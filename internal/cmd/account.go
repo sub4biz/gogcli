@@ -21,7 +21,7 @@ func requireAccount(flags *RootFlags) (string, error) {
 	// In ADC mode the service account authenticates as itself — no user email
 	// or keyring lookup is needed. We still accept --account/GOG_ACCOUNT as an
 	// optional label (e.g. for logging), but it is not required.
-	if googleapi.IsADCMode() {
+	if isADCAuthMode(flags) {
 		if v := flagAccount(flags); v != "" {
 			if shouldAutoSelectAccount(v) {
 				return adcPlaceholderAccount, nil
@@ -60,6 +60,10 @@ func requireAccount(flags *RootFlags) (string, error) {
 	}
 
 	return "", usage("missing --account (or set GOG_ACCOUNT, set default via `gog auth manage`, or store exactly one token)")
+}
+
+func isADCAuthMode(flags *RootFlags) bool {
+	return flags != nil && flags.authMode == googleapi.AuthModeADC
 }
 
 func configuredAccount(flags *RootFlags) (string, bool, error) {

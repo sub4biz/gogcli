@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/ui"
 )
 
@@ -93,10 +94,9 @@ func TestRequireGroupsAccount_ExplicitIdentityRequiredForDirectToken(t *testing.
 }
 
 func TestRequireGroupsAccount_ExplicitIdentityRequiredForADC(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
 	t.Setenv("GOG_ACCOUNT", "")
 
-	account, err := requireGroupsAccount(&RootFlags{})
+	account, err := requireGroupsAccount(&RootFlags{authMode: googleapi.AuthModeADC})
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -109,13 +109,11 @@ func TestRequireGroupsAccount_ExplicitIdentityRequiredForADC(t *testing.T) {
 }
 
 func TestRequireGroupsAccount_ExplicitIdentityRequiredForADCAutoEnv(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
-
 	for _, accountEnv := range []string{"auto", "default"} {
 		t.Run(accountEnv, func(t *testing.T) {
 			t.Setenv("GOG_ACCOUNT", accountEnv)
 
-			account, err := requireGroupsAccount(&RootFlags{})
+			account, err := requireGroupsAccount(&RootFlags{authMode: googleapi.AuthModeADC})
 			if err == nil {
 				t.Fatal("expected error")
 			}
@@ -146,10 +144,9 @@ func TestRequireGroupsAuthAccount_AllowsDirectTokenWithoutIdentity(t *testing.T)
 }
 
 func TestRequireGroupsAuthAccount_AllowsADCWithoutIdentity(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
 	t.Setenv("GOG_ACCOUNT", "")
 
-	account, err := requireGroupsAuthAccount(&RootFlags{})
+	account, err := requireGroupsAuthAccount(&RootFlags{authMode: googleapi.AuthModeADC})
 	if err != nil {
 		t.Fatalf("requireGroupsAuthAccount: %v", err)
 	}
@@ -172,12 +169,12 @@ func TestRequireGroupsAuthAccount_IgnoresIdentityHintForDirectAuth(t *testing.T)
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Setenv("GOG_AUTH_MODE", tc.authMode)
 			t.Setenv("GOG_ACCOUNT", "person@gmail.com")
 
 			account, err := requireGroupsAuthAccount(&RootFlags{
 				AccessToken: tc.accessToken,
 				diagnostics: io.Discard,
+				authMode:    googleapi.ParseAuthMode(tc.authMode),
 			})
 			if err != nil {
 				t.Fatalf("requireGroupsAuthAccount: %v", err)

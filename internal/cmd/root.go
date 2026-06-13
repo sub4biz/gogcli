@@ -52,6 +52,7 @@ type RootFlags struct {
 	diagnostics         io.Writer
 	authOperations      app.AuthOperations
 	configStoreResolver func() (*config.ConfigStore, error)
+	authMode            googleapi.AuthMode
 }
 
 type CLI struct {
@@ -160,6 +161,7 @@ func executeWithRuntime(args []string, runtime *app.Runtime) (err error) {
 	}
 	cli.diagnostics = runtimeIO.Err
 	cli.authOperations = runtime.Auth
+	cli.authMode = googleapi.ParseAuthMode(os.Getenv("GOG_AUTH_MODE"))
 	applyExplicitOutputModePrecedence(kctx, &cli.RootFlags)
 	if !preHomeApplied && strings.TrimSpace(cli.Home) != "" {
 		restoreHome, homeErr := config.SetHomeOverride(cli.Home)
@@ -210,32 +212,46 @@ func executeWithRuntime(args []string, runtime *app.Runtime) (err error) {
 	ctx := context.Background()
 	ctx = app.WithRuntime(ctx, runtime)
 	runtimeContext := ctx
-	ctx = googleapi.WithServiceAccountStoreResolver(ctx, func() (*config.ServiceAccountStore, error) {
+	serviceAccounts := func() (*config.ServiceAccountStore, error) {
 		return commandServiceAccountStore(runtimeContext)
-	})
+	}
 	cli.configStoreResolver = func() (*config.ConfigStore, error) {
 		return commandConfigStore(runtimeContext)
 	}
-	ctx = authclient.WithCredentialsReader(ctx, func(client string) (config.ClientCredentials, error) {
+	readCredentials := func(client string) (config.ClientCredentials, error) {
 		store, resolveErr := commandOAuthCredentialsStore(runtimeContext)
 		if resolveErr != nil {
 			return config.ClientCredentials{}, resolveErr
 		}
 		return store.Read(client)
-	})
-	ctx = authclient.WithSecretsStoreOpener(ctx, func() (secrets.Store, error) {
+	}
+	openTokens := func() (secrets.Store, error) {
 		return runtime.Auth.OpenSecretsStore()
-	})
-	ctx = authclient.WithEmailReferenceUpdater(ctx, func(oldEmail, newEmail string) error {
+	}
+	updateEmailReferences := func(oldEmail, newEmail string) error {
 		store, resolveErr := cli.configStoreResolver()
 		if resolveErr != nil {
 			return resolveErr
 		}
 		return store.MigrateAccountEmailReferences(oldEmail, newEmail)
-	})
-	ctx = authclient.WithClientResolver(ctx, func(email string, override string) (string, error) {
+	}
+	resolveClient := func(email string, override string) (string, error) {
 		return resolveRuntimeClient(runtime, cli.Home, email, override)
+	}
+	ctx = googleapi.WithAuthDependencies(ctx, googleapi.AuthDependencies{
+		ResolveClient:             resolveClient,
+		ReadCredentials:           readCredentials,
+		OpenTokens:                openTokens,
+		ServiceAccounts:           serviceAccounts,
+		UpdateEmailReferences:     updateEmailReferences,
+		Mode:                      cli.authMode,
+		ADCTokenSource:            googleapi.DefaultADCTokenSource,
+		ServiceAccountTokenSource: googleapi.DefaultServiceAccountTokenSource,
 	})
+	ctx = authclient.WithCredentialsReader(ctx, readCredentials)
+	ctx = authclient.WithSecretsStoreOpener(ctx, openTokens)
+	ctx = authclient.WithEmailReferenceUpdater(ctx, updateEmailReferences)
+	ctx = authclient.WithClientResolver(ctx, resolveClient)
 	ctx = outfmt.WithMode(ctx, mode)
 	ctx = outfmt.WithJSONTransform(ctx, outfmt.JSONTransform{
 		ResultsOnly: cli.ResultsOnly,

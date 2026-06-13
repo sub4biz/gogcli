@@ -11,29 +11,10 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/steipete/gogcli/internal/authclient"
-	"github.com/steipete/gogcli/internal/config"
 	"github.com/steipete/gogcli/internal/googleauth"
-	"github.com/steipete/gogcli/internal/secrets"
 )
 
 func TestNewServicesWithStoredToken(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
-	}
-
-	store := &stubStore{tok: secrets.Token{RefreshToken: "rt"}}
-	openSecretsStore = func() (secrets.Store, error) {
-		return store, nil
-	}
-
 	ctx := testClientResolverContext(t)
 
 	if _, err := NewGmail(ctx, "a@b.com"); err != nil {
@@ -118,15 +99,11 @@ func TestNewKeepWithServiceAccountUsesSharedTokenSource(t *testing.T) {
 		t.Fatalf("write service account: %v", err)
 	}
 
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() { newServiceAccountTokenSource = origSA })
-
 	var (
 		gotSubject string
 		gotScopes  []string
 	)
-	newServiceAccountTokenSource = func(_ context.Context, _ []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
+	tokenSourceFactory := func(_ context.Context, _ []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
 		gotSubject = subject
 
 		gotScopes = append([]string(nil), scopes...)
@@ -134,8 +111,8 @@ func TestNewKeepWithServiceAccountUsesSharedTokenSource(t *testing.T) {
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "token"}), nil
 	}
 
-	if _, err := NewKeepWithServiceAccount(context.Background(), path, "a@b.com"); err != nil {
-		t.Fatalf("NewKeepWithServiceAccount: %v", err)
+	if _, err := newKeepWithServiceAccount(context.Background(), path, "a@b.com", tokenSourceFactory); err != nil {
+		t.Fatalf("newKeepWithServiceAccount: %v", err)
 	}
 
 	if gotSubject != "a@b.com" {
@@ -151,23 +128,6 @@ func TestNewCloudIdentityGroupsAuthErrorUsesGroupsLabel(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "xdg-config"))
-
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		t.Fatal("OAuth client credentials must not be read for Groups")
-		return config.ClientCredentials{}, errBoom
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		t.Fatal("OAuth token store must not be opened for Groups")
-		return nil, errBoom
-	}
 
 	_, err := NewCloudIdentityGroups(testClientResolverContext(t), "admin@example.com")
 	if err == nil {
@@ -197,34 +157,29 @@ func TestNewCloudIdentityGroupsUsesDirectToken(t *testing.T) {
 }
 
 func TestNewCloudIdentityGroupsUsesADC(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
-
-	origADC := newADCTokenSource
-
-	t.Cleanup(func() { newADCTokenSource = origADC })
-
-	newADCTokenSource = func(_ context.Context, scopes ...string) (oauth2.TokenSource, error) {
+	ctx := testClientResolverContext(t)
+	dependencies, _ := authDependenciesFromContext(ctx)
+	dependencies.Mode = AuthModeADC
+	dependencies.ADCTokenSource = func(_ context.Context, scopes ...string) (oauth2.TokenSource, error) {
 		if len(scopes) != 1 || scopes[0] != scopeCloudIdentityGroupsRO {
 			t.Fatalf("scopes = %#v", scopes)
 		}
 
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "adc-token"}), nil
 	}
+	ctx = WithAuthDependencies(ctx, dependencies)
 
-	if _, err := NewCloudIdentityGroups(testClientResolverContext(t), "admin@example.com"); err != nil {
+	if _, err := NewCloudIdentityGroups(ctx, "admin@example.com"); err != nil {
 		t.Fatalf("NewCloudIdentityGroups: %v", err)
 	}
 }
 
 func TestNewCloudIdentityGroupsADCPrecedesDirectToken(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
-
-	origADC := newADCTokenSource
-
-	t.Cleanup(func() { newADCTokenSource = origADC })
-
+	ctx := testClientResolverContext(t)
+	dependencies, _ := authDependenciesFromContext(ctx)
+	dependencies.Mode = AuthModeADC
 	adcCalled := false
-	newADCTokenSource = func(_ context.Context, scopes ...string) (oauth2.TokenSource, error) {
+	dependencies.ADCTokenSource = func(_ context.Context, scopes ...string) (oauth2.TokenSource, error) {
 		adcCalled = true
 
 		if len(scopes) != 1 || scopes[0] != scopeCloudIdentityGroupsRO {
@@ -233,8 +188,9 @@ func TestNewCloudIdentityGroupsADCPrecedesDirectToken(t *testing.T) {
 
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "adc-token"}), nil
 	}
+	ctx = WithAuthDependencies(ctx, dependencies)
 
-	ctx := authclient.WithAccessToken(testClientResolverContext(t), "direct-token")
+	ctx = authclient.WithAccessToken(ctx, "direct-token")
 	if _, err := NewCloudIdentityGroups(ctx, "admin@example.com"); err != nil {
 		t.Fatalf("NewCloudIdentityGroups: %v", err)
 	}
@@ -250,11 +206,8 @@ func TestNewCloudIdentityGroupsUsesRequiredServiceAccount(t *testing.T) {
 		t.Fatalf("write service account: %v", err)
 	}
 
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() { newServiceAccountTokenSource = origSA })
-
-	newServiceAccountTokenSource = func(_ context.Context, _ []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
+	dependencies, _ := authDependenciesFromContext(ctx)
+	dependencies.ServiceAccountTokenSource = func(_ context.Context, _ []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
 		if subject != "admin@example.com" {
 			t.Fatalf("subject = %q", subject)
 		}
@@ -265,6 +218,7 @@ func TestNewCloudIdentityGroupsUsesRequiredServiceAccount(t *testing.T) {
 
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "service-account-token"}), nil
 	}
+	ctx = WithAuthDependencies(ctx, dependencies)
 
 	if _, err := NewCloudIdentityGroups(ctx, "admin@example.com"); err != nil {
 		t.Fatalf("NewCloudIdentityGroups: %v", err)

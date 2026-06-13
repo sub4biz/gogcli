@@ -6,10 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -23,9 +25,8 @@ import (
 )
 
 var (
-	errBoom         = errors.New("boom")
-	errNope         = errors.New("nope")
-	errMissingCreds = errors.New("missing creds")
+	errBoom = errors.New("boom")
+	errNope = errors.New("nope")
 )
 
 type stubStore struct {
@@ -49,6 +50,23 @@ type stubStore struct {
 	setDefaultClient string
 	setDefaultEmail  string
 	setDefaultCalls  int
+}
+
+type rotatingTokenSource struct {
+	mu   sync.Mutex
+	next int
+}
+
+func (s *rotatingTokenSource) Token() (*oauth2.Token, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.next++
+
+	return &oauth2.Token{
+		AccessToken:  fmt.Sprintf("access-%d", s.next),
+		RefreshToken: fmt.Sprintf("refresh-%d", s.next),
+	}, nil
 }
 
 func (s *stubStore) Keys() ([]string, error) { return nil, nil }
@@ -108,31 +126,32 @@ func (s *stubStore) GetToken(client string, email string) (secrets.Token, error)
 	return s.tok, nil
 }
 
-func TestTokenSourceForAccountScopes_StoreErrors(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
-	openSecretsStore = func() (secrets.Store, error) {
-		return nil, errBoom
+func tokenTestDependencies(openTokens authclient.SecretsStoreOpener) AuthDependencies {
+	return AuthDependencies{
+		OpenTokens: openTokens,
+		UpdateEmailReferences: func(string, string) error {
+			return nil
+		},
 	}
+}
 
-	_, err := tokenSourceForAccountScopes(context.Background(), "svc", "a@b.com", "default", "id", "secret", []string{"s1"})
+func TestTokenSourceForAccountScopes_StoreErrors(t *testing.T) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
+		return nil, errBoom
+	})
+
+	_, err := tokenSourceForAccountScopesWithStoredScopeCheck(context.Background(), dependencies, "svc", "a@b.com", "default", "id", "secret", []string{"s1"}, false)
 	if err == nil || !errors.Is(err, errBoom) {
 		t.Fatalf("expected boom, got: %v", err)
 	}
 }
 
 func TestTokenSourceForAccountScopes_KeyNotFound(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
-	openSecretsStore = func() (secrets.Store, error) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
 		return &stubStore{err: keyring.ErrKeyNotFound}, nil
-	}
+	})
 
-	_, err := tokenSourceForAccountScopes(context.Background(), "gmail", "a@b.com", "default", "id", "secret", []string{"s1"})
+	_, err := tokenSourceForAccountScopesWithStoredScopeCheck(context.Background(), dependencies, "gmail", "a@b.com", "default", "id", "secret", []string{"s1"}, false)
 	if err == nil {
 		t.Fatalf("expected error")
 	}
@@ -148,29 +167,21 @@ func TestTokenSourceForAccountScopes_KeyNotFound(t *testing.T) {
 }
 
 func TestTokenSourceForAccountScopes_OtherGetError(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
-	openSecretsStore = func() (secrets.Store, error) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
 		return &stubStore{err: errNope}, nil
-	}
+	})
 
-	_, err := tokenSourceForAccountScopes(context.Background(), "svc", "a@b.com", "default", "id", "secret", []string{"s1"})
+	_, err := tokenSourceForAccountScopesWithStoredScopeCheck(context.Background(), dependencies, "svc", "a@b.com", "default", "id", "secret", []string{"s1"}, false)
 	if err == nil || !errors.Is(err, errNope) {
 		t.Fatalf("expected nope, got: %v", err)
 	}
 }
 
 func TestTokenSourceForAccountScopes_HappyPath(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
 	s := &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}
-	openSecretsStore = func() (secrets.Store, error) { return s, nil }
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) { return s, nil })
 
-	ts, err := tokenSourceForAccountScopes(context.Background(), "svc", "A@B.COM", "default", "id", "secret", []string{"s1"})
+	ts, err := tokenSourceForAccountScopesWithStoredScopeCheck(context.Background(), dependencies, "svc", "A@B.COM", "default", "id", "secret", []string{"s1"}, false)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -185,21 +196,18 @@ func TestTokenSourceForAccountScopes_HappyPath(t *testing.T) {
 }
 
 func TestTokenSourceForAccountScopes_RequiredStoredGrantMissing(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
-	openSecretsStore = func() (secrets.Store, error) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
 		return &stubStore{tok: secrets.Token{
 			Email:        "a@b.com",
 			RefreshToken: "rt",
 			Services:     []string{"gmail", "drive"},
 			Scopes:       []string{"https://www.googleapis.com/auth/gmail.modify"},
 		}}, nil
-	}
+	})
 
 	_, err := tokenSourceForAccountScopesWithStoredScopeCheck(
 		context.Background(),
+		dependencies,
 		"gmail",
 		"a@b.com",
 		"default",
@@ -223,20 +231,17 @@ func TestTokenSourceForAccountScopes_RequiredStoredGrantMissing(t *testing.T) {
 }
 
 func TestTokenSourceForAccountScopes_RequiredStoredGrantPresent(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
-	openSecretsStore = func() (secrets.Store, error) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
 		return &stubStore{tok: secrets.Token{
 			Email:        "a@b.com",
 			RefreshToken: "rt",
 			Scopes:       []string{scopeGmailFullAccess},
 		}}, nil
-	}
+	})
 
 	ts, err := tokenSourceForAccountScopesWithStoredScopeCheck(
 		context.Background(),
+		dependencies,
 		"gmail",
 		"a@b.com",
 		"default",
@@ -255,16 +260,13 @@ func TestTokenSourceForAccountScopes_RequiredStoredGrantPresent(t *testing.T) {
 }
 
 func TestTokenSourceForAccountScopes_RequiredStoredGrantAllowsLegacyMetadata(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-
-	openSecretsStore = func() (secrets.Store, error) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
 		return &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}, nil
-	}
+	})
 
 	ts, err := tokenSourceForAccountScopesWithStoredScopeCheck(
 		context.Background(),
+		dependencies,
 		"gmail",
 		"a@b.com",
 		"default",
@@ -326,6 +328,54 @@ func TestPersistingTokenSource_PersistsRotatedRefreshToken(t *testing.T) {
 
 	if !store.lastSet.CreatedAt.Equal(stored.CreatedAt) {
 		t.Fatalf("createdAt changed unexpectedly: %v", store.lastSet.CreatedAt)
+	}
+}
+
+func TestPersistingTokenSource_ConcurrentTokenCalls(t *testing.T) {
+	t.Parallel()
+
+	stored := secrets.Token{
+		Client:       config.DefaultClientName,
+		Email:        "a@b.com",
+		RefreshToken: "initial",
+	}
+	store := &stubStore{tok: stored}
+	source := newPersistingTokenSource(
+		&rotatingTokenSource{},
+		store,
+		config.DefaultClientName,
+		"a@b.com",
+		stored,
+		"",
+		nil,
+	)
+
+	const callers = 32
+	var wait sync.WaitGroup
+	errs := make(chan error, callers)
+	wait.Add(callers)
+
+	for range callers {
+		go func() {
+			defer wait.Done()
+			_, err := source.Token()
+
+			errs <- err
+		}()
+	}
+
+	wait.Wait()
+
+	close(errs)
+
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("Token: %v", err)
+		}
+	}
+
+	if store.setCalls != callers {
+		t.Fatalf("SetToken calls = %d, want %d", store.setCalls, callers)
 	}
 }
 
@@ -668,11 +718,7 @@ func testClientResolverContext(t *testing.T) context.Context {
 func testClientResolverContextWithServiceAccounts(t *testing.T) (context.Context, *config.ServiceAccountStore) {
 	t.Helper()
 
-	ctx := authclient.WithClientResolver(context.Background(), func(_ string, override string) (string, error) {
-		return config.NormalizeClientNameOrDefault(override)
-	})
-
-	return testServiceAccountContext(t, ctx)
+	return testServiceAccountContext(t, context.Background())
 }
 
 func testServiceAccountContext(t *testing.T, ctx context.Context) (context.Context, *config.ServiceAccountStore) {
@@ -685,31 +731,50 @@ func testServiceAccountContext(t *testing.T, ctx context.Context) (context.Conte
 		ExplicitConfig: true,
 		ExplicitData:   true,
 	})
-	ctx = WithServiceAccountStoreResolver(ctx, func() (*config.ServiceAccountStore, error) {
+	dependencies, ok := authDependenciesFromContext(ctx)
+
+	if !ok {
+		dependencies = AuthDependencies{
+			ResolveClient: func(_ string, override string) (string, error) {
+				return config.NormalizeClientNameOrDefault(override)
+			},
+			ReadCredentials: func(string) (config.ClientCredentials, error) {
+				return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
+			},
+			OpenTokens: func() (secrets.Store, error) {
+				return &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}, nil
+			},
+			UpdateEmailReferences: func(string, string) error {
+				return nil
+			},
+			Mode:                      AuthModeStored,
+			ADCTokenSource:            DefaultADCTokenSource,
+			ServiceAccountTokenSource: DefaultServiceAccountTokenSource,
+		}
+	}
+	dependencies.ServiceAccounts = func() (*config.ServiceAccountStore, error) {
 		return store, nil
-	})
+	}
+	ctx = WithAuthDependencies(ctx, dependencies)
 
 	return ctx, store
 }
 
-func TestClientCredentialsForAccountUsesContextReader(t *testing.T) {
-	origRead := readClientCredentials
+func TestClientCredentialsForAccountUsesDependencies(t *testing.T) {
+	dependencies := AuthDependencies{
+		ResolveClient: func(_ string, _ string) (string, error) {
+			return "runtime", nil
+		},
+		ReadCredentials: func(client string) (config.ClientCredentials, error) {
+			if client != "runtime" {
+				t.Fatalf("client = %q", client)
+			}
 
-	t.Cleanup(func() { readClientCredentials = origRead })
-	readClientCredentials = nil
+			return config.ClientCredentials{ClientID: "runtime-id", ClientSecret: "runtime-secret"}, nil
+		},
+	}
 
-	ctx := authclient.WithClientResolver(context.Background(), func(_ string, _ string) (string, error) {
-		return "runtime", nil
-	})
-	ctx = authclient.WithCredentialsReader(ctx, func(client string) (config.ClientCredentials, error) {
-		if client != "runtime" {
-			t.Fatalf("client = %q", client)
-		}
-
-		return config.ClientCredentials{ClientID: "runtime-id", ClientSecret: "runtime-secret"}, nil
-	})
-
-	client, credentials, err := clientCredentialsForAccount(ctx, "a@b.com")
+	client, credentials, err := clientCredentialsForAccount(context.Background(), dependencies, "a@b.com")
 	if err != nil {
 		t.Fatalf("clientCredentialsForAccount: %v", err)
 	}
@@ -719,53 +784,18 @@ func TestClientCredentialsForAccountUsesContextReader(t *testing.T) {
 	}
 }
 
-func TestTokenSourceUsesContextSecretsStore(t *testing.T) {
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() { openSecretsStore = origOpen })
-	openSecretsStore = nil
-
+func TestTokenSourceUsesDependencyTokenStore(t *testing.T) {
 	store := &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}
-	ctx := authclient.WithSecretsStoreOpener(context.Background(), func() (secrets.Store, error) {
+	dependencies := tokenTestDependencies(func() (secrets.Store, error) {
 		return store, nil
 	})
 
-	if _, err := tokenSourceForAccountScopes(ctx, "gmail", "a@b.com", "runtime", "id", "secret", []string{"scope"}); err != nil {
+	if _, err := tokenSourceForAccountScopesWithStoredScopeCheck(context.Background(), dependencies, "gmail", "a@b.com", "runtime", "id", "secret", []string{"scope"}, false); err != nil {
 		t.Fatalf("tokenSourceForAccountScopes: %v", err)
 	}
 }
 
-func TestTokenSourceForAccount_ReadCredsError(t *testing.T) {
-	origRead := readClientCredentials
-
-	t.Cleanup(func() { readClientCredentials = origRead })
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		return config.ClientCredentials{}, errMissingCreds
-	}
-
-	_, err := tokenSourceForAccount(testClientResolverContext(t), googleauth.ServiceGmail, "a@b.com")
-	if err == nil || !errors.Is(err, errMissingCreds) {
-		t.Fatalf("expected missing creds, got: %v", err)
-	}
-}
-
 func TestOptionsForAccountScopes_HappyPath(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		return &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}, nil
-	}
-
 	opts, err := optionsForAccountScopes(testClientResolverContext(t), "svc", "a@b.com", []string{"s1"})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
@@ -777,21 +807,6 @@ func TestOptionsForAccountScopes_HappyPath(t *testing.T) {
 }
 
 func TestOptionsForAccount_HappyPath(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		return &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}, nil
-	}
-
 	opts, err := optionsForAccount(testClientResolverContext(t), googleauth.ServiceDrive, "a@b.com")
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
@@ -803,23 +818,6 @@ func TestOptionsForAccount_HappyPath(t *testing.T) {
 }
 
 func TestOptionsForAccountScopes_AccessTokenBypassesStoredAuth(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		t.Fatal("readClientCredentials should not be called when access token is provided")
-		return config.ClientCredentials{}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		t.Fatal("openSecretsStore should not be called when access token is provided")
-		return nil, errBoom
-	}
-
 	ctx := authclient.WithAccessToken(context.Background(), "ya29.test-access-token")
 
 	opts, err := optionsForAccountScopes(ctx, "svc", "a@b.com", []string{"s1"})
@@ -833,23 +831,6 @@ func TestOptionsForAccountScopes_AccessTokenBypassesStoredAuth(t *testing.T) {
 }
 
 func TestOptionsForAccountScopes_RequiredStoredGrantAllowsDirectAccessToken(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		t.Fatal("readClientCredentials should not be called when access token is provided")
-		return config.ClientCredentials{}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		t.Fatal("openSecretsStore should not be called when access token is provided")
-		return nil, errBoom
-	}
-
 	ctx := authclient.WithAccessToken(context.Background(), "ya29.test-access-token")
 
 	opts, err := optionsForAccountScopesRequiringStoredGrant(ctx, "gmail", "a@b.com", []string{scopeGmailFullAccess})
@@ -868,27 +849,18 @@ func TestOptionsForAccountScopes_ServiceAccountPreferred(t *testing.T) {
 		t.Fatalf("write service account: %v", err)
 	}
 
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-		newServiceAccountTokenSource = origSA
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
+	dependencies, _ := authDependenciesFromContext(ctx)
+	dependencies.ReadCredentials = func(string) (config.ClientCredentials, error) {
 		t.Fatalf("readClientCredentials should not be called")
 		return config.ClientCredentials{}, nil
 	}
-	openSecretsStore = func() (secrets.Store, error) {
+	dependencies.OpenTokens = func() (secrets.Store, error) {
 		t.Fatalf("openSecretsStore should not be called")
 		return nil, errBoom
 	}
 
 	called := false
-	newServiceAccountTokenSource = func(_ context.Context, keyJSON []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
+	dependencies.ServiceAccountTokenSource = func(_ context.Context, keyJSON []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
 		called = true
 
 		if subject != "a@b.com" {
@@ -905,6 +877,7 @@ func TestOptionsForAccountScopes_ServiceAccountPreferred(t *testing.T) {
 
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "t"}), nil
 	}
+	ctx = WithAuthDependencies(ctx, dependencies)
 
 	opts, err := optionsForAccountScopes(ctx, "svc", "a@b.com", []string{"s1"})
 	if err != nil {
@@ -920,61 +893,48 @@ func TestOptionsForAccountScopes_ServiceAccountPreferred(t *testing.T) {
 	}
 }
 
-func TestIsADCMode(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "")
-
-	if IsADCMode() {
-		t.Fatalf("expected false when GOG_AUTH_MODE is empty")
+func TestParseAuthMode(t *testing.T) {
+	tests := []struct {
+		value string
+		want  AuthMode
+	}{
+		{value: "", want: AuthModeStored},
+		{value: "adc", want: AuthModeADC},
+		{value: "oauth", want: AuthModeStored},
+		{value: "ADC", want: AuthModeStored},
+		{value: " adc ", want: AuthModeStored},
 	}
-
-	t.Setenv("GOG_AUTH_MODE", "adc")
-
-	if !IsADCMode() {
-		t.Fatalf("expected true when GOG_AUTH_MODE=adc")
-	}
-
-	t.Setenv("GOG_AUTH_MODE", "oauth")
-
-	if IsADCMode() {
-		t.Fatalf("expected false when GOG_AUTH_MODE=oauth")
+	for _, test := range tests {
+		if got := ParseAuthMode(test.value); got != test.want {
+			t.Fatalf("ParseAuthMode(%q) = %q, want %q", test.value, got, test.want)
+		}
 	}
 }
 
 func TestOptionsForAccountScopes_ADCMode(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
+	called := false
+	ctx := WithAuthDependencies(context.Background(), AuthDependencies{
+		Mode: AuthModeADC,
+		ADCTokenSource: func(_ context.Context, scopes ...string) (oauth2.TokenSource, error) {
+			called = true
 
-	origADC := newADCTokenSource
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
+			if len(scopes) != 1 || scopes[0] != "https://www.googleapis.com/auth/spreadsheets.readonly" {
+				t.Fatalf("unexpected scopes: %v", scopes)
+			}
 
-	t.Cleanup(func() {
-		newADCTokenSource = origADC
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
+			return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "adc-token"}), nil
+		},
+		ReadCredentials: func(string) (config.ClientCredentials, error) {
+			t.Fatalf("ReadCredentials should not be called in ADC mode")
+			return config.ClientCredentials{}, nil
+		},
+		OpenTokens: func() (secrets.Store, error) {
+			t.Fatalf("OpenTokens should not be called in ADC mode")
+			return nil, errBoom
+		},
 	})
 
-	called := false
-	newADCTokenSource = func(_ context.Context, scopes ...string) (oauth2.TokenSource, error) {
-		called = true
-
-		if len(scopes) != 1 || scopes[0] != "https://www.googleapis.com/auth/spreadsheets.readonly" {
-			t.Fatalf("unexpected scopes: %v", scopes)
-		}
-
-		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "adc-token"}), nil
-	}
-
-	// Should NOT call keyring or readClientCredentials.
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		t.Fatalf("readClientCredentials should not be called in ADC mode")
-		return config.ClientCredentials{}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		t.Fatalf("openSecretsStore should not be called in ADC mode")
-		return nil, errBoom
-	}
-
-	opts, err := optionsForAccountScopes(context.Background(), "sheets", "adc", []string{
+	opts, err := optionsForAccountScopes(ctx, "sheets", "adc", []string{
 		"https://www.googleapis.com/auth/spreadsheets.readonly",
 	})
 	if err != nil {
@@ -1034,21 +994,6 @@ func TestNewBaseTransport_SetsResponseHeaderTimeout(t *testing.T) {
 }
 
 func TestOptionsForAccountScopes_NoClientTimeout(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		return &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}, nil
-	}
-
 	opts, err := optionsForAccountScopes(testClientResolverContext(t), "svc", "a@b.com", []string{"s1"})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
@@ -1072,21 +1017,6 @@ func TestOptionsForAccountScopes_NoClientTimeout(t *testing.T) {
 }
 
 func TestNewHTTPClient_NoRedirectPolicy(t *testing.T) {
-	origRead := readClientCredentials
-	origOpen := openSecretsStore
-
-	t.Cleanup(func() {
-		readClientCredentials = origRead
-		openSecretsStore = origOpen
-	})
-
-	readClientCredentials = func(string) (config.ClientCredentials, error) {
-		return config.ClientCredentials{ClientID: "id", ClientSecret: "secret"}, nil
-	}
-	openSecretsStore = func() (secrets.Store, error) {
-		return &stubStore{tok: secrets.Token{Email: "a@b.com", RefreshToken: "rt"}}, nil
-	}
-
 	client, err := NewHTTPClient(testClientResolverContext(t), googleauth.ServiceDocs, "a@b.com")
 	if err != nil {
 		t.Fatalf("NewHTTPClient: %v", err)

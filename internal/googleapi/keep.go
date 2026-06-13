@@ -16,6 +16,15 @@ func NewKeep(ctx context.Context, email string) (*keep.Service, error) {
 }
 
 func NewKeepWithServiceAccount(ctx context.Context, serviceAccountPath, impersonateEmail string) (*keep.Service, error) {
+	return newKeepWithServiceAccount(ctx, serviceAccountPath, impersonateEmail, DefaultServiceAccountTokenSource)
+}
+
+func newKeepWithServiceAccount(
+	ctx context.Context,
+	serviceAccountPath string,
+	impersonateEmail string,
+	tokenSourceFactory ServiceAccountTokenSourceFunc,
+) (*keep.Service, error) {
 	data, err := os.ReadFile(serviceAccountPath) //nolint:gosec // user-provided path (or stored config file)
 	if err != nil {
 		return nil, fmt.Errorf("read service account file: %w", err)
@@ -26,7 +35,11 @@ func NewKeepWithServiceAccount(ctx context.Context, serviceAccountPath, imperson
 		return nil, fmt.Errorf("keep scopes: %w", err)
 	}
 
-	tokenSource, err := newServiceAccountTokenSource(ctx, data, impersonateEmail, scopes)
+	if tokenSourceFactory == nil {
+		return nil, errServiceAccountTokenSourceRequired
+	}
+
+	tokenSource, err := tokenSourceFactory(ctx, data, impersonateEmail, scopes)
 	if err != nil {
 		return nil, err
 	}

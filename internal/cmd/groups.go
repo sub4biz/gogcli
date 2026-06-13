@@ -9,7 +9,6 @@ import (
 	"google.golang.org/api/cloudidentity/v1"
 
 	"github.com/steipete/gogcli/internal/errfmt"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 )
@@ -146,7 +145,7 @@ func requireGroupsAuthAccount(flags *RootFlags) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if googleapi.IsADCMode() {
+	if isADCAuthMode(flags) {
 		return adcPlaceholderAccount, nil
 	}
 	if hasDirectAccessToken(flags) {

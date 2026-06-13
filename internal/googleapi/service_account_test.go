@@ -15,7 +15,7 @@ import (
 func TestTokenSourceForServiceAccountScopesRequiresStore(t *testing.T) {
 	t.Parallel()
 
-	_, _, _, err := tokenSourceForServiceAccountScopes(context.Background(), "gmail", "a@b.com", []string{"scope"})
+	_, _, _, err := tokenSourceForServiceAccountScopes(context.Background(), AuthDependencies{}, "gmail", "a@b.com", []string{"scope"})
 	if !errors.Is(err, errServiceAccountStoreRequired) {
 		t.Fatalf("error = %v, want %v", err, errServiceAccountStoreRequired)
 	}
@@ -25,11 +25,13 @@ func TestTokenSourceForServiceAccountScopesPropagatesResolverError(t *testing.T)
 	t.Parallel()
 
 	want := errBoom
-	ctx := WithServiceAccountStoreResolver(context.Background(), func() (*config.ServiceAccountStore, error) {
-		return nil, want
-	})
+	dependencies := AuthDependencies{
+		ServiceAccounts: func() (*config.ServiceAccountStore, error) {
+			return nil, want
+		},
+	}
 
-	_, _, _, err := tokenSourceForServiceAccountScopes(ctx, "gmail", "a@b.com", []string{"scope"})
+	_, _, _, err := tokenSourceForServiceAccountScopes(context.Background(), dependencies, "gmail", "a@b.com", []string{"scope"})
 	if !errors.Is(err, want) {
 		t.Fatalf("error = %v, want wrapped %v", err, want)
 	}
@@ -55,29 +57,52 @@ func TestTokenSourceForServiceAccountScopesUsesInjectedStore(t *testing.T) {
 	}
 
 	ctx, injected := testServiceAccountContext(t, context.Background())
+	dependencies, _ := authDependenciesFromContext(ctx)
 
 	injectedPath, err := injected.Write("a@b.com", []byte("injected"))
 	if err != nil {
 		t.Fatalf("write injected service account: %v", err)
 	}
 
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() { newServiceAccountTokenSource = origSA })
-
 	var gotData string
-	newServiceAccountTokenSource = func(_ context.Context, data []byte, _ string, _ []string) (oauth2.TokenSource, error) {
+	dependencies.ServiceAccountTokenSource = func(_ context.Context, data []byte, _ string, _ []string) (oauth2.TokenSource, error) {
 		gotData = string(data)
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "token"}), nil
 	}
 
-	_, path, ok, err := tokenSourceForServiceAccountScopes(ctx, "gmail", "a@b.com", []string{"scope"})
+	_, path, ok, err := tokenSourceForServiceAccountScopes(ctx, dependencies, "gmail", "a@b.com", []string{"scope"})
 	if err != nil {
 		t.Fatalf("tokenSourceForServiceAccountScopes: %v", err)
 	}
 
 	if !ok || path != injectedPath || gotData != "injected" {
 		t.Fatalf("ok=%t path=%q data=%q, want injected path=%q", ok, path, gotData, injectedPath)
+	}
+}
+
+func TestTokenSourceForServiceAccountScopesRequiresTokenSourceFactory(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+
+	store := config.NewServiceAccountStore(config.Layout{
+		ConfigDir:      filepath.Join(root, "config"),
+		DataDir:        filepath.Join(root, "data"),
+		ExplicitConfig: true,
+		ExplicitData:   true,
+	})
+	if _, err := store.Write("a@b.com", []byte(`{"type":"service_account"}`)); err != nil {
+		t.Fatalf("write service account: %v", err)
+	}
+	dependencies := AuthDependencies{
+		ServiceAccounts: func() (*config.ServiceAccountStore, error) {
+			return store, nil
+		},
+	}
+
+	_, _, _, err := tokenSourceForServiceAccountScopes(context.Background(), dependencies, "gmail", "a@b.com", []string{"scope"})
+	if !errors.Is(err, errServiceAccountTokenSourceRequired) {
+		t.Fatalf("error = %v, want %v", err, errServiceAccountTokenSourceRequired)
 	}
 }
 
@@ -130,21 +155,19 @@ func TestServiceAccountSubject(t *testing.T) {
 
 func TestTokenSourceForServiceAccountScopes_NonKeepIgnoresKeepFallback(t *testing.T) {
 	ctx, serviceAccounts := testServiceAccountContext(t, context.Background())
+	dependencies, _ := authDependenciesFromContext(ctx)
+
 	if _, err := serviceAccounts.WriteKeep("a@b.com", []byte(`{"type":"service_account"}`)); err != nil {
 		t.Fatalf("write Keep service account: %v", err)
 	}
 
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() { newServiceAccountTokenSource = origSA })
-
 	called := false
-	newServiceAccountTokenSource = func(context.Context, []byte, string, []string) (oauth2.TokenSource, error) {
+	dependencies.ServiceAccountTokenSource = func(context.Context, []byte, string, []string) (oauth2.TokenSource, error) {
 		called = true
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "t"}), nil
 	}
 
-	ts, path, ok, err := tokenSourceForServiceAccountScopes(ctx, "gmail", "a@b.com", []string{"s1"})
+	ts, path, ok, err := tokenSourceForServiceAccountScopes(ctx, dependencies, "gmail", "a@b.com", []string{"s1"})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -160,18 +183,15 @@ func TestTokenSourceForServiceAccountScopes_NonKeepIgnoresKeepFallback(t *testin
 
 func TestTokenSourceForServiceAccountScopes_KeepUsesKeepFallback(t *testing.T) {
 	ctx, serviceAccounts := testServiceAccountContext(t, context.Background())
+	dependencies, _ := authDependenciesFromContext(ctx)
 
 	keepSAPath, err := serviceAccounts.WriteKeep("a@b.com", []byte(`{"type":"service_account"}`))
 	if err != nil {
 		t.Fatalf("write Keep service account: %v", err)
 	}
 
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() { newServiceAccountTokenSource = origSA })
-
 	called := false
-	newServiceAccountTokenSource = func(_ context.Context, keyJSON []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
+	dependencies.ServiceAccountTokenSource = func(_ context.Context, keyJSON []byte, subject string, scopes []string) (oauth2.TokenSource, error) {
 		called = true
 
 		if subject != "a@b.com" {
@@ -189,7 +209,7 @@ func TestTokenSourceForServiceAccountScopes_KeepUsesKeepFallback(t *testing.T) {
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "t"}), nil
 	}
 
-	ts, path, ok, err := tokenSourceForServiceAccountScopes(ctx, "keep", "a@b.com", []string{"s1"})
+	ts, path, ok, err := tokenSourceForServiceAccountScopes(ctx, dependencies, "keep", "a@b.com", []string{"s1"})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -216,9 +236,11 @@ func TestTokenSourceForServiceAccountScopes_ExplicitDataSkipsRawKeepLegacyFallba
 		ExplicitData:   true,
 	}
 	serviceAccounts := config.NewServiceAccountStore(layout)
-	ctx := WithServiceAccountStoreResolver(context.Background(), func() (*config.ServiceAccountStore, error) {
-		return serviceAccounts, nil
-	})
+	dependencies := AuthDependencies{
+		ServiceAccounts: func() (*config.ServiceAccountStore, error) {
+			return serviceAccounts, nil
+		},
+	}
 	legacyPath := layout.KeepServiceAccountLegacyPath("a@b.com")
 
 	if mkdirErr := os.MkdirAll(filepath.Dir(legacyPath), 0o700); mkdirErr != nil {
@@ -229,16 +251,12 @@ func TestTokenSourceForServiceAccountScopes_ExplicitDataSkipsRawKeepLegacyFallba
 		t.Fatalf("write legacy keep sa: %v", writeErr)
 	}
 
-	origSA := newServiceAccountTokenSource
-
-	t.Cleanup(func() { newServiceAccountTokenSource = origSA })
-
-	newServiceAccountTokenSource = func(context.Context, []byte, string, []string) (oauth2.TokenSource, error) {
+	dependencies.ServiceAccountTokenSource = func(context.Context, []byte, string, []string) (oauth2.TokenSource, error) {
 		t.Fatal("legacy keep service account should not initialize with explicit data dir")
 		return oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "unexpected"}), nil
 	}
 
-	ts, path, ok, err := tokenSourceForServiceAccountScopes(ctx, "keep", "a@b.com", []string{"s1"})
+	ts, path, ok, err := tokenSourceForServiceAccountScopes(context.Background(), dependencies, "keep", "a@b.com", []string{"s1"})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}

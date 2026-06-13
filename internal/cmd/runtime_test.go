@@ -278,6 +278,40 @@ func TestExecuteRuntimeRoutesMigratedCommandOutput(t *testing.T) {
 	}
 }
 
+func TestExecuteRuntimeCapturesADCModeForAccountSelection(t *testing.T) {
+	t.Setenv("GOG_AUTH_MODE", "adc")
+	t.Setenv("GOG_ACCOUNT", "")
+
+	wantErr := errors.New("stop after account selection")
+	var gotAccount string
+	runtime := &app.Runtime{
+		IO: app.IO{
+			In:  strings.NewReader(""),
+			Out: io.Discard,
+			Err: io.Discard,
+		},
+		Services: app.Services{
+			Drive: func(_ context.Context, account string) (*drive.Service, error) {
+				gotAccount = account
+				return nil, wantErr
+			},
+		},
+		Auth: app.AuthOperations{
+			OpenSecretsStore: func() (secrets.Store, error) {
+				return &fakeSecretsStore{}, nil
+			},
+		},
+	}
+
+	err := executeWithRuntime([]string{"drive", "ls"}, runtime)
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("executeWithRuntime() error = %v, want %v", err, wantErr)
+	}
+	if gotAccount != adcPlaceholderAccount {
+		t.Fatalf("factory account = %q, want %q", gotAccount, adcPlaceholderAccount)
+	}
+}
+
 func TestExecuteRuntimeRoutesEarlyErrors(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer

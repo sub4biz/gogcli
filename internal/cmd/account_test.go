@@ -11,6 +11,7 @@ import (
 
 	"github.com/steipete/gogcli/internal/app"
 	"github.com/steipete/gogcli/internal/config"
+	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/secrets"
 )
 
@@ -136,11 +137,10 @@ func TestRequireAccount_ExplicitAutoIgnoresEnv(t *testing.T) {
 	}
 }
 
-func TestRequireAccount_ADCNilFlags(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
+func TestRequireAccount_ADCUsesCapturedMode(t *testing.T) {
 	t.Setenv("GOG_ACCOUNT", "")
 
-	got, err := requireAccount(nil)
+	got, err := requireAccount(&RootFlags{authMode: googleapi.AuthModeADC})
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -150,13 +150,11 @@ func TestRequireAccount_ADCNilFlags(t *testing.T) {
 }
 
 func TestRequireAccount_ADCEnvAutoUsesPlaceholder(t *testing.T) {
-	t.Setenv("GOG_AUTH_MODE", "adc")
-
 	for _, value := range []string{"auto", "default"} {
 		t.Run(value, func(t *testing.T) {
 			t.Setenv("GOG_ACCOUNT", value)
 
-			got, err := requireAccount(nil)
+			got, err := requireAccount(&RootFlags{authMode: googleapi.AuthModeADC})
 			if err != nil {
 				t.Fatalf("err: %v", err)
 			}

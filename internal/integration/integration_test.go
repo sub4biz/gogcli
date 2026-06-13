@@ -83,8 +83,28 @@ func withIntegrationAuth(t *testing.T, ctx context.Context) (context.Context, se
 		return secretRepository, nil
 	})
 	serviceAccounts := config.NewServiceAccountStore(layout)
-	ctx = googleapi.WithServiceAccountStoreResolver(ctx, func() (*config.ServiceAccountStore, error) {
-		return serviceAccounts, nil
+	ctx = googleapi.WithAuthDependencies(ctx, googleapi.AuthDependencies{
+		ResolveClient: func(email string, override string) (string, error) {
+			cfg, readErr := configStore.Read()
+			if readErr != nil {
+				return "", readErr
+			}
+			return config.ResolveClientForAccountWithCredentials(cfg, email, override, func(client string) (bool, error) {
+				_, exists, pathErr := credentialFiles.ExistingPath(client)
+				return exists, pathErr
+			})
+		},
+		ReadCredentials: credentialStore.Read,
+		OpenTokens: func() (secrets.Store, error) {
+			return secretRepository, nil
+		},
+		ServiceAccounts: func() (*config.ServiceAccountStore, error) {
+			return serviceAccounts, nil
+		},
+		UpdateEmailReferences:     configStore.MigrateAccountEmailReferences,
+		Mode:                      googleapi.AuthModeStored,
+		ADCTokenSource:            googleapi.DefaultADCTokenSource,
+		ServiceAccountTokenSource: googleapi.DefaultServiceAccountTokenSource,
 	})
 
 	return ctx, secretRepository
