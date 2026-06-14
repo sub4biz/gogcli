@@ -311,6 +311,7 @@ func buildDraftMessage(ctx context.Context, svc *gmail.Service, account string, 
 	threadID := info.ThreadID
 	atts := attachmentsFromPaths(input.Attach)
 	atts = append(atts, input.PrebuiltAttachments...)
+	atts = append(atts, info.InlineResources...)
 	atts, attachmentMetadata, err := mailmime.PrepareAttachments(atts, os.ReadFile)
 	if err != nil {
 		return nil, "", nil, err
