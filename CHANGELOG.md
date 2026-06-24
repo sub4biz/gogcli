@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.31.1 - Unreleased
+
 ## 0.31.0 - 2026-06-24
 
 - Gmail: preserve HTML fragments from `--signature-file` instead of escaping their markup, without broadening HTML detection for message display or reply quoting. (#879) — thanks @kesslerio.
