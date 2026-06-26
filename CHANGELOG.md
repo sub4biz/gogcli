@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.31.2 - Unreleased
+
 ## 0.31.1 - 2026-06-26
 
 - Calendar: add `calendar changed` for listing recently modified events, including cancellations, across one or more calendars. (#875) — thanks @sorenisanerd.
