@@ -2,6 +2,8 @@
 
 ## 0.31.1 - Unreleased
 
+- Calendar: add a `;resource` attendee modifier for event create, attendee replacement, and additive attendee updates. (#881) — thanks @titus7490.
+
 ## 0.31.0 - 2026-06-24
 
 - Calendar: add `calendar changed` for listing recently modified events, including cancellations, across one or more calendars. (#875) — thanks @sorenisanerd.
